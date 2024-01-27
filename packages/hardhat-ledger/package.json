@@ -1,6 +1,10 @@
 {
   "name": "@nomicfoundation/hardhat-ledger",
+<<<<<<< HEAD
   "version": "1.1.0",
+=======
+  "version": "1.0.1",
+>>>>>>> fac1221b81 ("hardhat": patch)
   "description": "Hardhat plugin for the Ledger hardware wallet",
   "homepage": "https://github.com/nomicfoundation/hardhat/tree/main/packages/hardhat-ledger",
   "repository": "github:nomicfoundation/hardhat",
@@ -35,11 +39,18 @@
     "README.md"
   ],
   "dependencies": {
+<<<<<<< HEAD
     "@ethereumjs/util": "^9.1.0",
+=======
+>>>>>>> fac1221b81 ("hardhat": patch)
     "@ledgerhq/errors": "^6.12.6",
     "@ledgerhq/hw-app-eth": "6.33.6",
     "@ledgerhq/hw-transport": "^6.28.4",
     "@ledgerhq/hw-transport-node-hid": "^6.27.13",
+<<<<<<< HEAD
+=======
+    "@nomicfoundation/ethereumjs-util": "9.0.2",
+>>>>>>> fac1221b81 ("hardhat": patch)
     "chalk": "^2.4.2",
     "debug": "^4.1.1",
     "env-paths": "^2.2.0",
@@ -54,7 +65,11 @@
     "@types/chai": "^4.2.0",
     "@types/fs-extra": "^5.1.0",
     "@types/mocha": ">=9.1.0",
+<<<<<<< HEAD
     "@types/node": "^18.0.0",
+=======
+    "@types/node": "^16.0.0",
+>>>>>>> fac1221b81 ("hardhat": patch)
     "@types/sinon": "^9.0.8",
     "@typescript-eslint/eslint-plugin": "5.61.0",
     "@typescript-eslint/parser": "5.61.0",
@@ -62,7 +77,11 @@
     "eslint": "^8.44.0",
     "eslint-config-prettier": "8.3.0",
     "eslint-plugin-import": "2.27.5",
+<<<<<<< HEAD
     "eslint-plugin-mocha": "10.4.1",
+=======
+    "eslint-plugin-no-only-tests": "3.0.0",
+>>>>>>> fac1221b81 ("hardhat": patch)
     "eslint-plugin-prettier": "3.4.0",
     "hardhat": "workspace:^2.16.0",
     "mocha": "^10.0.0",
@@ -74,6 +93,10 @@
     "typescript": "~5.0.0"
   },
   "peerDependencies": {
+<<<<<<< HEAD
     "hardhat": "workspace:^2.16.0"
+=======
+    "hardhat": "^2.16.0"
+>>>>>>> fac1221b81 ("hardhat": patch)
   }
 }

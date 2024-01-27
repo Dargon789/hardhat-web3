@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 import type { Dispatcher } from "undici/types";
+=======
+>>>>>>> fac1221b81 ("hardhat": patch)
 import type {
   SourcifyIsVerifiedResponse,
   SourcifyVerifyResponse,
@@ -6,8 +9,12 @@ import type {
 
 import {
   ContractVerificationInvalidStatusCodeError,
+<<<<<<< HEAD
   NetworkRequestError,
   VerificationAPIUnexpectedMessageError,
+=======
+  UnexpectedError,
+>>>>>>> fac1221b81 ("hardhat": patch)
 } from "./errors";
 import { isSuccessStatusCode, sendGetRequest, sendPostRequest } from "./undici";
 import { ContractStatus } from "./sourcify.types";
@@ -30,6 +37,7 @@ export class Sourcify {
     const url = new URL(`${this.apiUrl}/check-all-by-addresses`);
     url.search = parameters.toString();
 
+<<<<<<< HEAD
     let response: Dispatcher.ResponseData | undefined;
     let json: SourcifyIsVerifiedResponse[] | undefined;
     try {
@@ -77,6 +85,55 @@ export class Sourcify {
     throw new VerificationAPIUnexpectedMessageError(
       `Unexpected response body: ${JSON.stringify(json)}`
     );
+=======
+    try {
+      const response = await sendGetRequest(url);
+      const json = (await response.body.json()) as SourcifyIsVerifiedResponse[];
+
+      if (!isSuccessStatusCode(response.statusCode)) {
+        throw new ContractVerificationInvalidStatusCodeError(
+          url.toString(),
+          response.statusCode,
+          JSON.stringify(json)
+        );
+      }
+
+      if (!Array.isArray(json)) {
+        throw new Error(`Unexpected response body: ${JSON.stringify(json)}`);
+      }
+
+      const contract = json.find(
+        (match) => match.address.toLowerCase() === address.toLowerCase()
+      );
+      if (contract === undefined) {
+        return false;
+      }
+
+      if (
+        "status" in contract &&
+        contract.status === ContractStatus.NOT_FOUND
+      ) {
+        return false;
+      }
+
+      if ("chainIds" in contract && contract.chainIds.length === 1) {
+        const { status } = contract.chainIds[0];
+        if (
+          status === ContractStatus.PERFECT ||
+          status === ContractStatus.PARTIAL
+        ) {
+          return status;
+        }
+      }
+
+      throw new Error(`Unexpected response body: ${JSON.stringify(json)}`);
+    } catch (e) {
+      if (e instanceof ContractVerificationInvalidStatusCodeError) {
+        throw e;
+      }
+      throw new UnexpectedError(e, "Sourcify.isVerified");
+    }
+>>>>>>> fac1221b81 ("hardhat": patch)
   }
 
   // https://sourcify.dev/server/api-docs/#/Stateless%20Verification/post_verify
@@ -96,6 +153,7 @@ export class Sourcify {
     }
 
     const url = new URL(this.apiUrl);
+<<<<<<< HEAD
 
     let response: Dispatcher.ResponseData | undefined;
     let json: SourcifyVerifyResponse | undefined;
@@ -125,6 +183,35 @@ export class Sourcify {
     }
 
     return sourcifyResponse;
+=======
+    try {
+      const response = await sendPostRequest(url, JSON.stringify(parameters), {
+        "Content-Type": "application/json",
+      });
+      const json = (await response.body.json()) as SourcifyVerifyResponse;
+
+      if (!isSuccessStatusCode(response.statusCode)) {
+        throw new ContractVerificationInvalidStatusCodeError(
+          url.toString(),
+          response.statusCode,
+          JSON.stringify(json)
+        );
+      }
+
+      const sourcifyResponse = new SourcifyResponse(json);
+
+      if (!sourcifyResponse.isOk()) {
+        throw new Error(`Verify response is not ok: ${JSON.stringify(json)}`);
+      }
+
+      return sourcifyResponse;
+    } catch (e) {
+      if (e instanceof ContractVerificationInvalidStatusCodeError) {
+        throw e;
+      }
+      throw new UnexpectedError(e, "Sourcify.verify");
+    }
+>>>>>>> fac1221b81 ("hardhat": patch)
   }
 
   public getContractUrl(

@@ -64,10 +64,17 @@ describe("Integration tests", function () {
         const fromAddress = fromWalletClient.account.address;
         const toAddress = toWalletClient.account.address;
 
+<<<<<<< HEAD
         const fromBalanceBefore = await publicClient.getBalance({
           address: fromAddress,
         });
         const toBalanceBefore = await publicClient.getBalance({
+=======
+        const fromBalanceBefore: bigint = await publicClient.getBalance({
+          address: fromAddress,
+        });
+        const toBalanceBefore: bigint = await publicClient.getBalance({
+>>>>>>> fac1221b81 ("hardhat": patch)
           address: toAddress,
         });
 
@@ -79,10 +86,17 @@ describe("Integration tests", function () {
         const receipt = await publicClient.waitForTransactionReceipt({ hash });
         const transactionFee = receipt.gasUsed * receipt.effectiveGasPrice;
 
+<<<<<<< HEAD
         const fromBalanceAfter = await publicClient.getBalance({
           address: fromAddress,
         });
         const toBalanceAfter = await publicClient.getBalance({
+=======
+        const fromBalanceAfter: bigint = await publicClient.getBalance({
+          address: fromAddress,
+        });
+        const toBalanceAfter: bigint = await publicClient.getBalance({
+>>>>>>> fac1221b81 ("hardhat": patch)
           address: toAddress,
         });
 
@@ -141,7 +155,11 @@ describe("Integration tests", function () {
         const contract = await this.hre.viem.deployContract(
           "WithoutConstructorArgs",
           [],
+<<<<<<< HEAD
           { client: { wallet: secondWalletClient } }
+=======
+          { walletClient: secondWalletClient }
+>>>>>>> fac1221b81 ("hardhat": patch)
         );
 
         const owner = await contract.read.getOwner();
@@ -181,6 +199,7 @@ describe("Integration tests", function () {
         );
       });
 
+<<<<<<< HEAD
       it("should be able to deploy a contract with normal library linked", async function () {
         const normalLibContract = await this.hre.viem.deployContract(
           "NormalLib"
@@ -234,6 +253,8 @@ describe("Integration tests", function () {
         await expect(contract.read.getNumber([5n])).to.eventually.equal(10n);
       });
 
+=======
+>>>>>>> fac1221b81 ("hardhat": patch)
       it("should throw an error if the contract address can't be retrieved", async function () {
         const publicClient = await this.hre.viem.getPublicClient();
         sinon.stub(publicClient, "waitForTransactionReceipt").returns(
@@ -331,6 +352,7 @@ describe("Integration tests", function () {
           "deployContract does not support 0 confirmations. Use sendDeploymentTransaction if you want to handle the deployment transaction yourself."
         );
       });
+<<<<<<< HEAD
 
       it("should throw if there are any missing libraries", async function () {
         await expect(
@@ -426,6 +448,8 @@ To fix this, choose one of these fully qualified library names and replace where
 
         await expect(contract.read.getNumber([])).to.eventually.equal(64n);
       });
+=======
+>>>>>>> fac1221b81 ("hardhat": patch)
     });
 
     describe("sendDeploymentTransaction", function () {
@@ -449,6 +473,7 @@ To fix this, choose one of these fully qualified library names and replace where
         assert.equal(data, 50n);
       });
     });
+<<<<<<< HEAD
 
     it("should return the contract with linked libraries and the deployment transaction", async function () {
       const publicClient = await this.hre.viem.getPublicClient();
@@ -481,6 +506,8 @@ To fix this, choose one of these fully qualified library names and replace where
 
       await expect(contract.read.getNumber([50n])).to.eventually.equal(100n);
     });
+=======
+>>>>>>> fac1221b81 ("hardhat": patch)
   });
 
   describe("Contract type generation", function () {

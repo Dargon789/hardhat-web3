@@ -140,10 +140,17 @@ export const builtinChains: ChainConfig[] = [
   },
   {
     network: "polygonZkEVMTestnet",
+<<<<<<< HEAD
     chainId: 2442,
     urls: {
       apiURL: "https://api-cardona-zkevm.polygonscan.com/api",
       browserURL: "https://cardona-zkevm.polygonscan.com",
+=======
+    chainId: 1442,
+    urls: {
+      apiURL: "https://api-testnet-zkevm.polygonscan.com/api",
+      browserURL: "https://testnet-zkevm.polygonscan.com",
+>>>>>>> fac1221b81 ("hardhat": patch)
     },
   },
   {
@@ -171,6 +178,7 @@ export const builtinChains: ChainConfig[] = [
     },
   },
   {
+<<<<<<< HEAD
     network: "holesky",
     chainId: 17000,
     urls: {
@@ -179,6 +187,8 @@ export const builtinChains: ChainConfig[] = [
     },
   },
   {
+=======
+>>>>>>> fac1221b81 ("hardhat": patch)
     network: "arbitrumOne",
     chainId: 42161,
     urls: {
@@ -203,6 +213,7 @@ export const builtinChains: ChainConfig[] = [
     },
   },
   {
+<<<<<<< HEAD
     network: "ink",
     chainId: 57073,
     urls: {
@@ -211,6 +222,8 @@ export const builtinChains: ChainConfig[] = [
     },
   },
   {
+=======
+>>>>>>> fac1221b81 ("hardhat": patch)
     network: "polygonMumbai",
     chainId: 80001,
     urls: {
@@ -219,6 +232,7 @@ export const builtinChains: ChainConfig[] = [
     },
   },
   {
+<<<<<<< HEAD
     network: "polygonAmoy",
     chainId: 80002,
     urls: {
@@ -227,6 +241,8 @@ export const builtinChains: ChainConfig[] = [
     },
   },
   {
+=======
+>>>>>>> fac1221b81 ("hardhat": patch)
     network: "baseGoerli",
     chainId: 84531,
     urls: {
@@ -235,6 +251,7 @@ export const builtinChains: ChainConfig[] = [
     },
   },
   {
+<<<<<<< HEAD
     network: "baseSepolia",
     chainId: 84532,
     urls: {
@@ -256,6 +273,21 @@ export const builtinChains: ChainConfig[] = [
     urls: {
       apiURL: "https://explorer-sepolia.inkonchain.com/api/v2",
       browserURL: "https://explorer-sepolia.inkonchain.com/",
+=======
+    network: "arbitrumTestnet",
+    chainId: 421611,
+    urls: {
+      apiURL: "https://api-testnet.arbiscan.io/api",
+      browserURL: "https://testnet.arbiscan.io/",
+    },
+  },
+  {
+    network: "arbitrumGoerli",
+    chainId: 421613,
+    urls: {
+      apiURL: "https://api-goerli.arbiscan.io/api",
+      browserURL: "https://goerli.arbiscan.io/",
+>>>>>>> fac1221b81 ("hardhat": patch)
     },
   },
   {

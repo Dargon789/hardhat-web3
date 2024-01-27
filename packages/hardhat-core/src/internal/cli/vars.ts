@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import picocolors from "picocolors";
+=======
+import chalk from "chalk";
+>>>>>>> fac1221b81 ("hardhat": patch)
 import debug from "debug";
 import { HardhatError, assertHardhatInvariant } from "../core/errors";
 import { ERRORS } from "../core/errors-list";
@@ -35,7 +39,11 @@ export async function handleVars(
     case "setup":
       return setup(configPath);
     default:
+<<<<<<< HEAD
       console.error(picocolors.red(`Invalid task '${taskDefinition.name}'`));
+=======
+      console.error(chalk.red(`Invalid task '${taskDefinition.name}'`));
+>>>>>>> fac1221b81 ("hardhat": patch)
       return 1; // Error code
   }
 }
@@ -65,7 +73,11 @@ function get(key: string): number {
   }
 
   console.warn(
+<<<<<<< HEAD
     picocolors.yellow(
+=======
+    chalk.yellow(
+>>>>>>> fac1221b81 ("hardhat": patch)
       `The configuration variable '${key}' is not set in ${HardhatContext.getHardhatContext().varsManager.getStoragePath()}`
     )
   );
@@ -88,7 +100,11 @@ function list(): number {
   } else {
     if (process.stdout.isTTY) {
       console.warn(
+<<<<<<< HEAD
         picocolors.yellow(
+=======
+        chalk.yellow(
+>>>>>>> fac1221b81 ("hardhat": patch)
           `There are no configuration variables stored in ${varsStoragePath}`
         )
       );
@@ -112,7 +128,11 @@ function del(key: string): number {
   }
 
   console.warn(
+<<<<<<< HEAD
     picocolors.yellow(
+=======
+    chalk.yellow(
+>>>>>>> fac1221b81 ("hardhat": patch)
       `There is no configuration variable '${key}' to delete from ${varsStoragePath}`
     )
   );
@@ -137,7 +157,11 @@ function setup(configPath: string | undefined) {
     loadConfigFile(configPath);
   } catch (err: any) {
     console.error(
+<<<<<<< HEAD
       picocolors.red(
+=======
+      chalk.red(
+>>>>>>> fac1221b81 ("hardhat": patch)
         "There is an error in your Hardhat configuration file. Please double check it.\n"
       )
     );
@@ -187,7 +211,11 @@ function listVarsToSetup(varsManagerSetup: VarsManagerSetup) {
 
   if (requiredKeysToSet.length === 0 && optionalKeysToSet.length === 0) {
     console.log(
+<<<<<<< HEAD
       picocolors.green(
+=======
+      chalk.green(
+>>>>>>> fac1221b81 ("hardhat": patch)
         "There are no configuration variables that need to be set for this project"
       )
     );
@@ -198,7 +226,11 @@ function listVarsToSetup(varsManagerSetup: VarsManagerSetup) {
 
   if (requiredKeysToSet.length > 0) {
     console.log(
+<<<<<<< HEAD
       picocolors.bold(
+=======
+      chalk.bold(
+>>>>>>> fac1221b81 ("hardhat": patch)
         `${emoji("❗ ")}The following configuration variables need to be set:\n`
       )
     );
@@ -210,7 +242,11 @@ function listVarsToSetup(varsManagerSetup: VarsManagerSetup) {
 
   if (optionalKeysToSet.length > 0) {
     console.log(
+<<<<<<< HEAD
       picocolors.bold(
+=======
+      chalk.bold(
+>>>>>>> fac1221b81 ("hardhat": patch)
         `${emoji("💡 ")}The following configuration variables are optional:\n`
       )
     );
@@ -237,7 +273,11 @@ function printAlreadySetKeys(varsManagerSetup: VarsManagerSetup) {
   }
 
   console.log(
+<<<<<<< HEAD
     `${picocolors.bold(`${emoji("✔️  ")}Configuration variables already set:`)}`
+=======
+    `${chalk.bold(`${emoji("✔️  ")}Configuration variables already set:`)}`
+>>>>>>> fac1221b81 ("hardhat": patch)
   );
   console.log();
 

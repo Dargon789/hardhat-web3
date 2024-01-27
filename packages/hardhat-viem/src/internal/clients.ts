@@ -13,6 +13,7 @@ import type {
   WalletClient,
 } from "../types";
 
+<<<<<<< HEAD
 async function getParameters<TConfig extends {} | undefined>(
   chain: Chain,
   config: TConfig
@@ -33,6 +34,8 @@ async function getParameters<TConfig extends {} | undefined>(
   };
 }
 
+=======
+>>>>>>> fac1221b81 ("hardhat": patch)
 /**
  * Get a PublicClient instance. This is a read-only client that can be used to
  * query the blockchain.
@@ -56,6 +59,7 @@ export async function innerGetPublicClient(
   publicClientConfig?: Partial<PublicClientConfig>
 ): Promise<PublicClient> {
   const viem = await import("viem");
+<<<<<<< HEAD
   const { clientParameters, transportParameters } = await getParameters(
     chain,
     publicClientConfig
@@ -65,6 +69,18 @@ export async function innerGetPublicClient(
     chain,
     transport: viem.custom(provider, transportParameters),
     ...clientParameters,
+=======
+  const { isDevelopmentNetwork } = await import("./chains");
+  const defaultParameters = isDevelopmentNetwork(chain.id)
+    ? { pollingInterval: 50, cacheTime: 0 }
+    : {};
+  const parameters = { ...defaultParameters, ...publicClientConfig };
+
+  const publicClient = viem.createPublicClient({
+    chain,
+    transport: viem.custom(provider),
+    ...parameters,
+>>>>>>> fac1221b81 ("hardhat": patch)
   });
 
   return publicClient;
@@ -73,7 +89,11 @@ export async function innerGetPublicClient(
 /**
  * Get a list of WalletClient instances. These are read-write clients that can
  * be used to send transactions to the blockchain. Each client is associated
+<<<<<<< HEAD
  * with an account obtained from the provider using `eth_accounts`.
+=======
+ * with a an account obtained from the provider using `eth_accounts`.
+>>>>>>> fac1221b81 ("hardhat": patch)
  *
  * @param provider The Ethereum provider used to connect to the blockchain.
  * @param walletClientConfig Optional configuration for the WalletClient instances. See the viem documentation for more information.
@@ -97,17 +117,30 @@ export async function innerGetWalletClients(
   walletClientConfig?: Partial<WalletClientConfig>
 ): Promise<WalletClient[]> {
   const viem = await import("viem");
+<<<<<<< HEAD
   const { clientParameters, transportParameters } = await getParameters(
     chain,
     walletClientConfig
   );
+=======
+  const { isDevelopmentNetwork } = await import("./chains");
+  const defaultParameters = isDevelopmentNetwork(chain.id)
+    ? { pollingInterval: 50, cacheTime: 0 }
+    : {};
+  const parameters = { ...defaultParameters, ...walletClientConfig };
+>>>>>>> fac1221b81 ("hardhat": patch)
 
   const walletClients = accounts.map((account) =>
     viem.createWalletClient({
       chain,
       account,
+<<<<<<< HEAD
       transport: viem.custom(provider, transportParameters),
       ...clientParameters,
+=======
+      transport: viem.custom(provider),
+      ...parameters,
+>>>>>>> fac1221b81 ("hardhat": patch)
     })
   );
 
@@ -160,16 +193,26 @@ export async function innerGetTestClient(
   testClientConfig?: Partial<TestClientConfig>
 ): Promise<TestClient> {
   const viem = await import("viem");
+<<<<<<< HEAD
   const { clientParameters, transportParameters } = await getParameters(
     chain,
     testClientConfig
   );
+=======
+  const defaultParameters = { pollingInterval: 50, cacheTime: 0 };
+  const parameters = { ...defaultParameters, ...testClientConfig };
+>>>>>>> fac1221b81 ("hardhat": patch)
 
   const testClient = viem.createTestClient({
     mode,
     chain,
+<<<<<<< HEAD
     transport: viem.custom(provider, transportParameters),
     ...clientParameters,
+=======
+    transport: viem.custom(provider),
+    ...parameters,
+>>>>>>> fac1221b81 ("hardhat": patch)
   });
 
   return testClient;

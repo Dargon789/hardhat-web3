@@ -200,7 +200,11 @@ describe("LedgerProvider", () => {
 
     it("should start the paths cache with what the cache returns", async () => {
       const newPaths = {
+<<<<<<< HEAD
         "0xe149ff2797adc146aa2d68d3df3e819c3c38e762": "m/44'/60'/0'/0/0",
+=======
+        "0xe149ff2797adc146aa2d68d3df3e819c3c38e762": "44'/60'/0'/0/0",
+>>>>>>> fac1221b81 ("hardhat": patch)
       };
       const oldPaths = { ...provider.paths }; // new object
 
@@ -253,7 +257,11 @@ describe("LedgerProvider", () => {
 
       initSpy = sinon.spy(provider, "init");
 
+<<<<<<< HEAD
       path = "m/44'/60'/1'/0/0";
+=======
+      path = "44'/60'/1'/0/0";
+>>>>>>> fac1221b81 ("hardhat": patch)
       account = {
         address: accounts[1],
         publicKey: "0x1",
@@ -565,8 +573,13 @@ describe("LedgerProvider", () => {
         await requestPersonalSign();
 
         sinon.assert.calledTwice(ethInstanceStub.getAddress);
+<<<<<<< HEAD
         sinon.assert.calledWith(ethInstanceStub.getAddress, "m/44'/60'/0'/0/0");
         sinon.assert.calledWith(ethInstanceStub.getAddress, "m/44'/60'/1'/0/0");
+=======
+        sinon.assert.calledWith(ethInstanceStub.getAddress, "44'/60'/0'/0/0");
+        sinon.assert.calledWith(ethInstanceStub.getAddress, "44'/60'/1'/0/0");
+>>>>>>> fac1221b81 ("hardhat": patch)
       });
 
       it("should cache the path per address on the paths property", async () => {
@@ -606,7 +619,11 @@ describe("LedgerProvider", () => {
         try {
           await requestPersonalSign();
         } catch (error) {
+<<<<<<< HEAD
           const errorPath = "m/44'/60'/0'/0/0";
+=======
+          const errorPath = "44'/60'/0'/0/0";
+>>>>>>> fac1221b81 ("hardhat": patch)
           if (!HardhatLedgerDerivationPathError.instanceOf(error)) {
             assert.fail("Expected a DerivationPathError");
           }
@@ -626,14 +643,22 @@ describe("LedgerProvider", () => {
           }));
           await requestPersonalSign();
         } catch (error) {
+<<<<<<< HEAD
           const errorPath = `m/44'/60'/${LedgerProvider.MAX_DERIVATION_ACCOUNTS}'/0/0`;
+=======
+          const errorPath = `44'/60'/${LedgerProvider.MAX_DERIVATION_ACCOUNTS}'/0/0`;
+>>>>>>> fac1221b81 ("hardhat": patch)
           if (!HardhatLedgerDerivationPathError.instanceOf(error)) {
             assert.fail("Expected a DerivationPathError");
           }
           assert.equal(error.path, errorPath);
           assert.equal(
             (error as HardhatLedgerDerivationPathError).message,
+<<<<<<< HEAD
             `Could not find a valid derivation path for ${accounts[1]}. Paths from m/44'/60'/0'/0/0 to ${errorPath} were searched.`
+=======
+            `Could not find a valid derivation path for ${accounts[1]}. Paths from m/44'/60'/0'/0/0 to m/${errorPath} were searched.`
+>>>>>>> fac1221b81 ("hardhat": patch)
           );
         }
       });
@@ -700,13 +725,21 @@ describe("LedgerProvider", () => {
           sinon.assert.calledWithExactly(
             emitSpy,
             "derivation_progress",
+<<<<<<< HEAD
             "m/44'/60'/0'/0/0",
+=======
+            "44'/60'/0'/0/0",
+>>>>>>> fac1221b81 ("hardhat": patch)
             0
           );
           sinon.assert.calledWithExactly(
             emitSpy,
             "derivation_progress",
+<<<<<<< HEAD
             "m/44'/60'/1'/0/0",
+=======
+            "44'/60'/1'/0/0",
+>>>>>>> fac1221b81 ("hardhat": patch)
             1
           );
         });
@@ -716,7 +749,11 @@ describe("LedgerProvider", () => {
           sinon.assert.calledWithExactly(
             emitSpy,
             "derivation_success",
+<<<<<<< HEAD
             "m/44'/60'/1'/0/0"
+=======
+            "44'/60'/1'/0/0"
+>>>>>>> fac1221b81 ("hardhat": patch)
           );
         });
 

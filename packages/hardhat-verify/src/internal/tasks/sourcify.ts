@@ -4,7 +4,11 @@ import type {
   LibraryToAddress,
 } from "../solc/artifacts";
 
+<<<<<<< HEAD
 import picocolors from "picocolors";
+=======
+import chalk from "chalk";
+>>>>>>> fac1221b81 ("hardhat": patch)
 import { subtask, types } from "hardhat/config";
 import { isFullyQualifiedName } from "hardhat/utils/contract-names";
 import { HARDHAT_NETWORK_NAME } from "hardhat/plugins";
@@ -83,8 +87,12 @@ subtask(TASK_VERIFY_SOURCIFY)
     if (status !== false) {
       const contractURL = sourcify.getContractUrl(address, status);
       console.log(`The contract ${address} has already been verified on Sourcify.
+<<<<<<< HEAD
 ${contractURL}
 `);
+=======
+${contractURL}`);
+>>>>>>> fac1221b81 ("hardhat": patch)
       return;
     }
 
@@ -211,20 +219,32 @@ subtask(TASK_VERIFY_SOURCIFY_ATTEMPT_VERIFICATION)
           response.status
         );
         console.log(`Successfully verified contract ${contractName} on Sourcify.
+<<<<<<< HEAD
 ${contractURL}
 `);
+=======
+${contractURL}`);
+>>>>>>> fac1221b81 ("hardhat": patch)
       }
 
       return {
         success: response.isSuccess(),
+<<<<<<< HEAD
         message: "Contract successfully verified on Sourcify",
+=======
+        message: "Contract successfuly verified on Sourcify",
+>>>>>>> fac1221b81 ("hardhat": patch)
       };
     }
   );
 
 subtask(TASK_VERIFY_SOURCIFY_DISABLED_WARNING, async () => {
   console.info(
+<<<<<<< HEAD
     picocolors.cyan(
+=======
+    chalk.cyan(
+>>>>>>> fac1221b81 ("hardhat": patch)
       `[INFO] Sourcify Verification Skipped: Sourcify verification is currently disabled. To enable it, add the following entry to your Hardhat configuration:
 
 sourcify: {

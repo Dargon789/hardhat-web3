@@ -10,7 +10,11 @@ import {
 describe("HardhatLedgerError", () => {
   it("should set the plugin name of the error", () => {
     const error = new HardhatLedgerError("");
+<<<<<<< HEAD
     assert.equal(error.pluginName, "@nomicfoundation/hardhat-ledger");
+=======
+    assert.equal(error.pluginName, "@nomiclabs/hardhat-ledger");
+>>>>>>> fac1221b81 ("hardhat": patch)
   });
 
   it("should set the message of the error", () => {
@@ -53,7 +57,11 @@ describe("HardhatLedgerDerivationPathError", () => {
   });
 
   it("should store the path", () => {
+<<<<<<< HEAD
     const path = "m/44'/60'/0'/0/0";
+=======
+    const path = "44'/60'/0'/0/0";
+>>>>>>> fac1221b81 ("hardhat": patch)
     const error = new HardhatLedgerDerivationPathError("", path);
     assert.equal(error.path, path);
   });

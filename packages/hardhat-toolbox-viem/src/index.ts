@@ -1,6 +1,9 @@
 import "@nomicfoundation/hardhat-verify";
 import "@nomicfoundation/hardhat-viem";
+<<<<<<< HEAD
 import "@nomicfoundation/hardhat-ignition-viem";
+=======
+>>>>>>> fac1221b81 ("hardhat": patch)
 import "hardhat-gas-reporter";
 import "solidity-coverage";
 import "./internal/chai-setup";

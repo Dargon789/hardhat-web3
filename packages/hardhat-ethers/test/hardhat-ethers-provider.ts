@@ -1,8 +1,11 @@
 import { assert, use } from "chai";
 import chaiAsPromised from "chai-as-promised";
 
+<<<<<<< HEAD
 import { EthereumProvider } from "hardhat/types/provider";
 import { HardhatEthersProvider } from "../src/internal/hardhat-ethers-provider";
+=======
+>>>>>>> fac1221b81 ("hardhat": patch)
 import { ExampleContract, EXAMPLE_CONTRACT } from "./example-contracts";
 import { usePersistentEnvironment } from "./environment";
 import { assertIsNotNull, assertWithin } from "./helpers";
@@ -79,7 +82,11 @@ describe("hardhat ethers provider", function () {
 
     it("should work for impersonated accounts", async function () {
       const [s] = await this.env.ethers.getSigners();
+<<<<<<< HEAD
       const randomAddress = "0xe7d45f52130a5634f19346a3e5d32994ad821750";
+=======
+      const randomAddress = "0xf965cceab9374d9f961581b6e38942e45e1cfeae";
+>>>>>>> fac1221b81 ("hardhat": patch)
 
       await s.sendTransaction({
         to: randomAddress,
@@ -119,6 +126,7 @@ describe("hardhat ethers provider", function () {
     assert.strictEqual(network.chainId, 31337n);
   });
 
+<<<<<<< HEAD
   describe("getFeeData", function () {
     it("should return fee data", async function () {
       const feeData = await this.env.ethers.provider.getFeeData();
@@ -196,6 +204,14 @@ describe("hardhat ethers provider", function () {
 
       assert.equal(feeData.maxPriorityFeePerGas, 4_000_000_000n);
     });
+=======
+  it("should return fee data", async function () {
+    const feeData = await this.env.ethers.provider.getFeeData();
+
+    assert.typeOf(feeData.gasPrice, "bigint");
+    assert.typeOf(feeData.maxFeePerGas, "bigint");
+    assert.typeOf(feeData.maxPriorityFeePerGas, "bigint");
+>>>>>>> fac1221b81 ("hardhat": patch)
   });
 
   describe("getBalance", function () {

@@ -1,5 +1,6 @@
 # @nomicfoundation/hardhat-toolbox-viem
 
+<<<<<<< HEAD
 ## 3.0.0
 
 ### Major Changes
@@ -11,6 +12,8 @@
 
 - Updated dependencies [92d140f]
 
+=======
+>>>>>>> fac1221b81 ("hardhat": patch)
 ## 2.0.0
 
 ### Major Changes

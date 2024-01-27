@@ -3,8 +3,13 @@
  * @author Nomic Foundation
  */
 "use strict";
+<<<<<<< HEAD
 const fs = require("fs");
 const { isBuiltin } = require("module");
+=======
+const fs = require("node:fs");
+const { isBuiltin } = require("node:module");
+>>>>>>> fac1221b81 ("hardhat": patch)
 const { relative } = require("eslint-module-utils/resolve");
 const parse = require("eslint-module-utils/parse").default;
 const visit = require("eslint-module-utils/visit").default;

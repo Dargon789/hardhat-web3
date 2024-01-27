@@ -54,6 +54,11 @@ module.exports = {
   },
 };
 
+<<<<<<< HEAD
 function isHardhatError(expression, typeChecker) {
   return getExpressionClassName(expression, typeChecker) === "HardhatError";
+=======
+function isHardhatError(expression, tc) {
+  return getExpressionClassName(expression, tc) === "HardhatError";
+>>>>>>> fac1221b81 ("hardhat": patch)
 }

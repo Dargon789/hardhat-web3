@@ -1,5 +1,9 @@
 module.exports.slowImportsCommonIgnoredModules = [
+<<<<<<< HEAD
   "picocolors",
+=======
+  "chalk",
+>>>>>>> fac1221b81 ("hardhat": patch)
   "debug",
   "find-up",
   "fs-extra",

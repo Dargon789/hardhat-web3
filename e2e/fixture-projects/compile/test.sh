@@ -4,7 +4,11 @@
 set -e
 
 # import helpers functions
+<<<<<<< HEAD
 . ../helpers.sh
+=======
+. ../../helpers.sh
+>>>>>>> fac1221b81 ("hardhat": patch)
 
 echo "Running tests: $(basename "$(pwd)")"
 

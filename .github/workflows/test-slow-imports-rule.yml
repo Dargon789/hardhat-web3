@@ -3,8 +3,11 @@
 # that we got a non-zero exit code. It's not a completely fault-proof strategy,
 # but it's an useful smoke test.
 name: Slow imports rule check
+<<<<<<< HEAD
 permissions:
   contents: read
+=======
+>>>>>>> fac1221b81 ("hardhat": patch)
 
 on:
   schedule:
@@ -23,8 +26,19 @@ jobs:
     name: Check that the slow-imports rule works correctly
     runs-on: "ubuntu-latest"
     steps:
+<<<<<<< HEAD
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-env
+=======
+      - uses: actions/checkout@v2
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          cache: "pnpm"
+>>>>>>> fac1221b81 ("hardhat": patch)
       - name: Install
         run: pnpm install --frozen-lockfile --prefer-offline
       - name: Add slow import

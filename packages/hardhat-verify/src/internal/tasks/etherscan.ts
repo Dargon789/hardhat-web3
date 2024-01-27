@@ -26,8 +26,11 @@ import {
   InvalidContractNameError,
   UnexpectedNumberOfFilesError,
   VerificationAPIUnexpectedMessageError,
+<<<<<<< HEAD
   ContractAlreadyVerifiedError,
   NetworkRequestError,
+=======
+>>>>>>> fac1221b81 ("hardhat": patch)
 } from "../errors";
 import { Etherscan } from "../etherscan";
 import { Bytecode } from "../solc/bytecode";
@@ -52,7 +55,10 @@ interface VerificationArgs {
   constructorArgs: string[];
   libraries: LibraryToAddress;
   contractFQN?: string;
+<<<<<<< HEAD
   force: boolean;
+=======
+>>>>>>> fac1221b81 ("hardhat": patch)
 }
 
 interface GetMinimalInputArgs {
@@ -79,14 +85,20 @@ subtask(TASK_VERIFY_ETHERSCAN)
   .addOptionalParam("constructorArgs")
   .addOptionalParam("libraries", undefined, undefined, types.any)
   .addOptionalParam("contract")
+<<<<<<< HEAD
   .addFlag("force")
+=======
+>>>>>>> fac1221b81 ("hardhat": patch)
   .setAction(async (taskArgs: VerifyTaskArgs, { config, network, run }) => {
     const {
       address,
       constructorArgs,
       libraries,
       contractFQN,
+<<<<<<< HEAD
       force,
+=======
+>>>>>>> fac1221b81 ("hardhat": patch)
     }: VerificationArgs = await run(
       TASK_VERIFY_ETHERSCAN_RESOLVE_ARGUMENTS,
       taskArgs
@@ -103,6 +115,7 @@ subtask(TASK_VERIFY_ETHERSCAN)
       chainConfig
     );
 
+<<<<<<< HEAD
     let isVerified = false;
     try {
       isVerified = await etherscan.isVerified(address);
@@ -117,6 +130,13 @@ subtask(TASK_VERIFY_ETHERSCAN)
       console.log(`The contract ${address} has already been verified on the block explorer. If you're trying to verify a partially verified contract, please use the --force flag.
 ${contractURL}
 `);
+=======
+    const isVerified = await etherscan.isVerified(address);
+    if (isVerified) {
+      const contractURL = etherscan.getContractUrl(address);
+      console.log(`The contract ${address} has already been verified on Etherscan.
+${contractURL}`);
+>>>>>>> fac1221b81 ("hardhat": patch)
       return;
     }
 
@@ -214,7 +234,10 @@ subtask(TASK_VERIFY_ETHERSCAN_RESOLVE_ARGUMENTS)
   .addOptionalParam("constructorArgs", undefined, undefined, types.inputFile)
   .addOptionalParam("libraries", undefined, undefined, types.any)
   .addOptionalParam("contract")
+<<<<<<< HEAD
   .addFlag("force")
+=======
+>>>>>>> fac1221b81 ("hardhat": patch)
   .setAction(
     async ({
       address,
@@ -222,7 +245,10 @@ subtask(TASK_VERIFY_ETHERSCAN_RESOLVE_ARGUMENTS)
       constructorArgs: constructorArgsModule,
       contract,
       libraries: librariesModule,
+<<<<<<< HEAD
       force,
+=======
+>>>>>>> fac1221b81 ("hardhat": patch)
     }: VerifyTaskArgs): Promise<VerificationArgs> => {
       if (address === undefined) {
         throw new MissingAddressError();
@@ -254,7 +280,10 @@ subtask(TASK_VERIFY_ETHERSCAN_RESOLVE_ARGUMENTS)
         constructorArgs,
         libraries,
         contractFQN: contract,
+<<<<<<< HEAD
         force,
+=======
+>>>>>>> fac1221b81 ("hardhat": patch)
       };
     }
   );
@@ -311,17 +340,28 @@ subtask(TASK_VERIFY_ETHERSCAN_ATTEMPT_VERIFICATION)
       // Ensure the linking information is present in the compiler input;
       compilerInput.settings.libraries = contractInformation.libraries;
 
+<<<<<<< HEAD
       const contractFQN = `${contractInformation.sourceName}:${contractInformation.contractName}`;
       const { message: guid } = await verificationInterface.verify(
         address,
         JSON.stringify(compilerInput),
         contractFQN,
+=======
+      const { message: guid } = await verificationInterface.verify(
+        address,
+        JSON.stringify(compilerInput),
+        `${contractInformation.sourceName}:${contractInformation.contractName}`,
+>>>>>>> fac1221b81 ("hardhat": patch)
         `v${contractInformation.solcLongVersion}`,
         encodedConstructorArguments
       );
 
       console.log(`Successfully submitted source code for contract
+<<<<<<< HEAD
 ${contractFQN} at ${address}
+=======
+${contractInformation.sourceName}:${contractInformation.contractName} at ${address}
+>>>>>>> fac1221b81 ("hardhat": patch)
 for verification on the block explorer. Waiting for verification result...
 `);
 
@@ -330,11 +370,14 @@ for verification on the block explorer. Waiting for verification result...
       const verificationStatus =
         await verificationInterface.getVerificationStatus(guid);
 
+<<<<<<< HEAD
       // Etherscan answers with already verified message only when checking returned guid
       if (verificationStatus.isAlreadyVerified()) {
         throw new ContractAlreadyVerifiedError(contractFQN, address);
       }
 
+=======
+>>>>>>> fac1221b81 ("hardhat": patch)
       if (!(verificationStatus.isFailure() || verificationStatus.isSuccess())) {
         // Reaching this point shouldn't be possible unless the API is behaving in a new way.
         throw new VerificationAPIUnexpectedMessageError(
@@ -345,8 +388,12 @@ for verification on the block explorer. Waiting for verification result...
       if (verificationStatus.isSuccess()) {
         const contractURL = verificationInterface.getContractUrl(address);
         console.log(`Successfully verified contract ${contractInformation.contractName} on the block explorer.
+<<<<<<< HEAD
 ${contractURL}
 `);
+=======
+${contractURL}\n`);
+>>>>>>> fac1221b81 ("hardhat": patch)
       }
 
       return {

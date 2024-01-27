@@ -1,6 +1,10 @@
 import type { EthereumProvider } from "hardhat/types";
 
+<<<<<<< HEAD
 import { assert, expect } from "chai";
+=======
+import { assert } from "chai";
+>>>>>>> fac1221b81 ("hardhat": patch)
 import * as chains from "viem/chains";
 
 import {
@@ -32,7 +36,10 @@ describe("clients", () => {
 
       assert.equal(client.pollingInterval, 1000);
       assert.equal(client.cacheTime, 2000);
+<<<<<<< HEAD
       assert.equal(client.transport.retryCount, 3);
+=======
+>>>>>>> fac1221b81 ("hardhat": patch)
     });
 
     it("should return a public client with default parameters for development networks", async () => {
@@ -42,6 +49,7 @@ describe("clients", () => {
 
       assert.equal(client.pollingInterval, 50);
       assert.equal(client.cacheTime, 0);
+<<<<<<< HEAD
       assert.equal(client.transport.retryCount, 0);
     });
 
@@ -65,6 +73,8 @@ describe("clients", () => {
         /unknown RPC error/
       );
       assert.equal(provider.calledCount, 1);
+=======
+>>>>>>> fac1221b81 ("hardhat": patch)
     });
   });
 
@@ -121,6 +131,7 @@ describe("clients", () => {
       clients.forEach((client) => {
         assert.equal(client.pollingInterval, 50);
         assert.equal(client.cacheTime, 0);
+<<<<<<< HEAD
         assert.equal(client.transport.retryCount, 0);
       });
     });
@@ -151,6 +162,11 @@ describe("clients", () => {
       assert.equal(provider.calledCount, 1);
     });
 
+=======
+      });
+    });
+
+>>>>>>> fac1221b81 ("hardhat": patch)
     it("should return an empty array if there are no accounts owned by the user", async () => {
       const provider: EthereumProvider = new EthereumMockedProvider();
 
@@ -220,6 +236,7 @@ describe("clients", () => {
 
       assert.equal(client.pollingInterval, 50);
       assert.equal(client.cacheTime, 0);
+<<<<<<< HEAD
       assert.equal(client.transport.retryCount, 0);
     });
 
@@ -236,6 +253,8 @@ describe("clients", () => {
         /unknown RPC error/
       );
       assert.equal(provider.calledCount, 1);
+=======
+>>>>>>> fac1221b81 ("hardhat": patch)
     });
   });
 });

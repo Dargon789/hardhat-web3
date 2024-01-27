@@ -1,6 +1,9 @@
 import type * as viemT from "viem";
 import type { ArtifactsMap } from "hardhat/types/artifacts";
+<<<<<<< HEAD
 import type { Libraries } from "./internal/bytecode";
+=======
+>>>>>>> fac1221b81 ("hardhat": patch)
 
 export type PublicClient = viemT.PublicClient<viemT.Transport, viemT.Chain>;
 export type WalletClient = viemT.WalletClient<
@@ -14,6 +17,7 @@ export type TestClient = viemT.TestClient<
   viemT.Chain
 >;
 
+<<<<<<< HEAD
 export type KeyedClient =
   | {
       public?: PublicClient;
@@ -24,12 +28,19 @@ export type KeyedClient =
       wallet?: WalletClient;
     };
 
+=======
+>>>>>>> fac1221b81 ("hardhat": patch)
 export type TestClientMode = Parameters<
   typeof viemT.createTestClient
 >[0]["mode"];
 
 export interface SendTransactionConfig {
+<<<<<<< HEAD
   client?: KeyedClient;
+=======
+  walletClient?: WalletClient;
+  publicClient?: PublicClient;
+>>>>>>> fac1221b81 ("hardhat": patch)
   gas?: bigint;
   gasPrice?: bigint;
   maxFeePerGas?: bigint;
@@ -39,6 +50,7 @@ export interface SendTransactionConfig {
 
 export interface DeployContractConfig extends SendTransactionConfig {
   confirmations?: number;
+<<<<<<< HEAD
   libraries?: Libraries<viemT.Address>;
 }
 
@@ -48,11 +60,29 @@ export interface SendDeploymentTransactionConfig extends SendTransactionConfig {
 
 export interface GetContractAtConfig {
   client?: KeyedClient;
+=======
+}
+
+export type SendDeploymentTransactionConfig = SendTransactionConfig;
+
+export interface GetContractAtConfig {
+  walletClient?: WalletClient;
+  publicClient?: PublicClient;
+>>>>>>> fac1221b81 ("hardhat": patch)
 }
 
 export type GetContractReturnType<
   TAbi extends viemT.Abi | readonly unknown[] = viemT.Abi
+<<<<<<< HEAD
 > = viemT.GetContractReturnType<TAbi, Required<KeyedClient>, viemT.Address>;
+=======
+> = viemT.GetContractReturnType<
+  TAbi,
+  PublicClient,
+  WalletClient,
+  viemT.Address
+>;
+>>>>>>> fac1221b81 ("hardhat": patch)
 
 export type GetTransactionReturnType = viemT.GetTransactionReturnType<
   viemT.Chain,
@@ -83,6 +113,7 @@ export declare function getContractAt<CN extends string>(
   config?: GetContractAtConfig
 ): Promise<GetContractReturnType>;
 
+<<<<<<< HEAD
 export interface HardhatViemHelpers {
   getPublicClient(
     publicClientConfig?: Partial<viemT.PublicClientConfig>
@@ -102,4 +133,6 @@ export interface HardhatViemHelpers {
   getContractAt: typeof getContractAt;
 }
 
+=======
+>>>>>>> fac1221b81 ("hardhat": patch)
 export type { AbiParameterToPrimitiveType } from "abitype";

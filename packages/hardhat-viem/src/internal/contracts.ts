@@ -13,7 +13,10 @@ import type {
   WalletClient,
 } from "../types";
 
+<<<<<<< HEAD
 import { Libraries, resolveBytecodeWithLinkedLibraries } from "./bytecode";
+=======
+>>>>>>> fac1221b81 ("hardhat": patch)
 import { getPublicClient, getWalletClients } from "./clients";
 import {
   DefaultWalletClientNotFoundError,
@@ -22,6 +25,7 @@ import {
   InvalidConfirmationsError,
 } from "./errors";
 
+<<<<<<< HEAD
 async function getContractAbiAndBytecode(
   artifacts: HardhatRuntimeEnvironment["artifacts"],
   contractName: string,
@@ -39,6 +43,8 @@ async function getContractAbiAndBytecode(
   };
 }
 
+=======
+>>>>>>> fac1221b81 ("hardhat": patch)
 export async function deployContract(
   { artifacts, network }: HardhatRuntimeEnvironment,
   contractName: string,
@@ -46,6 +52,7 @@ export async function deployContract(
   config: DeployContractConfig = {}
 ): Promise<GetContractReturnType> {
   const {
+<<<<<<< HEAD
     client,
     confirmations,
     libraries = {},
@@ -55,13 +62,30 @@ export async function deployContract(
     client?.public ?? getPublicClient(network.provider),
     client?.wallet ?? getDefaultWalletClient(network.provider, network.name),
     getContractAbiAndBytecode(artifacts, contractName, libraries),
+=======
+    walletClient: configWalletClient,
+    publicClient: configPublicClient,
+    confirmations,
+    ...deployContractParameters
+  } = config;
+  const [publicClient, walletClient, contractArtifact] = await Promise.all([
+    configPublicClient ?? getPublicClient(network.provider),
+    configWalletClient ??
+      getDefaultWalletClient(network.provider, network.name),
+    artifacts.readArtifact(contractName),
+>>>>>>> fac1221b81 ("hardhat": patch)
   ]);
 
   return innerDeployContract(
     publicClient,
     walletClient,
+<<<<<<< HEAD
     abi,
     bytecode,
+=======
+    contractArtifact.abi,
+    contractArtifact.bytecode as Hex,
+>>>>>>> fac1221b81 ("hardhat": patch)
     constructorArgs,
     deployContractParameters,
     confirmations
@@ -111,7 +135,11 @@ export async function innerDeployContract(
     confirmations,
   });
 
+<<<<<<< HEAD
   if (contractAddress === null || contractAddress === undefined) {
+=======
+  if (contractAddress === null) {
+>>>>>>> fac1221b81 ("hardhat": patch)
     const transaction = await publicClient.getTransaction({
       hash: deploymentTxHash,
     });
@@ -137,18 +165,36 @@ export async function sendDeploymentTransaction(
   contract: GetContractReturnType;
   deploymentTransaction: GetTransactionReturnType;
 }> {
+<<<<<<< HEAD
   const { client, libraries = {}, ...deployContractParameters } = config;
   const [publicClient, walletClient, { abi, bytecode }] = await Promise.all([
     client?.public ?? getPublicClient(network.provider),
     client?.wallet ?? getDefaultWalletClient(network.provider, network.name),
     getContractAbiAndBytecode(artifacts, contractName, libraries),
+=======
+  const {
+    walletClient: configWalletClient,
+    publicClient: configPublicClient,
+    ...deployContractParameters
+  } = config;
+  const [publicClient, walletClient, contractArtifact] = await Promise.all([
+    configPublicClient ?? getPublicClient(network.provider),
+    configWalletClient ??
+      getDefaultWalletClient(network.provider, network.name),
+    artifacts.readArtifact(contractName),
+>>>>>>> fac1221b81 ("hardhat": patch)
   ]);
 
   return innerSendDeploymentTransaction(
     publicClient,
     walletClient,
+<<<<<<< HEAD
     abi,
     bytecode,
+=======
+    contractArtifact.abi,
+    contractArtifact.bytecode as Hex,
+>>>>>>> fac1221b81 ("hardhat": patch)
     constructorArgs,
     deployContractParameters
   );
@@ -214,8 +260,13 @@ export async function getContractAt(
   config: GetContractAtConfig = {}
 ): Promise<GetContractReturnType> {
   const [publicClient, walletClient, contractArtifact] = await Promise.all([
+<<<<<<< HEAD
     config.client?.public ?? getPublicClient(network.provider),
     config.client?.wallet ??
+=======
+    config.publicClient ?? getPublicClient(network.provider),
+    config.walletClient ??
+>>>>>>> fac1221b81 ("hardhat": patch)
       getDefaultWalletClient(network.provider, network.name),
     artifacts.readArtifact(contractName),
   ]);
@@ -237,10 +288,15 @@ async function innerGetContractAt(
   const viem = await import("viem");
   const contract = viem.getContract({
     address,
+<<<<<<< HEAD
     client: {
       public: publicClient,
       wallet: walletClient,
     },
+=======
+    publicClient,
+    walletClient,
+>>>>>>> fac1221b81 ("hardhat": patch)
     abi: contractAbi,
   });
 

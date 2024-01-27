@@ -97,7 +97,11 @@ describe("LazyInitializationProviderAdapter", () => {
       assert.equal(callTimes, 3);
     });
 
+<<<<<<< HEAD
     it("should move the registered events to the provider after implicit initialization", async () => {
+=======
+    it("should move the registered events to the provider after initialization", async () => {
+>>>>>>> fac1221b81 ("hardhat": patch)
       provider.on("event", eventHandler);
       provider.on("otherevent", eventHandler);
       provider.once("onceevent", eventHandler);
@@ -110,6 +114,7 @@ describe("LazyInitializationProviderAdapter", () => {
 
       assert.deepEqual(callTimes, 3);
     });
+<<<<<<< HEAD
 
     it("should move the registered events to the provider after explicit initialization", async () => {
       provider.on("event", eventHandler);
@@ -124,6 +129,8 @@ describe("LazyInitializationProviderAdapter", () => {
 
       assert.deepEqual(callTimes, 3);
     });
+=======
+>>>>>>> fac1221b81 ("hardhat": patch)
   });
 
   describe("request", () => {

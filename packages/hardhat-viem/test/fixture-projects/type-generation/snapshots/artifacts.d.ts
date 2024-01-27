@@ -9,8 +9,11 @@ declare module "hardhat/types/artifacts" {
   interface ArtifactsMap {
     B: never;
   }
+<<<<<<< HEAD
 
   interface ContractTypesMap {
     B: never;
   }
+=======
+>>>>>>> fac1221b81 ("hardhat": patch)
 }

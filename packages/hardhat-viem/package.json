@@ -1,6 +1,10 @@
 {
   "name": "@nomicfoundation/hardhat-viem",
+<<<<<<< HEAD
   "version": "2.0.6",
+=======
+  "version": "1.0.2",
+>>>>>>> fac1221b81 ("hardhat": patch)
   "description": "Hardhat plugin for viem",
   "homepage": "https://github.com/nomicfoundation/hardhat/tree/main/packages/hardhat-viem",
   "repository": "github:nomicfoundation/hardhat",
@@ -46,7 +50,11 @@
     "@types/lodash": "^4.14.123",
     "@types/lodash.memoize": "^4.1.7",
     "@types/mocha": ">=9.1.0",
+<<<<<<< HEAD
     "@types/node": "^18.0.0",
+=======
+    "@types/node": "^16.0.0",
+>>>>>>> fac1221b81 ("hardhat": patch)
     "@types/sinon": "^9.0.8",
     "@typescript-eslint/eslint-plugin": "5.61.0",
     "@typescript-eslint/parser": "5.61.0",
@@ -55,7 +63,11 @@
     "eslint": "^8.44.0",
     "eslint-config-prettier": "8.3.0",
     "eslint-plugin-import": "2.27.5",
+<<<<<<< HEAD
     "eslint-plugin-mocha": "10.4.1",
+=======
+    "eslint-plugin-no-only-tests": "3.0.0",
+>>>>>>> fac1221b81 ("hardhat": patch)
     "eslint-plugin-prettier": "3.4.0",
     "hardhat": "workspace:^2.17.0",
     "jest-diff": "^29.7.0",
@@ -66,11 +78,20 @@
     "sinon": "^9.0.0",
     "ts-node": "^10.8.0",
     "typescript": "~5.0.0",
+<<<<<<< HEAD
     "viem": "^2.7.6"
   },
   "peerDependencies": {
     "hardhat": "workspace:^2.17.0",
     "viem": "^2.7.6"
+=======
+    "viem": "^1.15.1"
+  },
+  "peerDependencies": {
+    "hardhat": "^2.17.0",
+    "typescript": "~5.0.0",
+    "viem": "^1.15.1"
+>>>>>>> fac1221b81 ("hardhat": patch)
   },
   "dependencies": {
     "abitype": "^0.9.8",

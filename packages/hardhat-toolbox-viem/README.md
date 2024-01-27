@@ -6,9 +6,14 @@ The `@nomicfoundation/hardhat-toolbox-viem` plugin bundles all the commonly used
 
 When you use this plugin, you'll be able to:
 
+<<<<<<< HEAD
 - Interact with your contracts using [Viem](https://viem.sh/) and the [`hardhat-viem`](https://hardhat.org/hardhat-runner/plugins/nomicfoundation-hardhat-viem) plugin.
 - Test your contracts with [Mocha](https://mochajs.org/), [Chai](https://chaijs.com/) and [Chai as Promised](https://github.com/domenic/chai-as-promised#chai-assertions-for-promises). Note: the plugin Hardhat Chai Matchers is currently not available for Viem.
 - Deploy your contracts with [Hardhat Ignition](https://hardhat.org/ignition).
+=======
+- Deploy and interact with your contracts using [Viem](https://viem.sh/) and the [`hardhat-viem`](https://hardhat.org/hardhat-runner/plugins/nomicfoundation-hardhat-viem) plugin.
+- Test your contracts with [Mocha](https://mochajs.org/), [Chai](https://chaijs.com/) and [Chai as Promised](https://github.com/domenic/chai-as-promised#chai-assertions-for-promises). Note: the plugin Hardhat Chai Matchers is currently not available for Viem.
+>>>>>>> fac1221b81 ("hardhat": patch)
 - Interact with Hardhat Network with our [Hardhat Network Helpers](https://hardhat.org/hardhat-network-helpers).
 - Verify the source code of your contracts with the [hardhat-verify](https://hardhat.org/hardhat-runner/plugins/nomicfoundation-hardhat-verify) plugin.
 - Get metrics on the gas used by your contracts with the [hardhat-gas-reporter](https://github.com/cgewecke/hardhat-gas-reporter) plugin.

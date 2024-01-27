@@ -25,6 +25,7 @@ describe("createLedgerProvider", () => {
     const ledgerProvider = createLedgerProvider(mockedProvider, config);
 
     assert.deepEqual(ledgerProvider.options.accounts, ledgerAccounts);
+<<<<<<< HEAD
     // Did not pass a derivation function, so should be undefined
     assert.equal(ledgerProvider.options.derivationFunction, undefined);
   });
@@ -51,6 +52,8 @@ describe("createLedgerProvider", () => {
       ledgerProvider.options.derivationFunction,
       derivationFunction
     );
+=======
+>>>>>>> fac1221b81 ("hardhat": patch)
   });
 
   it("should pass the provider to the LedgerProvider", async () => {

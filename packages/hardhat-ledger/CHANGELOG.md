@@ -1,5 +1,6 @@
 # @nomicfoundation/hardhat-ledger
 
+<<<<<<< HEAD
 ## 1.1.0
 
 ### Minor Changes
@@ -19,6 +20,8 @@
 
 - f60cc9e: Fixed a problem that made `hardhat-ledger` unusable in the Hardhat console (thanks @area!).
 
+=======
+>>>>>>> fac1221b81 ("hardhat": patch)
 ## 1.0.1
 
 ### Patch Changes

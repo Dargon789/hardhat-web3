@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 #!/usr/bin/env bash
+=======
+#! /usr/bin/env sh
+>>>>>>> fac1221b81 ("hardhat": patch)
 
 # fail if any commands fails
 set -e

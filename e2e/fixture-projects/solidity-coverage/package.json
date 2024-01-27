@@ -1,6 +1,10 @@
 {
   "name": "solidity-coverage",
   "devDependencies": {
+<<<<<<< HEAD
     "@nomicfoundation/hardhat-toolbox": "^5.0.0"
+=======
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0"
+>>>>>>> fac1221b81 ("hardhat": patch)
   }
 }

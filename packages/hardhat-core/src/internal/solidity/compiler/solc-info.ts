@@ -60,11 +60,14 @@ const defaultEvmTargets: { [key: string]: string } = {
   "0.8.21": "shanghai",
   "0.8.22": "shanghai",
   "0.8.23": "shanghai",
+<<<<<<< HEAD
   "0.8.24": "shanghai",
   "0.8.25": "cancun",
   "0.8.26": "cancun",
   "0.8.27": "cancun",
   "0.8.28": "cancun",
+=======
+>>>>>>> fac1221b81 ("hardhat": patch)
 };
 
 export function getEvmVersionFromSolcVersion(

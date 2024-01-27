@@ -10,14 +10,23 @@ jobs:
     permissions:
       issues: write
     steps:
+<<<<<<< HEAD
       - uses: actions/github-script@v7
+=======
+      - uses: actions/github-script@v6
+>>>>>>> fac1221b81 ("hardhat": patch)
         with:
           script: |
             // each user has a chance of (p - (previousP ?? 0)) to be assigned
             const potentialAssignees = [
+<<<<<<< HEAD
               ["kanej", 1/4],
               ["schaable", 2/4],
               ["galargh", 3/4],
+=======
+              ["fvictorio", 0.5],
+              ["schaable", 0.75],
+>>>>>>> fac1221b81 ("hardhat": patch)
               ["ChristopherDedominici", 1.0],
             ];
 

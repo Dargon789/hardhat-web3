@@ -1,3 +1,6 @@
 packages:
   - "packages/*"
+<<<<<<< HEAD
   - "!packages/hardhat-ignition-examples"
+=======
+>>>>>>> fac1221b81 ("hardhat": patch)

@@ -1,7 +1,10 @@
+<<<<<<< HEAD
 import type EthersT from "ethers";
 import type OrdinalT from "ordinal";
 
 import { AssertWithSsfi, Ssfi } from "../utils";
+=======
+>>>>>>> fac1221b81 ("hardhat": patch)
 import { PREVIOUS_MATCHER_NAME } from "./constants";
 import {
   HardhatChaiMatchersAssertionError,
@@ -44,6 +47,7 @@ export function preventAsyncMatcherChaining(
     previousMatcherName
   );
 }
+<<<<<<< HEAD
 
 export function assertArgsArraysEqual(
   Assertion: Chai.AssertionStatic,
@@ -168,3 +172,5 @@ function innerAssertArgEqual(
     }
   }
 }
+=======
+>>>>>>> fac1221b81 ("hardhat": patch)

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 #!/usr/bin/env bash
+=======
+# !/usr/bin/env bash
+>>>>>>> fac1221b81 ("hardhat": patch)
 # fail if any commands fails
 set -e
 
@@ -21,6 +25,7 @@ create_package_json() {
 EOF
 }
 
+<<<<<<< HEAD
 assert_no_empty_files() {
   for file in $(find . -maxdepth 1 -type f); do
     if [ ! -s $file ]; then
@@ -30,16 +35,23 @@ assert_no_empty_files() {
   done
 }
 
+=======
+>>>>>>> fac1221b81 ("hardhat": patch)
 # build hardhat-core
 echo "[e2e] Building and packing hardhat-core"
 cd ../packages/hardhat-core
 pnpm install
 pnpm build
+<<<<<<< HEAD
 HARDHAT_TGZ_FILE=$(pnpm pack | grep "hardhat-*.*.*.tgz")
+=======
+HARDHAT_TGZ_FILE=$(pnpm pack)
+>>>>>>> fac1221b81 ("hardhat": patch)
 echo "[e2e] Built $HARDHAT_TGZ_FILE"
 cd - >/dev/null
 
 # create a temporary directory to run the tests
+<<<<<<< HEAD
 TMP_DIR=$(mktemp -d)
 TESTS_DIR="${TMP_DIR}/projects-initialization-tests-$(date +%Y-%m-%d-%H-%M-%S)"
 mkdir $TESTS_DIR
@@ -48,6 +60,12 @@ mkdir $TESTS_DIR
 HARDHAT_CORE_FOLDER_PATH="$(pwd)/../packages/hardhat-core"
 
 printf "[e2e] Starting e2e initialization tests in $TESTS_DIR\n\n"
+=======
+TESTS_DIR=projects-initialization-tests-$(date +%Y-%m-%d-%H-%M-%S)
+mkdir $TESTS_DIR
+
+echo "[e2e] Starting e2e initialization tests in $TESTS_DIR\n\n"
+>>>>>>> fac1221b81 ("hardhat": patch)
 
 pkg_managers="npm pnpm yarn"
 
@@ -58,6 +76,7 @@ for pkg_manager in $pkg_managers; do
 done
 
 for pkg_manager in $pkg_managers; do
+<<<<<<< HEAD
   pkg_runner=$pkg_manager
   if [ "$pkg_manager" = "npm" ]; then
     pkg_runner="npx"
@@ -69,12 +88,16 @@ for pkg_manager in $pkg_managers; do
   fi
 
   printf "\n\n[e2e] Running tests with package manager '$pkg_manager' and package runner '$pkg_runner'\n"
+=======
+  echo "\n\n[e2e] Running tests with package manager: $pkg_manager"
+>>>>>>> fac1221b81 ("hardhat": patch)
 
   # pkg_manager, javascript, cjs
   echo "[e2e] Testing: $pkg_manager, javascript, cjs"
   mkdir ${TESTS_DIR}/${pkg_manager}-javascript-cjs
   cd ${TESTS_DIR}/${pkg_manager}-javascript-cjs
   create_package_json
+<<<<<<< HEAD
   $pkg_manager add $HARDHAT_CORE_FOLDER_PATH/$HARDHAT_TGZ_FILE >/dev/null 2>&1
   HARDHAT_CREATE_JAVASCRIPT_PROJECT_WITH_DEFAULTS=true $pkg_runner hardhat init
   assert_no_empty_files
@@ -82,6 +105,12 @@ for pkg_manager in $pkg_managers; do
   $pkg_runner hardhat test
   $pkg_runner hardhat coverage
   REPORT_GAS=true $pkg_runner hardhat test
+=======
+  $pkg_manager add ../../../packages/hardhat-core/$HARDHAT_TGZ_FILE >/dev/null 2>&1
+  HARDHAT_CREATE_JAVASCRIPT_PROJECT_WITH_DEFAULTS=true npx hardhat init
+  npx hardhat compile
+  npx hardhat test
+>>>>>>> fac1221b81 ("hardhat": patch)
   cd -
 
   # pkg_manager, javascript, esm
@@ -91,6 +120,7 @@ for pkg_manager in $pkg_managers; do
   create_package_json
   jq '. += {"type": "module"}' package.json >esm-package.json
   mv esm-package.json package.json
+<<<<<<< HEAD
   $pkg_manager add $HARDHAT_CORE_FOLDER_PATH/$HARDHAT_TGZ_FILE >/dev/null 2>&1
   HARDHAT_CREATE_JAVASCRIPT_PROJECT_WITH_DEFAULTS=true $pkg_runner hardhat init
   assert_no_empty_files
@@ -98,6 +128,12 @@ for pkg_manager in $pkg_managers; do
   $pkg_runner hardhat test
   $pkg_runner hardhat coverage
   REPORT_GAS=true $pkg_runner hardhat test
+=======
+  $pkg_manager add ../../../packages/hardhat-core/$HARDHAT_TGZ_FILE >/dev/null 2>&1
+  HARDHAT_CREATE_JAVASCRIPT_PROJECT_WITH_DEFAULTS=true npx hardhat init
+  npx hardhat compile
+  npx hardhat test
+>>>>>>> fac1221b81 ("hardhat": patch)
   cd -
 
   # pkg_manager, typescript, cjs
@@ -105,6 +141,7 @@ for pkg_manager in $pkg_managers; do
   mkdir ${TESTS_DIR}/${pkg_manager}-typescript-cjs
   cd ${TESTS_DIR}/${pkg_manager}-typescript-cjs
   create_package_json
+<<<<<<< HEAD
   $pkg_manager add $HARDHAT_CORE_FOLDER_PATH/$HARDHAT_TGZ_FILE >/dev/null 2>&1
   HARDHAT_CREATE_TYPESCRIPT_PROJECT_WITH_DEFAULTS=true $pkg_runner hardhat init
   assert_no_empty_files
@@ -112,6 +149,12 @@ for pkg_manager in $pkg_managers; do
   $pkg_runner hardhat test
   $pkg_runner hardhat coverage
   REPORT_GAS=true $pkg_runner hardhat test
+=======
+  $pkg_manager add ../../../packages/hardhat-core/$HARDHAT_TGZ_FILE >/dev/null 2>&1
+  HARDHAT_CREATE_TYPESCRIPT_PROJECT_WITH_DEFAULTS=true npx hardhat init
+  npx hardhat compile
+  npx hardhat test
+>>>>>>> fac1221b81 ("hardhat": patch)
   cd -
 
   # pkg_manager, typescript, esm
@@ -121,8 +164,13 @@ for pkg_manager in $pkg_managers; do
   create_package_json
   jq '. += {"type": "module"}' package.json >esm-package.json
   mv esm-package.json package.json
+<<<<<<< HEAD
   $pkg_manager add $HARDHAT_CORE_FOLDER_PATH/$HARDHAT_TGZ_FILE >/dev/null 2>&1
   if HARDHAT_CREATE_TYPESCRIPT_PROJECT_WITH_DEFAULTS=true $pkg_runner hardhat init; then
+=======
+  $pkg_manager add ../../../packages/hardhat-core/$HARDHAT_TGZ_FILE >/dev/null 2>&1
+  if HARDHAT_CREATE_TYPESCRIPT_PROJECT_WITH_DEFAULTS=true npx hardhat init; then
+>>>>>>> fac1221b81 ("hardhat": patch)
     echo "[e2e] Initialization should have failed"
     exit 1
   else
@@ -135,6 +183,7 @@ for pkg_manager in $pkg_managers; do
   mkdir ${TESTS_DIR}/${pkg_manager}-typescript-viem-cjs
   cd ${TESTS_DIR}/${pkg_manager}-typescript-viem-cjs
   create_package_json
+<<<<<<< HEAD
   $pkg_manager add $HARDHAT_CORE_FOLDER_PATH/$HARDHAT_TGZ_FILE >/dev/null 2>&1
   HARDHAT_CREATE_TYPESCRIPT_VIEM_PROJECT_WITH_DEFAULTS=true $pkg_runner hardhat init
   assert_no_empty_files
@@ -142,6 +191,12 @@ for pkg_manager in $pkg_managers; do
   $pkg_runner hardhat test
   SOLIDITY_COVERAGE=true $pkg_runner hardhat coverage
   REPORT_GAS=true $pkg_runner hardhat test
+=======
+  $pkg_manager add ../../../packages/hardhat-core/$HARDHAT_TGZ_FILE >/dev/null 2>&1
+  HARDHAT_CREATE_TYPESCRIPT_VIEM_PROJECT_WITH_DEFAULTS=true npx hardhat init
+  npx hardhat compile
+  npx hardhat test
+>>>>>>> fac1221b81 ("hardhat": patch)
   cd -
 
   # pkg_manager, typescript-viem, esm
@@ -151,8 +206,13 @@ for pkg_manager in $pkg_managers; do
   create_package_json
   jq '. += {"type": "module"}' package.json >esm-package.json
   mv esm-package.json package.json
+<<<<<<< HEAD
   $pkg_manager add $HARDHAT_CORE_FOLDER_PATH/$HARDHAT_TGZ_FILE >/dev/null 2>&1
   if HARDHAT_CREATE_TYPESCRIPT_VIEM_PROJECT_WITH_DEFAULTS=true $pkg_runner hardhat init; then
+=======
+  $pkg_manager add ../../../packages/hardhat-core/$HARDHAT_TGZ_FILE >/dev/null 2>&1
+  if HARDHAT_CREATE_TYPESCRIPT_VIEM_PROJECT_WITH_DEFAULTS=true npx hardhat init; then
+>>>>>>> fac1221b81 ("hardhat": patch)
     echo "[e2e] Initialization should have failed"
     exit 1
   else
@@ -162,7 +222,11 @@ for pkg_manager in $pkg_managers; do
 
 done
 
+<<<<<<< HEAD
 printf "\n[e2e] All tests passed\n"
+=======
+echo "\n[e2e] All tests passed\n"
+>>>>>>> fac1221b81 ("hardhat": patch)
 
 # remove the temporary directory
 rm -fr $TESTS_DIR

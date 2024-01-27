@@ -22,7 +22,11 @@ function visitModules(visitor) {
     const isTypeImport = node.importKind === "type";
     // import { type Foo } (Flow)
     const hasTypeSpecifiers =
+<<<<<<< HEAD
       node.specifiers.length > 0 &&
+=======
+      node.specifiers > 0 &&
+>>>>>>> fac1221b81 ("hardhat": patch)
       node.specifiers.every(({ importKind }) => importKind === "type");
     if (isTypeImport || hasTypeSpecifiers) {
       return;

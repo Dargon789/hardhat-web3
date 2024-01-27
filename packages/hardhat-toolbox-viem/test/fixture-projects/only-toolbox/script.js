@@ -10,11 +10,14 @@ async function main() {
   assert(taskNames.includes("verify"));
   assert(taskNames.includes("coverage"));
 
+<<<<<<< HEAD
   // check that the expected scopes are there
   const scopeNames = Object.keys(scopes);
   assert(scopeNames.includes("vars"));
   assert(scopeNames.includes("ignition"));
 
+=======
+>>>>>>> fac1221b81 ("hardhat": patch)
   // assert that chai-as-promised is loaded
   assert(chai.assert.eventually);
 }

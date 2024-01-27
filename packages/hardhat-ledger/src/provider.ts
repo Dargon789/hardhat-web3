@@ -1,7 +1,11 @@
 import { ethers } from "ethers";
 import * as t from "io-ts";
 
+<<<<<<< HEAD
 import { isValidAddress } from "@ethereumjs/util";
+=======
+import { isValidAddress } from "@nomicfoundation/ethereumjs-util";
+>>>>>>> fac1221b81 ("hardhat": patch)
 
 import { isEIP712Message, ledgerService } from "@ledgerhq/hw-app-eth";
 import TransportNodeHid from "@ledgerhq/hw-transport-node-hid";
@@ -35,7 +39,10 @@ export class LedgerProvider extends ProviderWrapperWithChainId {
 
   public readonly paths: Paths = {}; // { address: path }
   public name: string = "LedgerProvider";
+<<<<<<< HEAD
   public isOutputEnabled: boolean = true;
+=======
+>>>>>>> fac1221b81 ("hardhat": patch)
 
   protected _eth: EthWrapper | undefined;
 
@@ -115,10 +122,13 @@ export class LedgerProvider extends ProviderWrapperWithChainId {
   public async request(args: RequestArguments): Promise<unknown> {
     const params = this._getParams(args);
 
+<<<<<<< HEAD
     if (args.method === "hardhat_setLedgerOutputEnabled") {
       return this._setOutputEnabled(params);
     }
 
+=======
+>>>>>>> fac1221b81 ("hardhat": patch)
     if (args.method === "eth_accounts") {
       const accounts = (await this._wrappedProvider.request(args)) as string[];
       return [...accounts, ...this.options.accounts];
@@ -346,7 +356,11 @@ export class LedgerProvider extends ProviderWrapperWithChainId {
         account <= LedgerProvider.MAX_DERIVATION_ACCOUNTS;
         account++
       ) {
+<<<<<<< HEAD
         path = this._getDerivationPath(account);
+=======
+        path = `44'/60'/${account}'/0/0`;
+>>>>>>> fac1221b81 ("hardhat": patch)
 
         this.emit("derivation_progress", path, account);
 
@@ -374,15 +388,20 @@ export class LedgerProvider extends ProviderWrapperWithChainId {
 
     this.emit("derivation_failure");
     throw new HardhatLedgerDerivationPathError(
+<<<<<<< HEAD
       `Could not find a valid derivation path for ${addressToFind}. Paths from ${this._getDerivationPath(
         0
       )} to ${this._getDerivationPath(
         LedgerProvider.MAX_DERIVATION_ACCOUNTS
       )} were searched.`,
+=======
+      `Could not find a valid derivation path for ${addressToFind}. Paths from m/44'/60'/0'/0/0 to m/44'/60'/${LedgerProvider.MAX_DERIVATION_ACCOUNTS}'/0/0 were searched.`,
+>>>>>>> fac1221b81 ("hardhat": patch)
       path
     );
   }
 
+<<<<<<< HEAD
   private _getDerivationPath(index: number): string {
     if (this.options.derivationFunction === undefined) {
       return `m/44'/60'/${index}'/0/0`;
@@ -391,6 +410,8 @@ export class LedgerProvider extends ProviderWrapperWithChainId {
     }
   }
 
+=======
+>>>>>>> fac1221b81 ("hardhat": patch)
   private async _withConfirmation<T extends (...args: any) => any>(
     func: T
   ): Promise<ReturnType<T>> {
@@ -407,21 +428,40 @@ export class LedgerProvider extends ProviderWrapperWithChainId {
   }
 
   private async _toRpcSig(signature: Signature): Promise<string> {
+<<<<<<< HEAD
     const { toRpcSig, toBytes } = await import("@ethereumjs/util");
 
     return toRpcSig(
       BigInt(signature.v - 27),
       toBytes(toHex(signature.r)),
       toBytes(toHex(signature.s))
+=======
+    const { toRpcSig, toBuffer } = await import(
+      "@nomicfoundation/ethereumjs-util"
+    );
+
+    return toRpcSig(
+      BigInt(signature.v - 27),
+      toBuffer(toHex(signature.r)),
+      toBuffer(toHex(signature.s))
+>>>>>>> fac1221b81 ("hardhat": patch)
     );
   }
 
   private async _getNonce(address: Buffer): Promise<bigint> {
+<<<<<<< HEAD
     const { bytesToHex } = await import("@ethereumjs/util");
 
     const response = (await this._wrappedProvider.request({
       method: "eth_getTransactionCount",
       params: [bytesToHex(address), "pending"],
+=======
+    const { bufferToHex } = await import("@nomicfoundation/ethereumjs-util");
+
+    const response = (await this._wrappedProvider.request({
+      method: "eth_getTransactionCount",
+      params: [bufferToHex(address), "pending"],
+>>>>>>> fac1221b81 ("hardhat": patch)
     })) as string;
 
     return rpcQuantityToBigInt(response);
@@ -443,6 +483,7 @@ export class LedgerProvider extends ProviderWrapperWithChainId {
       );
     }
   }
+<<<<<<< HEAD
 
   /**
    * Toggles the provider's output. Use to suppress default feedback and
@@ -453,4 +494,6 @@ export class LedgerProvider extends ProviderWrapperWithChainId {
 
     this.isOutputEnabled = enabled;
   }
+=======
+>>>>>>> fac1221b81 ("hardhat": patch)
 }

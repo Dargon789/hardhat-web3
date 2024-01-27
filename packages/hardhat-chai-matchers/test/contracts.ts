@@ -131,6 +131,7 @@ export type EventsContract = BaseContract & {
 };
 
 export type AnotherContract = BaseContract & {};
+<<<<<<< HEAD
 
 export type OverrideEventContract = BaseContract & {
   emitSimpleEventWithUintArg: BaseContractMethod<
@@ -144,3 +145,5 @@ export type OverrideEventContract = BaseContract & {
     ContractTransactionResponse
   >;
 };
+=======
+>>>>>>> fac1221b81 ("hardhat": patch)

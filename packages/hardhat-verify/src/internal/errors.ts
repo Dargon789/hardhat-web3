@@ -9,7 +9,10 @@ import { TASK_VERIFY_VERIFY } from "./task-names";
 export class HardhatVerifyError extends NomicLabsHardhatPluginError {
   constructor(message: string, parent?: Error) {
     super("@nomicfoundation/hardhat-verify", message, parent);
+<<<<<<< HEAD
     Object.setPrototypeOf(this, this.constructor.prototype);
+=======
+>>>>>>> fac1221b81 ("hardhat": patch)
   }
 }
 
@@ -422,6 +425,7 @@ Encoder error reason: ${reason} fault in ${operation}`,
   }
 }
 
+<<<<<<< HEAD
 /**
  * `VerificationAPIUnexpectedMessageError` is thrown when the block explorer API
  * does not behave as expected, such as when it returns an unexpected response message.
@@ -429,16 +433,35 @@ Encoder error reason: ${reason} fault in ${operation}`,
 export class VerificationAPIUnexpectedMessageError extends HardhatVerifyError {
   constructor(message: string) {
     super(`The API responded with an unexpected message.
+=======
+export class VerificationAPIUnexpectedMessageError extends HardhatVerifyError {
+  constructor(message: string) {
+    super(`The API responded with an unexpected message.
+Please report this issue to the Hardhat team.
+>>>>>>> fac1221b81 ("hardhat": patch)
 Contract verification may have succeeded and should be checked manually.
 Message: ${message}`);
   }
 }
 
+<<<<<<< HEAD
 export class NetworkRequestError extends HardhatVerifyError {
   constructor(e: Error) {
     super(
       `A network request failed. This is an error from the block explorer, not Hardhat. Error: ${e.message}`
     );
+=======
+export class UnexpectedError extends HardhatVerifyError {
+  constructor(e: unknown, functionName: string) {
+    const defaultErrorDetails = `Unexpected error in ${functionName}`;
+    const errorDetails =
+      e instanceof Error
+        ? e.message ?? defaultErrorDetails
+        : defaultErrorDetails;
+    super(`An unexpected error occurred during the verification process.
+Please report this issue to the Hardhat team.
+Error Details: ${errorDetails}`);
+>>>>>>> fac1221b81 ("hardhat": patch)
   }
 }
 
@@ -457,6 +480,7 @@ ${undetectableLibraries.map((x) => `  * ${x}`).join("\n")}`
 }`);
   }
 }
+<<<<<<< HEAD
 
 export class ContractAlreadyVerifiedError extends HardhatVerifyError {
   constructor(contractFQN: string, contractAddress: string) {
@@ -465,3 +489,5 @@ This can happen if you used the '--force' flag. However, re-verification of cont
 by the explorer (e.g., Etherscan), or the contract may have already been verified with a full match.`);
   }
 }
+=======
+>>>>>>> fac1221b81 ("hardhat": patch)

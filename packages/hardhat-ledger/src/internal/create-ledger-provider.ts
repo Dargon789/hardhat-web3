@@ -8,12 +8,17 @@ export function createLedgerProvider(
   networkConfig: NetworkConfig
 ): LedgerProvider {
   const accounts = networkConfig.ledgerAccounts;
+<<<<<<< HEAD
   const derivationFunction = networkConfig.ledgerOptions?.derivationFunction;
 
   const ledgerProvider = new LedgerProvider(
     { accounts, derivationFunction },
     provider
   );
+=======
+
+  const ledgerProvider = new LedgerProvider({ accounts }, provider);
+>>>>>>> fac1221b81 ("hardhat": patch)
 
   return withSpinners(ledgerProvider);
 }

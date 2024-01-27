@@ -1,5 +1,8 @@
+<<<<<<< HEAD
 import type { Link } from "./bytecode";
 
+=======
+>>>>>>> fac1221b81 ("hardhat": patch)
 import { NomicLabsHardhatPluginError } from "hardhat/plugins";
 
 export class HardhatViemError extends NomicLabsHardhatPluginError {
@@ -26,7 +29,11 @@ const client = await hre.viem.getPublicClient({
   ...
 });
 
+<<<<<<< HEAD
 You can find a list of supported networks here: https://github.com/wevm/viem/blob/main/src/chains/index.ts`
+=======
+You can find a list of supported networks here: https://viem.sh/docs/clients/chains.html`
+>>>>>>> fac1221b81 ("hardhat": patch)
     );
   }
 }
@@ -42,7 +49,11 @@ const client = await hre.viem.getPublicClient({
   ...
 });
 
+<<<<<<< HEAD
 You can find a list of supported networks here: https://github.com/wevm/viem/blob/main/src/chains/index.ts`
+=======
+You can find a list of supported networks here: https://viem.sh/docs/clients/chains.html`
+>>>>>>> fac1221b81 ("hardhat": patch)
     );
   }
 }
@@ -76,6 +87,7 @@ export class DeployContractError extends HardhatViemError {
     );
   }
 }
+<<<<<<< HEAD
 
 export class AmbigousLibraryNameError extends HardhatViemError {
   constructor(
@@ -123,3 +135,5 @@ Please deploy them first and link them while deploying "${contractName}"`
     );
   }
 }
+=======
+>>>>>>> fac1221b81 ("hardhat": patch)

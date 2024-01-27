@@ -154,7 +154,11 @@ const contractA = await hre.viem.deployContract(
   "contractName",
   ["arg1", 50, "arg3"],
   {
+<<<<<<< HEAD
     client: { wallet: secondWalletClient }
+=======
+    walletClient: secondWalletClient,
+>>>>>>> fac1221b81 ("hardhat": patch)
     gas: 1000000,
     value: parseEther("0.0001"),
     confirmations: 5, // 1 by default
@@ -185,7 +189,11 @@ const [_, secondWalletClient] = await hre.viem.getWalletClients();
 const contract = await hre.viem.getContractAt(
   "contractName",
   "0x1234567890123456789012345678901234567890",
+<<<<<<< HEAD
   { client: { wallet: secondWalletClient } }
+=======
+  { walletClient: secondWalletClient }
+>>>>>>> fac1221b81 ("hardhat": patch)
 );
 ```
 
@@ -210,7 +218,11 @@ const { contract: contractName, deploymentTransaction } =
     "contractName",
     ["arg1", 50, "arg3"],
     {
+<<<<<<< HEAD
       client: { wallet: secondWalletClient },
+=======
+      walletClient: secondWalletClient,
+>>>>>>> fac1221b81 ("hardhat": patch)
       gas: 1000000,
       value: parseEther("0.0001"),
     }
@@ -228,6 +240,7 @@ const { contractAddress } = await publicClient.waitForTransactionReceipt({
 });
 ```
 
+<<<<<<< HEAD
 ##### Library linking
 
 Some contracts need to be linked with libraries before they are deployed. You can pass the addresses of their libraries to the `deployContract` and `sendDeploymentTransaction` functions with an object like this:
@@ -260,6 +273,8 @@ const contract: ContractTypesMap["ContractName"];
 
 This reduces the need for multiple imports and makes your code cleaner and easier to manage.
 
+=======
+>>>>>>> fac1221b81 ("hardhat": patch)
 ## Usage
 
 There are no additional steps you need to take for this plugin to work.

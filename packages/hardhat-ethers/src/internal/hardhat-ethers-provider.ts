@@ -87,8 +87,13 @@ export class HardhatEthersProvider implements ethers.Provider {
   private _transactionHashListeners: Map<string, ListenerItem[]> = new Map();
   private _eventListeners: EventListenerItem[] = [];
 
+<<<<<<< HEAD
   private _transactionHashPollingTimeout: NodeJS.Timeout | undefined;
   private _blockPollingTimeout: NodeJS.Timeout | undefined;
+=======
+  private _transactionHashPollingInterval: NodeJS.Timeout | undefined;
+  private _blockPollingInterval: NodeJS.Timeout | undefined;
+>>>>>>> fac1221b81 ("hardhat": patch)
 
   constructor(
     private readonly _hardhatProvider: EthereumProvider,
@@ -153,6 +158,7 @@ export class HardhatEthersProvider implements ethers.Provider {
     const latestBlock = await this.getBlock("latest");
     const baseFeePerGas = latestBlock?.baseFeePerGas;
     if (baseFeePerGas !== undefined && baseFeePerGas !== null) {
+<<<<<<< HEAD
       try {
         maxPriorityFeePerGas = BigInt(
           await this._hardhatProvider.send("eth_maxPriorityFeePerGas")
@@ -163,6 +169,9 @@ export class HardhatEthersProvider implements ethers.Provider {
       }
 
       maxPriorityFeePerGas = maxPriorityFeePerGas ?? 1_000_000_000n;
+=======
+      maxPriorityFeePerGas = 1_000_000_000n;
+>>>>>>> fac1221b81 ("hardhat": patch)
       maxFeePerGas = 2n * baseFeePerGas + maxPriorityFeePerGas;
     }
 
@@ -545,7 +554,11 @@ export class HardhatEthersProvider implements ethers.Provider {
       event.kind !== "transactionHash" &&
       event.kind !== "event"
     ) {
+<<<<<<< HEAD
       // this check is only to remember to add a proper if block
+=======
+      // this check is only to remeber to add a proper if block
+>>>>>>> fac1221b81 ("hardhat": patch)
       // in this method's implementation if we add support for a
       // new kind of event
       const _exhaustiveCheck: never = event;
@@ -877,12 +890,72 @@ export class HardhatEthersProvider implements ethers.Provider {
   }
 
   private async _startTransactionHashPolling() {
+<<<<<<< HEAD
     await this._pollTransactionHashes();
   }
 
   private _stopTransactionHashPolling() {
     clearTimeout(this._transactionHashPollingTimeout);
     this._transactionHashPollingTimeout = undefined;
+=======
+    const _isHardhatNetwork = await this._isHardhatNetwork();
+
+    const interval = _isHardhatNetwork ? 50 : 500;
+
+    if (_isHardhatNetwork) {
+      await this._pollTransactionHashes();
+    }
+
+    if (this._transactionHashListeners.size === 0) {
+      // it's possible that the first poll cleans all the listeners,
+      // in that case we don't start the interval
+      return;
+    }
+
+    if (this._transactionHashPollingInterval === undefined) {
+      this._transactionHashPollingInterval = setInterval(async () => {
+        await this._pollTransactionHashes();
+      }, interval);
+    }
+  }
+
+  private _stopTransactionHashPolling() {
+    if (this._transactionHashPollingInterval !== undefined) {
+      clearInterval(this._transactionHashPollingInterval);
+      this._transactionHashPollingInterval = undefined;
+    }
+  }
+
+  private async _startBlockPolling() {
+    const _isHardhatNetwork = await this._isHardhatNetwork();
+
+    const interval = _isHardhatNetwork ? 50 : 500;
+
+    this._latestBlockNumberPolled = await this.getBlockNumber();
+
+    if (_isHardhatNetwork) {
+      await this._pollBlocks();
+    }
+
+    if (this._blockListeners.length === 0) {
+      // it's possible that the first poll cleans all the listeners,
+      // in that case we don't start the interval
+      return;
+    }
+
+    if (this._blockPollingInterval === undefined) {
+      this._blockPollingInterval = setInterval(async () => {
+        await this._pollBlocks();
+      }, interval);
+    }
+  }
+
+  private _stopBlockPolling() {
+    if (this._blockPollingInterval !== undefined) {
+      clearInterval(this._blockPollingInterval);
+      this._blockPollingInterval = undefined;
+    }
+>>>>>>> fac1221b81 ("hardhat": patch)
   }
 
   /**
@@ -915,6 +988,7 @@ export class HardhatEthersProvider implements ethers.Provider {
       }
     } catch (e: any) {
       log(`Error during transaction hash polling: ${e.message}`);
+<<<<<<< HEAD
     } finally {
       // it's possible that the first poll cleans all the listeners,
       // in that case we don't set the timeout
@@ -940,6 +1014,11 @@ export class HardhatEthersProvider implements ethers.Provider {
     this._blockPollingTimeout = undefined;
   }
 
+=======
+    }
+  }
+
+>>>>>>> fac1221b81 ("hardhat": patch)
   private async _pollBlocks() {
     try {
       const currentBlockNumber = await this.getBlockNumber();
@@ -978,6 +1057,7 @@ export class HardhatEthersProvider implements ethers.Provider {
       }
     } catch (e: any) {
       log(`Error during block polling: ${e.message}`);
+<<<<<<< HEAD
     } finally {
       // it's possible that the first poll cleans all the listeners,
       // in that case we don't set the timeout
@@ -990,6 +1070,8 @@ export class HardhatEthersProvider implements ethers.Provider {
           await this._pollBlocks();
         }, timeout);
       }
+=======
+>>>>>>> fac1221b81 ("hardhat": patch)
     }
   }
 

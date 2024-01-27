@@ -1,5 +1,6 @@
 # @nomicfoundation/hardhat-viem
 
+<<<<<<< HEAD
 ## 2.0.6
 
 ### Patch Changes
@@ -54,6 +55,8 @@
 
 - ffb301f14: Improved loading performance
 
+=======
+>>>>>>> fac1221b81 ("hardhat": patch)
 ## 1.0.2
 
 ### Patch Changes
