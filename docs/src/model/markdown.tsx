@@ -100,7 +100,7 @@ export const withInsertedCodeFromLinks = (content: string) => {
 };
 
 export const withoutComments = (content: string) => {
-  return sanitizeHtml(content, {
+  return
     allowedTags: sanitizeHtml.defaults.allowedTags.filter(tag => tag !== '!--'),
     allowedAttributes: {}
   });
