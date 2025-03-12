@@ -33,7 +33,7 @@
     "README.md"
   ],
   "dependencies": {
-    "chalk": "^2.4.2"
+    "chalk": "^5.4.1"
   },
   "devDependencies": {
     "@nomicfoundation/eslint-plugin-hardhat-internal-rules": "workspace:^",
