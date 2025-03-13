@@ -38,7 +38,7 @@
     "@types/chai": "^5.0.1",
     "chai": "^4.2.0",
     "ethereumjs-util": "^7.1.4",
-    "fs-extra": "^11.3.0"
+    "fs-extra": "^7.0.1"
   },
   "devDependencies": {
     "@nomicfoundation/eslint-plugin-hardhat-internal-rules": "workspace:^",
