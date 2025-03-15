@@ -42,7 +42,7 @@
     "@nomicfoundation/ethereumjs-util": "9.0.4",
     "chalk": "^5.4.1",
     "debug": "^4.1.1",
-    "env-paths": "^2.2.0",
+    "env-paths": "^3.0.0",
     "ethers": "^6.1.0",
     "fs-extra": "^11.3.0",
     "io-ts": "1.10.4",
