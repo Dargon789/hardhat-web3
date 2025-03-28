@@ -17,7 +17,7 @@
     "@docsearch/react": "3.9.0",
     "glob": "^8.0.1",
     "gray-matter": "^4.0.3",
-    "hastscript": "^7.0.2",
+    "hastscript": "^9.0.1",
     "linaria": "^6.2.0",
     "next": "15.2.3",
     "next-linaria": "^0.11.0",
