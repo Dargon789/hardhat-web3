@@ -15,7 +15,7 @@
   "dependencies": {
     "@callstack/react-theme-provider": "^3.0.7",
     "@docsearch/react": "3.9.0",
-    "glob": "^8.0.1",
+    "glob": "^11.0.1",
     "gray-matter": "^4.0.3",
     "hastscript": "^9.0.1",
     "linaria": "^6.2.0",
