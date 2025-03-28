@@ -13,7 +13,7 @@
     "lint": "eslint src -f unix"
   },
   "dependencies": {
-    "@callstack/react-theme-provider": "^3.0.7",
+    "@callstack/react-theme-provider": "^3.0.9",
     "@docsearch/react": "3.9.0",
     "glob": "^11.0.1",
     "gray-matter": "^4.0.3",
