@@ -23,7 +23,7 @@
     "next-linaria": "^0.11.0",
     "next-mdx-remote": "^5.0.0",
     "react": "19.0.0",
-    "react-dom": "19.0.0",
+    "react-dom": "19.1.0",
     "react-responsive-carousel": "^3.2.23",
     "rehype-prism": "^2.3.3",
     "remark-directive": "^4.0.0",
