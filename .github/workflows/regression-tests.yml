@@ -34,6 +34,8 @@ jobs:
     name: Build EDR
     if: inputs.edr-ref
     runs-on: ${{ matrix.runner }}
+    permissions:
+      contents: read
     strategy:
       fail-fast: false
       matrix:
