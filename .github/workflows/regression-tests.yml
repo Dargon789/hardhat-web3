@@ -205,6 +205,8 @@ jobs:
     needs: [build-and-publish-hardhat]
     if: (!cancelled() && (inputs.hardhat-ref == 'next' || startsWith(inputs.hardhat-ref, '3')) || needs.build-and-publish-hardhat.result == 'success')
     runs-on: ${{ matrix.runner }}
+    permissions:
+      contents: read
     strategy:
       fail-fast: false
       matrix:
