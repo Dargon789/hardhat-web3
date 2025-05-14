@@ -33,6 +33,8 @@ jobs:
   test_on_windows:
     name: Test hardhat-web3-v4 on Windows with Node 16
     runs-on: windows-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v2
       - uses: pnpm/action-setup@v2
@@ -52,6 +54,8 @@ jobs:
   test_on_macos:
     name: Test hardhat-web3-v4 on MacOS with Node 16
     runs-on: macos-latest
+    permissions:
+      contents: read
     # disable until actions/virtual-environments#4896 is fixed
     if: ${{ false }}
     steps:
@@ -73,6 +77,8 @@ jobs:
   test_on_linux:
     name: Test hardhat-web3-v4 on Ubuntu with Node ${{ matrix.node }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     strategy:
       matrix:
         node: [16, 18, 20]
