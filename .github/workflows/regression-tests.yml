@@ -141,6 +141,9 @@ jobs:
     needs: [publish-edr]
     if: (!cancelled() && inputs.hardhat-ref != 'next' && !startsWith(inputs.hardhat-ref, '3') && inputs.edr-ref == '' || needs.publish-edr.result == 'success')
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     defaults:
       run:
         shell: bash
