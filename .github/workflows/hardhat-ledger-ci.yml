@@ -1,5 +1,8 @@
 name: hardhat-ledger CI
 
+permissions:
+  contents: read
+
 on:
   push:
     branches:
