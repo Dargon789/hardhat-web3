@@ -53,3 +53,44 @@ jobs:
         with:
           sarif_file: puppet-lint-results.sarif
           wait-for-processing: true
+          
+# Updated steps in .github/workflows/puppet-lint.yml
+  steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+  # Install Ruby manually using ruby-build
+      - name: Install ruby-build
+        run: |
+         sudo apt-get update
+         sudo apt-get install -y build-essential libssl-dev zlib1g-dev
+         git clone https://github.com/rbenv/ruby-build.git ~/.ruby-build
+         sudo ~/.ruby-build/install.sh
+
+      - name: Install Ruby 2.7
+        run: |
+          ruby-build 2.7.0 $RUNNER_TOOL_CACHE/ruby/2.7.0
+          echo "Ruby installed to $RUNNER_TOOL_CACHE/ruby/2.7.0"
+
+  # Add Ruby to PATH
+      - name: Configure Ruby PATH
+        run: echo "$RUNNER_TOOL_CACHE/ruby/2.7.0/bin" >> $GITHUB_PATH
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@55283cc23133118229fd3f97f9336ee23a179fcf # v1.146.0
+        with:
+            ruby-version: 2.7
+            bundler-cache: true
+
+      - name: Install puppet-lint
+        run: gem install puppet-lint
+
+      - name: Run puppet-lint
+        run: puppet-lint . --sarif > puppet-lint-results.sarif
+        continue-on-error: true
+
+      - name: Upload analysis results to GitHub
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: puppet-lint-results.sarif
+          wait-for-processing: true
