@@ -1,11 +1,6 @@
-FROM node to read dockerfile: open Dockerfile: no such file:16-slim
-
+FROM node:16-slim
 WORKDIR /app
-
-COPY package.json yarn.lock ./
-
-RUN yarn install --production
-
+COPY package.json package-lock.json ./
+RUN npm install
 COPY . .
-
-CMD ["node", "index.js"]
+CMD ["node", "app.js"]
