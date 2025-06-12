@@ -55,7 +55,6 @@ jobs:
           wait-for-processing: true
           
 # Updated steps in .github/workflows/puppet-lint.yml
-  steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
