@@ -9,7 +9,6 @@
 # More details at https://github.com/puppetlabs/puppet-lint/
 
 name: puppet-lint
-
 on:
   push:
     branches:
@@ -31,10 +30,8 @@ jobs:
           # Install Ruby using rbenv
           rbenv install 2.7.0
           rbenv global 2.7.0
-
           # Verify installation
           ruby --version
-
       - name: Install dependencies
         run: bundle install --jobs 4 --retry 3
 
@@ -73,12 +70,10 @@ jobs:
          sudo apt-get install -y build-essential libssl-dev zlib1g-dev
          git clone https://github.com/rbenv/ruby-build.git ~/.ruby-build
          sudo ~/.ruby-build/install.sh
-
       - name: Install Ruby 2.7
         run: |
           ruby-build 2.7.0 $RUNNER_TOOL_CACHE/ruby/2.7.0
           echo "Ruby installed to $RUNNER_TOOL_CACHE/ruby/2.7.0"
-
   # Add Ruby to PATH
       - name: Configure Ruby PATH
         run: echo "$RUNNER_TOOL_CACHE/ruby/2.7.0/bin" >> $GITHUB_PATH
