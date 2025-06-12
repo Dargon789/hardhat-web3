@@ -12,26 +12,34 @@ name: puppet-lint
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
   pull_request:
-    # The branches below must be a subset of the branches above
-    branches: [ "main" ]
-  schedule:
-    - cron: '34 9 * * 6'
-
-permissions:
-  contents: read
 
 jobs:
   puppet-lint:
-    name: Run puppet-lint scanning
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read # for checkout to fetch code
-      security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
-      actions: read # only required for a private repository by github/codeql-action/upload-sarif to get the Action run status
+    runs-on: ubuntu-24.04-x64
 
     steps:
+      - name: Set up Ruby
+        run: |
+          # Install rbenv
+          curl -fsSL https://github.com/rbenv/rbenv-installer/raw/main/bin/rbenv-installer | bash
+          export PATH="$HOME/.rbenv/bin:$PATH"
+          eval "$(rbenv init -)"
+          
+          # Install Ruby using rbenv
+          rbenv install 2.7.0
+          rbenv global 2.7.0
+
+          # Verify installation
+          ruby --version
+
+      - name: Install dependencies
+        run: bundle install --jobs 4 --retry 3
+
+      - name: Run puppet-lint
+        run: bundle exec puppet-lint path/to/your/code
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -55,7 +63,6 @@ jobs:
           wait-for-processing: true
           
 # Updated steps in .github/workflows/puppet-lint.yml
-  steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
