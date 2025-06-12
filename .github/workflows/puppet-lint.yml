@@ -39,7 +39,7 @@ jobs:
         run: bundle install --jobs 4 --retry 3
 
       - name: Run puppet-lint
-        run: bundle exec puppet-lint path/to/your/code
+        run: bundle exec puppet-lint ./
       - name: Checkout code
         uses: actions/checkout@v4
 
