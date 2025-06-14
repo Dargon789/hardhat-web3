@@ -31,6 +31,9 @@
   },
   "dependencies": {},
   "resolutions": {
-    "**/antlr4": "4.7.1"
+  "pnpm": {
+    "overrides": {
+      "antlr4": "4.9.3"
+    }
   }
 }
