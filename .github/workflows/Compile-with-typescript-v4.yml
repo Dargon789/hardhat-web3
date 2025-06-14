@@ -28,7 +28,7 @@ jobs:
       - name: Remove packages that can't be compiled with TypeScript v4
         run: rm -fr packages/hardhat-viem packages/hardhat-toolbox-viem packages/hardhat-web3-v4
       - name: Remove packages that can't be compiled with TypeScript v4 from the build script
-        run: sed -i 's/packages\/\(hardhat-viem\|hardhat-toolbox-viem\|hardhat-web3-v4\) *//g' package.json
+        run: sed -i -E 's/packages\/(hardhat-viem|hardhat-toolbox-viem|hardhat-web3-v4) *//g' package.json
       - name: Install typescript v4 in all packages
         run: |
           sed -i 's/"pnpm.overrides": {.*"**\/antlr4".*"}/"pnpm.overrides": {"antlr4": "4.9.3"}/' package.json
