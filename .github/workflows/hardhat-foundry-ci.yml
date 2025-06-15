@@ -33,8 +33,10 @@ jobs:
       - uses: pnpm/action-setup@v2
         with:
           version: 8
-      - uses: actions/setup-node@v2
+      - uses: actions/cache@v3
+        continue-on-error: true
         with:
+        # cache config here
           node-version: 16
           cache: "pnpm"
       - name: Install
