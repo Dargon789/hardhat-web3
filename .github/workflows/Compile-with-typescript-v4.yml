@@ -31,6 +31,6 @@ jobs:
         run: sed -i -E 's/packages\/(hardhat-viem|hardhat-toolbox-viem|hardhat-web3-v4) *//g' package.json
       - name: Install typescript v4 in all packages
         run: |
-          sed -i 's/"pnpm.overrides": {.*"**\/antlr4".*"}/"pnpm.overrides": {"antlr4": "4.9.3"}/' package.json
+          sed -i 's/\[.*\]/replacement/': {.*"**\/antlr4".*"}/"pnpm.overrides": {"antlr4": "4.9.3"}/' package.json
       - name: Build
         run: pnpm build
