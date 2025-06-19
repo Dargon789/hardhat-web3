@@ -46,12 +46,12 @@
     "@types/chai": "^4.2.0",
     "@types/mocha": ">=9.1.0",
     "@types/node": "^22.15.18",
-    "@typescript-eslint/eslint-plugin": "5.61.0",
+    "@typescript-eslint/eslint-plugin": "8.32.1",
     "@typescript-eslint/parser": "8.32.1",
     "bignumber.js": "^9.0.2",
     "bn.js": "^5.1.0",
     "chai": "^4.2.0",
-    "eslint": "^8.44.0",
+    "eslint": "^9.27.0",
     "eslint-config-prettier": "8.3.0",
     "eslint-plugin-import": "2.27.5",
     "eslint-plugin-no-only-tests": "3.0.0",
@@ -61,9 +61,9 @@
     "hardhat": "workspace:^2.9.4",
     "mocha": "^10.0.0",
     "prettier": "2.4.1",
-    "rimraf": "^3.0.2",
+    "rimraf": "^6.0.1",
     "ts-node": "^10.8.0",
-    "typescript": "~5.0.0"
+    "typescript": "~5.8.3"
   },
   "peerDependencies": {
     "@nomicfoundation/hardhat-ethers": "^3.0.0",

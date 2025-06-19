@@ -3,6 +3,10 @@
 
 name: Check that the PR has a changeset
 
+permissions:
+  contents: read
+  pull-requests: read
+
 on:
   pull_request:
     branches:
