@@ -2,7 +2,7 @@
   "name": "Hardhat + EDR",
   "image": "mcr.microsoft.com/devcontainers/base:bullseye",
   "features": {
-    "ghcr.io/devcontainers/features/node:1": {
+    "ghcr.io/devcontainers/features/azure-cli:1": {
       "version": "16" /* Keep in sync with the oldest version of Node.js that Hardhat supports */
     },
     "ghcr.io/devcontainers/features/rust:1": {
