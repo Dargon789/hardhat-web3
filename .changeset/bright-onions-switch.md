@@ -3,3 +3,4 @@
 ---
 
 Added support for Typed objects (thanks @RenanSouza2!)
+
