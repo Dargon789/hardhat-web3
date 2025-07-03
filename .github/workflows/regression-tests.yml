@@ -91,6 +91,9 @@ jobs:
     name: Publish EDR
     needs: [build-edr]
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
     defaults:
       run:
         shell: bash
