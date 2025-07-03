@@ -1,5 +1,4 @@
 name: hardhat-chai-matchers CI
-
 on:
   push:
     branches: [$default-branch]
