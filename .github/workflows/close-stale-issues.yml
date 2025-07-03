@@ -1,4 +1,6 @@
 name: Close Stale Issues
+permissions:
+  issues: write
 
 on:
   schedule:
