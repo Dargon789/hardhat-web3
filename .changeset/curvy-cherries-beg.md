@@ -5,4 +5,3 @@
 ---
 
 Improved loading performance
-
