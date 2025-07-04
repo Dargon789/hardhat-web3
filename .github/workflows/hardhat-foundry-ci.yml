@@ -1,4 +1,6 @@
 name: hardhat-foundry CI
+permissions:
+  contents: read
 
 on:
   push:
