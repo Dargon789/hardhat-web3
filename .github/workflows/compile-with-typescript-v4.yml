@@ -1,4 +1,6 @@
 name: Compile with typescript v4
+permissions:
+  contents: read
 
 on:
   push:
