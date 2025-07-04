@@ -4,6 +4,9 @@
 # but it's an useful smoke test.
 name: Slow imports rule check
 
+permissions:
+  contents: read
+
 on:
   schedule:
     - cron: "0 0 * * *"
