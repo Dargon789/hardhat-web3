@@ -36,7 +36,7 @@
   "devDependencies": {
     "@nomicfoundation/eslint-plugin-hardhat-internal-rules": "workspace:^",
     "@nomicfoundation/eslint-plugin-slow-imports": "workspace:^",
-    "@types/chai": "^4.2.0",
+    "@types/chai": "^5.2.2",
     "@types/mocha": ">=9.1.0",
     "@types/node": "^22.15.3",
     "@typescript-eslint/eslint-plugin": "8.34.1",
