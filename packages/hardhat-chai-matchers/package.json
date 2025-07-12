@@ -43,7 +43,7 @@
     "@nomicfoundation/hardhat-chai-matchers": "workspace:*",
     "@nomicfoundation/hardhat-ethers": "workspace:^3.0.0",
     "@types/bn.js": "^5.1.0",
-    "@types/chai": "^4.2.0",
+    "@types/chai": "^5.2.2",
     "@types/mocha": ">=9.1.0",
     "@types/node": "^22.15.18",
     "@typescript-eslint/eslint-plugin": "8.32.1",
