@@ -57,7 +57,7 @@
     "eslint-plugin-no-only-tests": "3.0.0",
     "eslint-plugin-prettier": "5.4.1",
     "ethers": "^6.1.0",
-    "get-port": "^5.1.1",
+    "get-port": "^7.1.0",
     "hardhat": "workspace:^2.9.4",
     "mocha": "^11.7.0",
     "prettier": "3.5.3",
