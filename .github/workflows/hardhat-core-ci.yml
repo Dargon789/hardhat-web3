@@ -1,3 +1,5 @@
+permissions:
+  contents: read
 name: hardhat-core CI
 
 # Note: this workflow uses `macos-13` to use x86
