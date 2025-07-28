@@ -58,7 +58,7 @@
     "eslint-plugin-no-only-tests": "3.0.0",
     "eslint-plugin-prettier": "3.4.0",
     "hardhat": "workspace:^2.17.0",
-    "jest-diff": "^29.7.0",
+    "jest-diff": "^30.0.4",
     "mocha": "^10.0.0",
     "nyc": "^15.1.0",
     "prettier": "3.5.3",
