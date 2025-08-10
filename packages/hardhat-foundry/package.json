@@ -45,7 +45,7 @@
     "@typescript-eslint/parser": "8.34.0",
     "chai": "^5.2.0",
     "eslint": "^9.27.0",
-    "eslint-config-prettier": "10.1.5",
+    "eslint-config-prettier": "10.1.8",
     "eslint-plugin-import": "2.32.0",
     "eslint-plugin-prettier": "5.4.1",
     "hardhat": "workspace:^2.17.2",
