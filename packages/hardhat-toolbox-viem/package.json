@@ -64,7 +64,7 @@
     "hardhat-gas-reporter": "^1.0.8",
     "mocha": "^11.7.1",
     "prettier": "3.6.2",
-    "rimraf": "^3.0.2",
+    "rimraf": "^6.0.1",
     "solidity-coverage": "^0.8.1",
     "ts-node": "^10.8.0",
     "typescript": "~5.0.4",
