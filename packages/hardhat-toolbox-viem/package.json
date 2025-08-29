@@ -58,7 +58,7 @@
     "eslint": "^9.27.0",
     "eslint-config-prettier": "8.3.0",
     "eslint-plugin-import": "2.32.0",
-    "eslint-plugin-no-only-tests": "3.0.0",
+    "eslint-plugin-no-only-tests": "3.3.0",
     "eslint-plugin-prettier": "5.5.0",
     "hardhat": "workspace:^2.11.0",
     "hardhat-gas-reporter": "^1.0.8",
