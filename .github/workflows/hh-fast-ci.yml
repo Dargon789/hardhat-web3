@@ -1,4 +1,6 @@
 name: hh-fast
+permissions:
+  contents: read
 on: [push, pull_request]
 jobs:
   test:
