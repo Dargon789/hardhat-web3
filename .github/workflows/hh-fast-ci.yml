@@ -1,4 +1,4 @@
-name: hh-fast
+name: hh-fast-ci
 permissions:
   contents: read
 on: [push, pull_request]
@@ -20,7 +20,11 @@ jobs:
       - name: Install Node
         uses: actions/setup-node@v4
         with: { node-version: '22' }
-      - run: npm ci
+      # .github/workflows/hh-fast-ci.yml
+      - name: Upgrade npm
+        run: npm install -g npm@latest
+      - name: Install dependencies
+        run: npm ci
       - name: Run shard ${{ matrix.shard }}
         env:
           FAST: "1"
