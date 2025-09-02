@@ -1,0 +1,28 @@
+name: hh-fast
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0,1,2,3,4,5,6,7]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: foundry-rs/foundry-toolchain@v1
+        with: { version: stable }
+      - name: Build (forge)
+        run: forge build -vv
+      - name: Start anvil
+        run: nohup anvil --block-base-fee-per-gas 0 --chain-id 31337 --silent & sleep 1
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with: { node-version: '22' }
+      - run: npm ci
+      - name: Run shard ${{ matrix.shard }}
+        env:
+          FAST: "1"
+          SHARD_INDEX: ${{ matrix.shard }}
+          SHARD_COUNT: 8
+        run: |
+          node scripts/shard.js $SHARD_INDEX $SHARD_COUNT | xargs -r npx mocha --reporter spec --require ts-node/register/transpile-only
