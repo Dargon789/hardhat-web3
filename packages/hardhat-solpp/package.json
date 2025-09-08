@@ -42,7 +42,7 @@
     "@nomicfoundation/eslint-plugin-hardhat-internal-rules": "workspace:^",
     "@nomicfoundation/eslint-plugin-slow-imports": "workspace:^",
     "@types/chai": "^4.2.0",
-    "@types/fs-extra": "^5.1.0",
+    "@types/fs-extra": "^11.0.4",
     "@types/mocha": ">=9.1.0",
     "@types/node": "^22.15.19",
     "@typescript-eslint/eslint-plugin": "8.39.1",
