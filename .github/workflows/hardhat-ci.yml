@@ -4,7 +4,9 @@ permissions:
 
 on:
   push:
-    branches: main
+    branches: master
+              main
+              dev
     paths:
       - ".github/workflows/hardhat-ci.yml"
       - "packages/**"
