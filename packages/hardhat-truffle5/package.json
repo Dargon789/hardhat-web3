@@ -45,7 +45,7 @@
     "@nomicfoundation/eslint-plugin-slow-imports": "workspace:^",
     "@nomiclabs/hardhat-web3": "workspace:^2.0.0",
     "@types/fs-extra": "^5.1.0",
-    "@types/glob": "^7.1.1",
+    "@types/glob": "^8.1.0",
     "@types/mocha": ">=9.1.0",
     "@types/node": "24.2.1",
     "@typescript-eslint/eslint-plugin": "8.33.1",
