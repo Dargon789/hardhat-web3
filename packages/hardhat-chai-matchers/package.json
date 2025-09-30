@@ -60,7 +60,7 @@
     "get-port": "^5.1.1",
     "hardhat": "workspace:^2.9.4",
     "mocha": "^11.7.0",
-    "prettier": "3.5.3",
+    "prettier": "3.6.2",
     "rimraf": "^6.0.1",
     "ts-node": "^10.8.0",
     "typescript": "~5.8.3"
