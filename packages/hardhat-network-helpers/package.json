@@ -54,7 +54,7 @@
     "eslint": "^9.27.0",
     "eslint-config-prettier": "10.1.5",
     "eslint-plugin-import": "2.27.5",
-    "eslint-plugin-no-only-tests": "3.0.0",
+    "eslint-plugin-no-only-tests": "3.3.0",
     "eslint-plugin-prettier": "5.5.1",
     "ethers-v5": "npm:ethers@5",
     "hardhat": "workspace:^2.9.5",
