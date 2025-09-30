@@ -52,7 +52,7 @@
     "eslint-plugin-prettier": "3.4.0",
     "hardhat": "workspace:^2.0.0",
     "mocha": "^11.7.1",
-    "prettier": "2.4.1",
+    "prettier": "3.6.2",
     "rimraf": "^3.0.2",
     "ts-node": "^10.8.0",
     "typescript": "~5.8.3"
