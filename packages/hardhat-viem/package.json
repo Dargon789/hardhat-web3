@@ -46,7 +46,7 @@
     "@types/lodash": "^4.14.123",
     "@types/lodash.memoize": "^4.1.7",
     "@types/mocha": ">=9.1.0",
-    "@types/node": "^20.14.10",
+    "@types/node": "^24.2.1",
     "@types/sinon": "^9.0.8",
     "@typescript-eslint/eslint-plugin": "8.33.0",
     "@typescript-eslint/parser": "8.32.1",
