@@ -49,7 +49,7 @@
     "@nomicfoundation/hardhat-verify": "workspace:^2.0.0",
     "@nomicfoundation/hardhat-viem": "workspace:^1.0.0",
     "@types/chai": "^5.2.2",
-    "@types/chai-as-promised": "^7.1.6",
+    "@types/chai-as-promised": "^8.0.2",
     "@types/mocha": ">=9.1.0",
     "@types/node": "^24.0.4",
     "@typescript-eslint/eslint-plugin": "8.34.1",
