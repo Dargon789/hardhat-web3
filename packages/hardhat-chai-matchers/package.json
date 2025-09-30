@@ -52,7 +52,7 @@
     "bn.js": "^5.1.0",
     "chai": "^5.2.0",
     "eslint": "^9.27.0",
-    "eslint-config-prettier": "10.1.5",
+    "eslint-config-prettier": "10.1.8",
     "eslint-plugin-import": "2.31.0",
     "eslint-plugin-no-only-tests": "3.0.0",
     "eslint-plugin-prettier": "5.4.1",
