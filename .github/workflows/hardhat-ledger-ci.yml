@@ -1,5 +1,4 @@
 name: hardhat-ledger CI
-
 on:
   push:
     branches:
@@ -29,16 +28,16 @@ concurrency:
 
 jobs:
   test_on_windows:
-    name: Test hardhat-ledger on Windows with Node 16
+    name: Test hardhat-ledger on Windows with Node 18
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: pnpm/action-setup@v2
+      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v3
         with:
-          version: 8
+          version: 9
       - uses: actions/setup-node@v2
         with:
-          node-version: 16
+          node-version: 18
           cache: "pnpm"
       - name: Install
         run: pnpm install --frozen-lockfile --prefer-offline
@@ -48,18 +47,18 @@ jobs:
         run: pnpm test
 
   test_on_macos:
-    name: Test hardhat-ledger on MacOS with Node 16
+    name: Test hardhat-ledger on MacOS with Node 18
     runs-on: macos-latest
     # disable until actions/virtual-environments#4896 is fixed
     if: ${{ false }}
     steps:
-      - uses: actions/checkout@v2
-      - uses: pnpm/action-setup@v2
+      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v3
         with:
-          version: 8
+          version: 9
       - uses: actions/setup-node@v2
         with:
-          node-version: 16
+          node-version: 18
           cache: "pnpm"
       - name: Install
         run: pnpm install --frozen-lockfile --prefer-offline
@@ -73,12 +72,12 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: [16, 18, 20]
+        node: [ 18, 20, 22 ]
     steps:
       - uses: actions/checkout@v2
       - uses: pnpm/action-setup@v2
         with:
-          version: 8
+          version: 9
       - uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node }}
