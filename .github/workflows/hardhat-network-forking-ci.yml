@@ -37,18 +37,18 @@ jobs:
     name: Test Hardhat Network's forking functionality
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: pnpm/action-setup@v2
+      - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v3
         with:
-          version: 8
-      - uses: actions/setup-node@v2
+          version: 9
+      - uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 18
           cache: "pnpm"
       - name: Install
         run: pnpm install --frozen-lockfile --prefer-offline
       - name: Cache network requests
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             packages/hardhat-core/test/internal/hardhat-network/provider/.hardhat_node_test_cache
