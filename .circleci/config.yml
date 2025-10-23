@@ -1,6 +1,5 @@
 # Use the latest 2.1 version of CircleCI pipeline process engine.
 # See: https://circleci.com/docs/configuration-reference
-
 version: 2.1
 executors:
   my-custom-executor:
@@ -11,16 +10,39 @@ executors:
           # visit app.circleci.com/settings/project/github/Dargon789/hardhat-project/environment-variables
           username: $DOCKER_HUB_USER
           password: $DOCKER_HUB_PASSWORD
+          
 jobs:
   web3-defi-game-project-:
-
     executor: my-custom-executor
     steps:
       - checkout
       - run: |
-          # echo Hello, World!
+          # This job is intentionally a no-op. Add build, test, or deployment steps here as needed.
+          echo "No operation"
 
 workflows:
   my-custom-workflow:
     jobs:
-      - web3-defi-game-project-
+       web3-defi-game-project-:
+    executor: my-custom-executor
+    steps:
+      - checkout
+      - run: |
+          # This job is intentionally a no-op. Add build, test, or deployment steps here as needed.
+          echo "No operation"      
+      - run:
+        name: Plan a deploy
+        command: |
+            circleci run release plan \
+            --environment-name="web3-defi" \
+            --component-name="sequence-kit" \
+            --target-version="<some-version-name>"
+      # Your job here doing the actual deployment
+      - run:
+        name: Update a deploy to SUCCESS
+        command: circleci run release update --status=SUCCESS 
+        when: on_success 
+      - run:
+        name: Update planned deploy to FAILED
+        command: circleci run release update --status=FAILED 
+        when: on_fail
