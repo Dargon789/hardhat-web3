@@ -16,9 +16,7 @@ import remarkPrism from "remark-prism";
 import sanitizeHtml from "sanitize-html";
 import { DOCS_PATH, REPO_URL, TEMP_PATH } from "../config";
 import { ITabsState } from "../global-tabs";
-
 export const newLineDividerRegEx = /\r\n|\n/;
-
 export const withIndexURL = (pathname: string): string[] => {
   const docPath = pathname.split("/");
   if (docPath[docPath.length - 1] === "index") {
