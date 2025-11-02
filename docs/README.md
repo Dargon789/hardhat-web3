@@ -210,3 +210,4 @@ We use two CI/CD providers:
 - Vercel to deploy app
 
 Each branch triggers its own process on CI/CD so you can see code check details on Github and preview the current branch on Vercel.
+
