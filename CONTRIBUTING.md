@@ -1,4 +1,4 @@
-# How to contribute to Hardhat
+## How to contribute to Hardhat
 
 This document contains some tips on how to collaborate in this project.
 
