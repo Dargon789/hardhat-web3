@@ -33,7 +33,7 @@
   "resolutions": {
   "pnpm": {
     "overrides": {
-      "antlr4": "4.9.3"
+      "antlr4": "4.7.0"
     }
   }
 }
