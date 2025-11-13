@@ -45,7 +45,7 @@
     "eslint": "^9.27.0",
     "eslint-config-prettier": "10.1.5",
     "eslint-plugin-import": "2.31.0",
-    "eslint-plugin-no-only-tests": "3.0.0",
+    "eslint-plugin-no-only-tests": "3.3.0",
     "eslint-plugin-prettier": "5.4.1",
     "hardhat": "workspace:^2.0.0",
     "mocha": "^11.7.0",
