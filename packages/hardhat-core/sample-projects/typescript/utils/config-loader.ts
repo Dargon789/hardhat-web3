@@ -76,6 +76,6 @@ export const networkConfig = (network: EthereumNetworksTypes): HttpNetworkConfig
     gasMultiplier: networkGasMultiplier(network),
     timeout: 20000,
     httpHeaders: {},
-    etherscan: config['ETHERSCAN']
+    etherscan: config['ETHERSCAN'] ? config['ETHERSCAN'] : ''
   }
 }
