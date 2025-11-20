@@ -51,7 +51,7 @@ your own custom wallet, or perhaps a CLI tool for managing your wallet.
 
 ## Security Review
 
-`@0xsequence/wallet-contracts` has been audited by two independant parties
+`@0xsequence/wallet-contracts` has been audited by two independent parties
 
 * [Consensys Diligence](https://github.com/0xsequence/wallet-contracts/blob/master/audits/Consensys_Diligence.md) - May 2020
 * [Quantstamp - initial audit](https://github.com/0xsequence/wallet-contracts/raw/master/audits/Quantstamp_Arcadeum_Report_Final.pdf) - July 2020
