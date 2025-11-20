@@ -12,7 +12,7 @@
 
     "strictNullChecks": true,
     "noImplicitUseStrict": true,
-    "noImplicitAny": false,
+    "noImplicitAny": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
     "noUnusedParameters": false,
