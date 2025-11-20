@@ -45,7 +45,7 @@ export const networkRpcUrl = (network: EthereumNetworksTypes): string => {
       return 'https://rpc-mumbai.matic.today/'
 
     case 'ropsten':
-      return 'http://192.168.122.1:8546'
+      return `https://ropsten.infura.io/v3/${config['INFURA_API_KEY']}`
 
     case 'matic':
       return 'https://rpc-mainnet.matic.network'
