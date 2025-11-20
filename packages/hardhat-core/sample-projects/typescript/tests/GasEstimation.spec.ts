@@ -64,7 +64,7 @@ contract('Estimate gas usage', (accounts: string[]) => {
     // Deploy MainModuleGasEstimation (hardhat doesn't support overwrites, so we use this as the real module)
     mainModule = await MainModuleGasEstimationArtifact.new(factory.address)
     // Get network ID
-    networkId = process.env.NET_ID ? process.env.NET_ID : await web3.eth.net.getId()
+    networkId = process.env.NET_ID || await web3.eth.net.getId()
 
     guestModule = await GuestModuleArtifact.new()
 
