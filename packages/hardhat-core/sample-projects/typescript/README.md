@@ -45,7 +45,7 @@ If you wish to the Sequence Wallet Contracts `@0xsequence/wallet-contracts` dire
    of the wallet libraries, [see here](https://github.com/0xsequence/sequence.js/tree/master/packages/wallet), and review the test
    for sample usage, as well as the tests [here]((https://github.com/0xsequence/sequence.js/tree/master/packages/0xsequence)).
 
-NOTE: this integration is only needed if you want low-level access to the Sequence Wallet contracts, such as if you'd building
+NOTE: this integration is only needed if you want low-level access to the Sequence Wallet contracts, such as if you're building
 your own custom wallet, or perhaps a CLI tool for managing your wallet.
 
 
