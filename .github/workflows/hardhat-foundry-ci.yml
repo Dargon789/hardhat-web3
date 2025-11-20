@@ -38,7 +38,11 @@ jobs:
       - uses: actions/cache@v3
         continue-on-error: true
         with:
-        # cache config here
+          path: |
+            ~/.pnpm-store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
           node-version: 16
           cache: "pnpm"
       - name: Install
