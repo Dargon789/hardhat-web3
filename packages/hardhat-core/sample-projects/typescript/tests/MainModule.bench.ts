@@ -41,7 +41,7 @@ contract('MainModule', () => {
   })
 
   if (process.env.BENCHMARK) {
-    describe.only('Benchmark', function() {
+    describe('Benchmark', function() {
       ;(this as any).timeout(0)
 
       it('Deploy a wallet', async () => {
