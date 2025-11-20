@@ -486,7 +486,7 @@ contract('MainModule', (accounts: string[]) => {
       const tx = wallet.execute([transaction], await nextNonce(wallet), topLevelSigned)
       await expect(tx).to.be.rejectedWith(RevertError('ModuleAuth#_signatureValidation: INVALID_SIGNATURE'))
     })
-    it('Should enforce threshold on nested sigantures', async () => {
+    it('Should enforce threshold on nested signatures', async () => {
       // WalletA
       const owner_a = new ethers.Wallet(ethers.utils.randomBytes(32))
       const salt_a = encodeImageHash(1, [{ weight: 1, address: owner_a.address }])
