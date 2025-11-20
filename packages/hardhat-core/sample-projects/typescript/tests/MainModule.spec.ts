@@ -70,7 +70,7 @@ contract('MainModule', (accounts: string[]) => {
     module = (await MainModuleArtifact.new(factory.address)) as MainModule
     moduleUpgradable = (await MainModuleUpgradableArtifact.new()) as MainModuleUpgradable
     // Get network ID
-    networkId = process.env.NET_ID ? process.env.NET_ID : await web3.eth.net.getId()
+    networkId = process.env.NET_ID || await web3.eth.net.getId()
     // Deploy RequireUtils
     requireUtils = await RequireUtilsArtifact.new(factory.address, module.address)
   })
