@@ -7,7 +7,7 @@ on:
       - main
   pull_request:
      branches:
-      - patch-5
+      - tag*
   workflow_dispatch:
 
 concurrency:
