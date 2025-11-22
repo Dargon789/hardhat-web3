@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+      - patch-5
   pull_request:
   workflow_dispatch:
 
