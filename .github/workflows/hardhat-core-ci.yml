@@ -1,5 +1,7 @@
 name: hardhat-core CI
 
+permissions:
+  contents: read
 on:
   push:
     branches: [$default-branch]
