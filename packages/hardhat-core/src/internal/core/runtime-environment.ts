@@ -19,6 +19,10 @@ import {
   ScopesMap,
 } from "../../types";
 import { Artifacts } from "../artifacts";
+<<<<<<< HEAD
+=======
+import { MessageTrace } from "../hardhat-network/stack-traces/message-trace";
+>>>>>>> 21729dc206 (Added support for Typed objects)
 
 import { getHardhatVersion } from "../util/packageInfo";
 import { analyzeModuleNotFoundError } from "./config/config-loading";
@@ -75,6 +79,10 @@ export class Environment implements HardhatRuntimeEnvironment {
     public readonly tasks: TasksMap,
     public readonly scopes: ScopesMap,
     environmentExtenders: EnvironmentExtender[] = [],
+<<<<<<< HEAD
+=======
+    experimentalHardhatNetworkMessageTraceHooks: ExperimentalHardhatNetworkMessageTraceHook[] = [],
+>>>>>>> 21729dc206 (Added support for Typed objects)
     public readonly userConfig: HardhatUserConfig = {},
     providerExtenders: ProviderExtender[] = []
   ) {
@@ -101,6 +109,13 @@ export class Environment implements HardhatRuntimeEnvironment {
         config,
         networkName,
         this.artifacts,
+<<<<<<< HEAD
+=======
+        experimentalHardhatNetworkMessageTraceHooks.map(
+          (hook) => (trace: MessageTrace, isCallMessageTrace: boolean) =>
+            hook(this, trace, isCallMessageTrace)
+        ),
+>>>>>>> 21729dc206 (Added support for Typed objects)
         providerExtenders
       );
     });

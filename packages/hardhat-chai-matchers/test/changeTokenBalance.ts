@@ -711,7 +711,15 @@ describe("INTEGRATION: changeTokenBalance and changeTokenBalances matchers", fun
 
         await expect(
           mockToken.transfer(receiver.address, 50)
+<<<<<<< HEAD
         ).to.changeTokenBalances(mockToken, [sender, receiver], [-50n, 50n]);
+=======
+        ).to.changeTokenBalances(
+          mockToken,
+          [sender, receiver],
+          [BigInt(-50), BigInt(50)]
+        );
+>>>>>>> 21729dc206 (Added support for Typed objects)
       });
     });
 

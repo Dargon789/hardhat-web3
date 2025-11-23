@@ -94,10 +94,22 @@ export class ConsoleLogger {
       return;
     }
 
+<<<<<<< HEAD
     const decodedArgs = ConsoleLogger._decode(parameters, argTypes);
 
     /**
      * The first argument is interpreted as the format string, which may need adjusting.
+=======
+    const consoleLogs = this._decode(parameters, types);
+
+    this._replaceNumberFormatSpecifiers(consoleLogs);
+
+    return consoleLogs;
+  }
+
+  private _replaceNumberFormatSpecifiers(consoleLogs: ConsoleLogs) {
+    /**
+>>>>>>> 21729dc206 (Added support for Typed objects)
      * Replace the occurrences of %d and %i with %s. This is necessary because if the arguments passed are numbers,
      * they could be too large to be formatted as a Number or an Integer, so it is safer to use a String.
      * %d and %i are replaced only if there is an odd number of % before the d or i.
@@ -109,14 +121,22 @@ export class ConsoleLogger {
      * (?<!%) negative look-behind to make this work.
      * The (?:) is just to avoid capturing that inner group.
      */
+<<<<<<< HEAD
     if (decodedArgs.length > 0) {
       decodedArgs[0] = decodedArgs[0].replace(
+=======
+    if (consoleLogs.length > 0 && typeof consoleLogs[0] === "string") {
+      consoleLogs[0] = consoleLogs[0].replace(
+>>>>>>> 21729dc206 (Added support for Typed objects)
         /((?<!%)(?:%%)*)(%[di])/g,
         "$1%s"
       );
     }
+<<<<<<< HEAD
 
     return decodedArgs;
+=======
+>>>>>>> 21729dc206 (Added support for Typed objects)
   }
 
   /** Decodes calldata parameters from `data` according to `types` into their string representation. */

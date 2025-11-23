@@ -35,7 +35,19 @@ export class Parser {
 
     this._cache.set(contentHash, result);
 
+<<<<<<< HEAD
     return result;
+=======
+      return result;
+    } catch (e: any) {
+      if (e.code === "MODULE_NOT_FOUND") {
+        throw new HardhatError(ERRORS.GENERAL.CORRUPTED_LOCKFILE);
+      }
+
+      // eslint-disable-next-line @nomicfoundation/hardhat-internal-rules/only-hardhat-error
+      throw e;
+    }
+>>>>>>> 21729dc206 (Added support for Typed objects)
   }
 
   /**

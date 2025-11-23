@@ -1,5 +1,6 @@
 # @nomicfoundation/hardhat-toolbox
 
+<<<<<<< HEAD
 ## 5.0.0
 
 ### Major Changes
@@ -10,6 +11,8 @@
 
 - Updated dependencies [92d140f]
 
+=======
+>>>>>>> 21729dc206 (Added support for Typed objects)
 ## 4.0.0
 
 ### Major Changes

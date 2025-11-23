@@ -21,7 +21,11 @@ export function supportChangeEtherBalance(
     function (
       this: any,
       account: Addressable | string,
+<<<<<<< HEAD
       balanceChange: BigNumberish | ((change: bigint) => boolean),
+=======
+      balanceChange: BigNumberish,
+>>>>>>> 21729dc206 (Added support for Typed objects)
       options?: BalanceChangeOptions
     ) {
       const { toBigInt } = require("ethers") as typeof EthersT;
@@ -41,6 +45,7 @@ export function supportChangeEtherBalance(
       ]) => {
         const assert = buildAssert(negated, checkBalanceChange);
 
+<<<<<<< HEAD
         if (typeof balanceChange === "function") {
           assert(
             balanceChange(actualChange),
@@ -55,6 +60,15 @@ export function supportChangeEtherBalance(
             `Expected the ether balance of "${address}" NOT to change by ${balanceChange.toString()} wei, but it did`
           );
         }
+=======
+        const expectedChange = toBigInt(balanceChange);
+
+        assert(
+          actualChange === expectedChange,
+          `Expected the ether balance of "${address}" to change by ${balanceChange.toString()} wei, but it changed by ${actualChange.toString()} wei`,
+          `Expected the ether balance of "${address}" NOT to change by ${balanceChange.toString()} wei, but it did`
+        );
+>>>>>>> 21729dc206 (Added support for Typed objects)
       };
 
       const derivedPromise = Promise.all([

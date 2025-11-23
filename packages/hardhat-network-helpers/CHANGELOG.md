@@ -1,5 +1,6 @@
 # @nomicfoundation/hardhat-network-helpers
 
+<<<<<<< HEAD
 ## 1.0.12
 
 ### Patch Changes
@@ -12,6 +13,8 @@
 
 - 8be0c2c: Improve an error message and add a utility to clear all the existing snaphosts.
 
+=======
+>>>>>>> 21729dc206 (Added support for Typed objects)
 ## 1.0.10
 
 ### Patch Changes

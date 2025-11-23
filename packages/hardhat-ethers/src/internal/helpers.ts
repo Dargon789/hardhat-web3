@@ -40,6 +40,7 @@ function isArtifact(artifact: any): artifact is Artifact {
 export async function getSigners(
   hre: HardhatRuntimeEnvironment
 ): Promise<HardhatEthersSigner[]> {
+<<<<<<< HEAD
   let accounts: string[];
 
   try {
@@ -54,6 +55,9 @@ export async function getSigners(
 
     throw error;
   }
+=======
+  const accounts: string[] = await hre.ethers.provider.send("eth_accounts", []);
+>>>>>>> 21729dc206 (Added support for Typed objects)
 
   const signersWithAddress = await Promise.all(
     accounts.map((account) => getSigner(hre, account))

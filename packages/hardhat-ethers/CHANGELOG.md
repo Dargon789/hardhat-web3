@@ -1,5 +1,6 @@
 # @nomiclabs/hardhat-ethers
 
+<<<<<<< HEAD
 ## 3.0.8
 
 ### Patch Changes
@@ -19,6 +20,8 @@
 - 55924a7: Fixed a race condition in our ethers provider
 - 1d43aba: Updated the max fee per gas calculation to use `eth_maxPriorityFeePerGas` when available
 
+=======
+>>>>>>> 21729dc206 (Added support for Typed objects)
 ## 3.0.5
 
 ### Patch Changes

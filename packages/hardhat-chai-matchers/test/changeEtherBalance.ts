@@ -107,6 +107,7 @@ describe("INTEGRATION: changeEtherBalance matcher", function () {
           ).to.changeEtherBalance(sender, -200n);
         });
 
+<<<<<<< HEAD
         it("Should pass when given a predicate", async () => {
           await expect(() =>
             sender.sendTransaction({
@@ -116,6 +117,8 @@ describe("INTEGRATION: changeEtherBalance matcher", function () {
           ).to.changeEtherBalance(sender, (diff: bigint) => diff === -200n);
         });
 
+=======
+>>>>>>> 21729dc206 (Added support for Typed objects)
         it("Should pass when expected balance change is passed as int and is equal to an actual", async () => {
           await expect(() =>
             sender.sendTransaction({
@@ -173,6 +176,7 @@ describe("INTEGRATION: changeEtherBalance matcher", function () {
           ).to.changeEtherBalance(sender, -200);
         });
 
+<<<<<<< HEAD
         it("Should pass on negative case when expected balance does not satisfy the predicate", async () => {
           await expect(() =>
             sender.sendTransaction({
@@ -185,6 +189,8 @@ describe("INTEGRATION: changeEtherBalance matcher", function () {
           );
         });
 
+=======
+>>>>>>> 21729dc206 (Added support for Typed objects)
         it("Should throw when fee was not calculated correctly", async () => {
           await expect(
             expect(() =>

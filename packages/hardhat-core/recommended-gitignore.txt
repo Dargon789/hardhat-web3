@@ -12,6 +12,9 @@ node_modules
 # solidity-coverage files
 /coverage
 /coverage.json
+<<<<<<< HEAD
 
 # Hardhat Ignition default folder for deployments against a local node
 ignition/deployments/chain-31337
+=======
+>>>>>>> 21729dc206 (Added support for Typed objects)

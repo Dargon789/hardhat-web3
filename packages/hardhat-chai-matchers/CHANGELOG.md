@@ -1,5 +1,6 @@
 # @nomicfoundation/hardhat-chai-matchers
 
+<<<<<<< HEAD
 ## 2.0.8
 
 ### Patch Changes
@@ -32,6 +33,8 @@
 
 - ffb301f14: Improved loading performance
 
+=======
+>>>>>>> 21729dc206 (Added support for Typed objects)
 ## 2.0.3
 
 ### Patch Changes

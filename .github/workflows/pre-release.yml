@@ -16,8 +16,19 @@ jobs:
     name: Pre-release checks
     runs-on: ubuntu-latest
     steps:
+<<<<<<< HEAD
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-env
+=======
+      - uses: actions/checkout@v2
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          cache: "pnpm"
+>>>>>>> 21729dc206 (Added support for Typed objects)
       - name: Install
         run: pnpm install --frozen-lockfile --prefer-offline
       - name: Build
@@ -45,8 +56,19 @@ jobs:
       run:
         working-directory: packages/hardhat-core
     steps:
+<<<<<<< HEAD
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-env
+=======
+      - uses: actions/checkout@v2
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          cache: "pnpm"
+>>>>>>> 21729dc206 (Added support for Typed objects)
       - name: Install
         run: pnpm install --frozen-lockfile --prefer-offline
       - name: Cache network requests
@@ -64,4 +86,8 @@ jobs:
           NODE_OPTIONS: "--max-old-space-size=4096"
         run: |
           pnpm build
+<<<<<<< HEAD
           pnpm test:except-tracing
+=======
+          pnpm test:forking
+>>>>>>> 21729dc206 (Added support for Typed objects)

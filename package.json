@@ -7,16 +7,21 @@
   "devDependencies": {
     "@changesets/cli": "^2.16.0",
 <<<<<<< HEAD
+<<<<<<< HEAD
     "@open-rpc/typings": "^1.12.1",
     "hardhat": "workspace:*",
 =======
     "hardhat": "^2.14.0",
 >>>>>>> fac1221b81 ("hardhat": patch)
+=======
+    "hardhat": "workspace:*",
+>>>>>>> 21729dc206 (Added support for Typed objects)
     "prettier": "2.4.1",
     "shelljs": "^0.8.5",
     "typescript": "~5.0.0"
   },
   "scripts": {
+<<<<<<< HEAD
     "postbuild": "cp packages/hardhat-core/src/internal/solidity/compiler/solcjs-runner.js packages/hardhat-core/internal/solidity/compiler/solcjs-runner.js && pnpm build:ignition",
     "build": "tsc --build packages/hardhat-core packages/hardhat-ethers packages/hardhat-verify packages/hardhat-solhint packages/hardhat-solpp packages/hardhat-truffle4 packages/hardhat-truffle5 packages/hardhat-vyper packages/hardhat-web3 packages/hardhat-web3-v4 packages/hardhat-web3-legacy packages/hardhat-chai-matchers packages/hardhat-network-helpers packages/hardhat-toolbox packages/hardhat-foundry packages/hardhat-ledger packages/hardhat-viem packages/hardhat-toolbox-viem",
     "build:ignition": "pnpm run --filter \"./packages/hardhat-ignition*\" build",
@@ -31,13 +36,27 @@
 =======
   "resolutions": {
     "**/antlr4": "4.7.1"
+=======
+    "build": "tsc --build packages/hardhat-core packages/hardhat-ethers packages/hardhat-verify packages/hardhat-solhint packages/hardhat-solpp packages/hardhat-truffle4 packages/hardhat-truffle5 packages/hardhat-vyper packages/hardhat-web3 packages/hardhat-web3-v4 packages/hardhat-web3-legacy packages/hardhat-chai-matchers packages/hardhat-network-helpers packages/hardhat-toolbox packages/hardhat-foundry packages/hardhat-ledger packages/hardhat-viem packages/hardhat-toolbox-viem",
+    "watch": "tsc --build --watch packages/hardhat-core/src packages/hardhat-ethers packages/hardhat-verify packages/hardhat-solhint packages/hardhat-solpp packages/hardhat-truffle4 packages/hardhat-truffle5 packages/hardhat-vyper packages/hardhat-web3 packages/hardhat-web3-v4 packages/hardhat-web3-legacy packages/hardhat-chai-matchers packages/hardhat-network-helpers packages/hardhat-toolbox packages/hardhat-foundry packages/hardhat-ledger packages/hardhat-viem packages/hardhat-toolbox-viem",
+    "clean": "pnpm run --recursive clean",
+    "test": "node scripts/run-tests.js",
+    "lint": "pnpm run --recursive lint && pnpm prettier --check",
+    "lint:fix": "pnpm run --recursive lint:fix && pnpm prettier --write",
+    "prettier": "prettier *.md \"{docs,.github}/**/*.{md,yml,ts,js}\" \"scripts/**/*.js\""
+>>>>>>> 21729dc206 (Added support for Typed objects)
   },
   "description": "packages/hardhat-core/README.md",
   "main": "index.js",
   "directories": {
     "doc": "docs"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Dargon789/hardhat.git"
+  },
   "keywords": [],
+<<<<<<< HEAD
   "dependencies": {
     "abbrev": "^1.0.9",
     "abort-controller": "^3.0.0",
@@ -869,4 +888,10 @@
     "yocto-queue": "^0.1.0"
   }
 >>>>>>> fac1221b81 ("hardhat": patch)
+=======
+  "bugs": {
+    "url": "https://github.com/Dargon789/hardhat/issues"
+  },
+  "homepage": "https://github.com/Dargon789/hardhat#readme"
+>>>>>>> 21729dc206 (Added support for Typed objects)
 }

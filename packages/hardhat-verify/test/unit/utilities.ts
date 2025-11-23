@@ -5,7 +5,11 @@ import type { ChainConfig } from "../../src/types";
 import path from "path";
 import { assert, expect } from "chai";
 import sinon from "sinon";
+<<<<<<< HEAD
 import picocolors from "picocolors";
+=======
+import chalk from "chalk";
+>>>>>>> 21729dc206 (Added support for Typed objects)
 
 import {
   encodeArguments,
@@ -65,7 +69,11 @@ describe("Utilities", () => {
       const errorMessage = errorStub.getCall(0).args[0];
       assert.equal(
         errorMessage,
+<<<<<<< HEAD
         picocolors.red(
+=======
+        chalk.red(
+>>>>>>> 21729dc206 (Added support for Typed objects)
           `hardhat-verify found one or more errors during the verification process:
 
 Etherscan:

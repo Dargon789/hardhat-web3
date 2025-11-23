@@ -1,5 +1,9 @@
 import type EthersT from "ethers";
+<<<<<<< HEAD
 import type { Contract, Interface, Transaction } from "ethers";
+=======
+import type { Contract, Transaction } from "ethers";
+>>>>>>> 21729dc206 (Added support for Typed objects)
 import type { AssertWithSsfi, Ssfi } from "../utils";
 
 import { AssertionError } from "chai";
@@ -8,6 +12,7 @@ import util from "util";
 import { buildAssert } from "../utils";
 import { ASSERTION_ABORTED, EMIT_MATCHER } from "./constants";
 import { HardhatChaiMatchersAssertionError } from "./errors";
+<<<<<<< HEAD
 import {
   assertArgsArraysEqual,
   assertIsNotNull,
@@ -15,6 +20,12 @@ import {
 } from "./utils";
 
 type EventFragment = EthersT.EventFragment;
+=======
+import { assertIsNotNull, preventAsyncMatcherChaining } from "./utils";
+
+type EventFragment = EthersT.EventFragment;
+type Interface = EthersT.Interface;
+>>>>>>> 21729dc206 (Added support for Typed objects)
 type Provider = EthersT.Provider;
 
 export const EMIT_CALLED = "emitAssertionCalled";
@@ -43,12 +54,16 @@ export function supportEmit(
 ) {
   Assertion.addMethod(
     EMIT_MATCHER,
+<<<<<<< HEAD
     function (
       this: any,
       contract: Contract,
       eventName: string,
       ...args: any[]
     ) {
+=======
+    function (this: any, contract: Contract, eventName: string) {
+>>>>>>> 21729dc206 (Added support for Typed objects)
       // capture negated flag before async code executes; see buildAssert's jsdoc
       const negated = this.__flags.negate;
       const tx = this._obj;
@@ -62,6 +77,7 @@ export function supportEmit(
         // a `.not` was combined with a `.withArgs`
         if (chaiUtils.flag(this, ASSERTION_ABORTED) === true) {
           return;
+<<<<<<< HEAD
         }
 
         const assert = buildAssert(negated, onSuccess);
@@ -76,6 +92,19 @@ export function supportEmit(
           }
         }
 
+=======
+        }
+
+        const assert = buildAssert(negated, onSuccess);
+
+        let eventFragment: EventFragment | null = null;
+        try {
+          eventFragment = contract.interface.getEvent(eventName);
+        } catch (e) {
+          // ignore error
+        }
+
+>>>>>>> 21729dc206 (Added support for Typed objects)
         if (eventFragment === null) {
           throw new AssertionError(
             `Event "${eventName}" doesn't exist in the contract`
@@ -89,6 +118,7 @@ export function supportEmit(
             `The contract target should be a string`
           );
         }
+<<<<<<< HEAD
 
         if (args.length > 0) {
           throw new Error(
@@ -96,6 +126,8 @@ export function supportEmit(
           );
         }
 
+=======
+>>>>>>> 21729dc206 (Added support for Typed objects)
         this.logs = receipt.logs
           .filter((log) => log.topics.includes(topic))
           .filter(
@@ -163,6 +195,107 @@ export async function emitWithArgs(
   );
 }
 
+<<<<<<< HEAD
+=======
+function assertArgsArraysEqual(
+  context: any,
+  Assertion: Chai.AssertionStatic,
+  chaiUtils: Chai.ChaiUtils,
+  expectedArgs: any[],
+  log: any,
+  assert: AssertWithSsfi,
+  ssfi: Ssfi
+) {
+  const ethers = require("ethers") as typeof EthersT;
+  const parsedLog = (
+    chaiUtils.flag(context, "contract").interface as Interface
+  ).parseLog(log);
+  assertIsNotNull(parsedLog, "parsedLog");
+  const actualArgs = parsedLog.args;
+  const eventName = chaiUtils.flag(context, "eventName");
+  assert(
+    actualArgs.length === expectedArgs.length,
+    `Expected "${eventName}" event to have ${expectedArgs.length} argument(s), but it has ${actualArgs.length}`
+  );
+  for (let index = 0; index < expectedArgs.length; index++) {
+    if (typeof expectedArgs[index] === "function") {
+      const errorPrefix = `The predicate for the ${ordinal(
+        index + 1
+      )} event argument`;
+      try {
+        assert(
+          expectedArgs[index](actualArgs[index]),
+          `${errorPrefix} returned false`
+          // no need for a negated message, since we disallow mixing .not. with
+          // .withArgs
+        );
+      } catch (e) {
+        if (e instanceof AssertionError) {
+          assert(
+            false,
+            `${errorPrefix} threw an AssertionError: ${e.message}`
+            // no need for a negated message, since we disallow mixing .not. with
+            // .withArgs
+          );
+        }
+        throw e;
+      }
+    } else if (expectedArgs[index] instanceof Uint8Array) {
+      new Assertion(actualArgs[index], undefined, ssfi, true).equal(
+        ethers.hexlify(expectedArgs[index])
+      );
+    } else if (
+      expectedArgs[index]?.length !== undefined &&
+      typeof expectedArgs[index] !== "string"
+    ) {
+      const expectedLength = expectedArgs[index].length;
+      const actualLength = actualArgs[index].length;
+      assert(
+        expectedLength === actualLength,
+        `Expected the ${ordinal(
+          index + 1
+        )} argument of the "${eventName}" event to have ${expectedLength} ${
+          expectedLength === 1 ? "element" : "elements"
+        }, but it has ${actualLength}`
+      );
+
+      for (let j = 0; j < expectedArgs[index].length; j++) {
+        new Assertion(actualArgs[index][j], undefined, ssfi, true).equal(
+          expectedArgs[index][j]
+        );
+      }
+    } else {
+      if (
+        actualArgs[index].hash !== undefined &&
+        actualArgs[index]._isIndexed === true
+      ) {
+        new Assertion(
+          actualArgs[index].hash,
+          undefined,
+          ssfi,
+          true
+        ).to.not.equal(
+          expectedArgs[index],
+          "The actual value was an indexed and hashed value of the event argument. The expected value provided to the assertion should be the actual event argument (the pre-image of the hash). You provided the hash itself. Please supply the the actual event argument (the pre-image of the hash) instead."
+        );
+        const expectedArgBytes = ethers.isHexString(expectedArgs[index])
+          ? ethers.getBytes(expectedArgs[index])
+          : ethers.toUtf8Bytes(expectedArgs[index]);
+        const expectedHash = ethers.keccak256(expectedArgBytes);
+        new Assertion(actualArgs[index].hash, undefined, ssfi, true).to.equal(
+          expectedHash,
+          `The actual value was an indexed and hashed value of the event argument. The expected value provided to the assertion was hashed to produce ${expectedHash}. The actual hash and the expected hash did not match`
+        );
+      } else {
+        new Assertion(actualArgs[index], undefined, ssfi, true).equal(
+          expectedArgs[index]
+        );
+      }
+    }
+  }
+}
+
+>>>>>>> 21729dc206 (Added support for Typed objects)
 const tryAssertArgsArraysEqual = (
   context: any,
   Assertion: Chai.AssertionStatic,

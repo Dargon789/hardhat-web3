@@ -39,7 +39,11 @@ export function supportChangeTokenBalance(
       this: any,
       token: Token,
       account: Addressable | string,
+<<<<<<< HEAD
       balanceChange: EthersT.BigNumberish | ((change: bigint) => boolean)
+=======
+      balanceChange: EthersT.BigNumberish
+>>>>>>> 21729dc206 (Added support for Typed objects)
     ) {
       const ethers = require("ethers") as typeof EthersT;
 
@@ -66,6 +70,7 @@ export function supportChangeTokenBalance(
       ]) => {
         const assert = buildAssert(negated, checkBalanceChange);
 
+<<<<<<< HEAD
         if (typeof balanceChange === "function") {
           assert(
             balanceChange(actualChange),
@@ -79,6 +84,13 @@ export function supportChangeTokenBalance(
             `Expected the balance of ${tokenDescription} tokens for "${address}" NOT to change by ${balanceChange.toString()}, but it did`
           );
         }
+=======
+        assert(
+          actualChange === ethers.toBigInt(balanceChange),
+          `Expected the balance of ${tokenDescription} tokens for "${address}" to change by ${balanceChange.toString()}, but it changed by ${actualChange.toString()}`,
+          `Expected the balance of ${tokenDescription} tokens for "${address}" NOT to change by ${balanceChange.toString()}, but it did`
+        );
+>>>>>>> 21729dc206 (Added support for Typed objects)
       };
 
       const derivedPromise = Promise.all([
@@ -100,7 +112,11 @@ export function supportChangeTokenBalance(
       this: any,
       token: Token,
       accounts: Array<Addressable | string>,
+<<<<<<< HEAD
       balanceChanges: EthersT.BigNumberish[] | ((changes: bigint[]) => boolean)
+=======
+      balanceChanges: EthersT.BigNumberish[]
+>>>>>>> 21729dc206 (Added support for Typed objects)
     ) {
       const ethers = require("ethers") as typeof EthersT;
 
@@ -132,6 +148,7 @@ export function supportChangeTokenBalance(
       ]: [bigint[], string[], string]) => {
         const assert = buildAssert(negated, checkBalanceChanges);
 
+<<<<<<< HEAD
         if (typeof balanceChanges === "function") {
           assert(
             balanceChanges(actualChanges),
@@ -155,6 +172,23 @@ export function supportChangeTokenBalance(
             }, respectively, but they did`
           );
         }
+=======
+        assert(
+          actualChanges.every(
+            (change, ind) => change === ethers.toBigInt(balanceChanges[ind])
+          ),
+          `Expected the balances of ${tokenDescription} tokens for ${
+            addresses as any
+          } to change by ${
+            balanceChanges as any
+          }, respectively, but they changed by ${actualChanges as any}`,
+          `Expected the balances of ${tokenDescription} tokens for ${
+            addresses as any
+          } NOT to change by ${
+            balanceChanges as any
+          }, respectively, but they did`
+        );
+>>>>>>> 21729dc206 (Added support for Typed objects)
       };
 
       const derivedPromise = Promise.all([
@@ -175,15 +209,23 @@ function validateInput(
   obj: any,
   token: Token,
   accounts: Array<Addressable | string>,
+<<<<<<< HEAD
   balanceChanges: EthersT.BigNumberish[] | ((changes: bigint[]) => boolean)
+=======
+  balanceChanges: EthersT.BigNumberish[]
+>>>>>>> 21729dc206 (Added support for Typed objects)
 ) {
   try {
     checkToken(token, CHANGE_TOKEN_BALANCES_MATCHER);
 
+<<<<<<< HEAD
     if (
       Array.isArray(balanceChanges) &&
       accounts.length !== balanceChanges.length
     ) {
+=======
+    if (accounts.length !== balanceChanges.length) {
+>>>>>>> 21729dc206 (Added support for Typed objects)
       throw new Error(
         `The number of accounts (${accounts.length}) is different than the number of expected balance changes (${balanceChanges.length})`
       );

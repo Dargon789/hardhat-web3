@@ -6,7 +6,11 @@ The `@nomicfoundation/hardhat-toolbox` plugin bundles all the commonly used pack
 
 When you use this plugin, you'll be able to:
 
+<<<<<<< HEAD
 - Interact with your contracts using [ethers.js](https://docs.ethers.org/v6/) and the [`hardhat-ethers`](https://hardhat.org/hardhat-runner/plugins/nomicfoundation-hardhat-ethers) plugin.
+=======
+- Deploy and interact with your contracts using [ethers.js](https://docs.ethers.org/v6/) and the [`hardhat-ethers`](https://hardhat.org/hardhat-runner/plugins/nomicfoundation-hardhat-ethers) plugin.
+>>>>>>> 21729dc206 (Added support for Typed objects)
 - Test your contracts with [Mocha](https://mochajs.org/), [Chai](https://chaijs.com/) and our own [Hardhat Chai Matchers](https://hardhat.org/hardhat-chai-matchers) plugin.
 - Deploy your contracts with [Hardhat Ignition](https://hardhat.org/ignition).
 - Interact with Hardhat Network with our [Hardhat Network Helpers](https://hardhat.org/hardhat-network-helpers).

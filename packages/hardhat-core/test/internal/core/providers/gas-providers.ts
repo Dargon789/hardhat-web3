@@ -322,7 +322,11 @@ describe("AutomaticGasPriceProvider", () => {
         mockedProvider.setReturnValue("eth_maxPriorityFeePerGas", "0x12");
       });
 
+<<<<<<< HEAD
       it("should use the result of eth_maxPriorityFeePerGas as maxPriorityFeePerGas", async function () {
+=======
+      it("should use the the result of eth_maxPriorityFeePerGas as maxPriorityFeePerGas", async function () {
+>>>>>>> 21729dc206 (Added support for Typed objects)
         await provider.request({
           method: "eth_sendTransaction",
           params: [

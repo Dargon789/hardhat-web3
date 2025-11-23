@@ -56,6 +56,15 @@ import { MinimalEthereumJsVm, getMinimalEthereumJsVm } from "./vm/minimal-vm";
 
 const log = debug("hardhat:core:hardhat-network:provider");
 
+<<<<<<< HEAD
+=======
+// Set of methods that are never logged
+const PRIVATE_RPC_METHODS = new Set([
+  "hardhat_getStackTraceFailuresCount",
+  "hardhat_setLoggingEnabled",
+]);
+
+>>>>>>> 21729dc206 (Added support for Typed objects)
 /* eslint-disable @nomicfoundation/hardhat-internal-rules/only-hardhat-error */
 
 export const DEFAULT_COINBASE = "0xc014ba5ec014ba5ec014ba5ec014ba5ec014ba5e";
@@ -97,7 +106,10 @@ interface HardhatNetworkProviderConfig {
   forkConfig?: ForkConfig;
   forkCachePath?: string;
   enableTransientStorage: boolean;
+<<<<<<< HEAD
   enableRip7212: boolean;
+=======
+>>>>>>> 21729dc206 (Added support for Typed objects)
 }
 
 class EdrProviderEventAdapter extends EventEmitter {}
@@ -345,8 +357,112 @@ export class EdrProviderWrapper
       }
     }
 
+<<<<<<< HEAD
     if (isErrorResponse(response)) {
       let error;
+=======
+    if (method.startsWith("net_")) {
+      return this._netModule!.processRequest(method, params);
+    }
+
+    if (method.startsWith("web3_")) {
+      return this._web3Module!.processRequest(method, params);
+    }
+
+    if (method.startsWith("evm_")) {
+      return this._evmModule!.processRequest(method, params);
+    }
+
+    if (method.startsWith("hardhat_")) {
+      return this._hardhatModule!.processRequest(method, params);
+    }
+
+    if (method.startsWith("debug_")) {
+      return this._debugModule!.processRequest(method, params);
+    }
+
+    if (method.startsWith("personal_")) {
+      return this._personalModule!.processRequest(method, params);
+    }
+
+    throw new MethodNotFoundError(`Method ${method} not found`);
+  }
+
+  private async _init() {
+    if (this._node !== undefined) {
+      return;
+    }
+
+    const config: NodeConfig = {
+      automine: this._config.automine,
+      blockGasLimit: this._config.blockGasLimit,
+      minGasPrice: this._config.minGasPrice,
+      genesisAccounts: this._config.genesisAccounts,
+      allowUnlimitedContractSize: this._config.allowUnlimitedContractSize,
+      tracingConfig: await this._makeTracingConfig(),
+      initialBaseFeePerGas: this._config.initialBaseFeePerGas,
+      mempoolOrder: this._config.mempoolOrder,
+      hardfork: this._config.hardfork,
+      chainId: this._config.chainId,
+      networkId: this._config.networkId,
+      initialDate: this._config.initialDate,
+      forkConfig: this._config.forkConfig,
+      forkCachePath:
+        this._config.forkConfig !== undefined
+          ? this._config.forkCachePath
+          : undefined,
+      coinbase: this._config.coinbase ?? DEFAULT_COINBASE,
+      chains: this._config.chains,
+      allowBlocksWithSameTimestamp: this._config.allowBlocksWithSameTimestamp,
+      enableTransientStorage: this._config.enableTransientStorage,
+    };
+
+    const [common, node] = await HardhatNode.create(config);
+
+    this._common = common;
+    this._node = node;
+
+    this._ethModule = new EthModule(
+      common,
+      node,
+      this._config.throwOnTransactionFailures,
+      this._config.throwOnCallFailures,
+      this._logger,
+      this._config.experimentalHardhatNetworkMessageTraceHooks
+    );
+
+    const miningTimer = this._makeMiningTimer();
+
+    this._netModule = new NetModule(common);
+    this._web3Module = new Web3Module(node);
+    this._evmModule = new EvmModule(
+      node,
+      miningTimer,
+      this._logger,
+      this._config.allowBlocksWithSameTimestamp,
+      this._config.experimentalHardhatNetworkMessageTraceHooks
+    );
+    this._hardhatModule = new HardhatModule(
+      node,
+      (forkConfig?: ForkConfig) => this._reset(miningTimer, forkConfig),
+      (loggingEnabled: boolean) => {
+        this._logger.setEnabled(loggingEnabled);
+      },
+      this._logger,
+      this._config.experimentalHardhatNetworkMessageTraceHooks
+    );
+    this._debugModule = new DebugModule(node);
+    this._personalModule = new PersonalModule(node);
+
+    this._forwardNodeEvents(node);
+  }
+
+  private async _makeTracingConfig(): Promise<TracingConfig | undefined> {
+    if (this._artifacts !== undefined) {
+      const buildInfos = [];
+
+      const buildInfoFiles = await this._artifacts.getBuildInfoPaths();
+>>>>>>> 21729dc206 (Added support for Typed objects)
 
       let stackTrace: SolidityStackTrace | null = null;
       try {

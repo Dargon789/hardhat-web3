@@ -693,8 +693,11 @@ subtask(TASK_COMPILE_SOLIDITY_RUN_SOLC)
         });
       }
 
+<<<<<<< HEAD
       const compiler = new NativeCompiler(solcPath, solcVersion);
 
+=======
+>>>>>>> 21729dc206 (Added support for Typed objects)
       return compiler.compile(input);
     }
   );

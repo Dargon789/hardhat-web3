@@ -1,7 +1,11 @@
 import type { Artifacts as ArtifactsImpl } from "hardhat/internal/artifacts";
 import type { Artifacts } from "hardhat/types/artifacts";
 import type { VyperFilesCache as VyperFilesCacheT } from "./cache";
+<<<<<<< HEAD
 import type { VyperOutput, VyperBuild, VyperSettings } from "./types";
+=======
+import type { VyperOutput, VyperBuild } from "./types";
+>>>>>>> 21729dc206 (Added support for Typed objects)
 import type { ResolvedFile } from "./resolver";
 
 import * as os from "os";
@@ -23,10 +27,14 @@ import {
   TASK_COMPILE_VYPER_LOG_DOWNLOAD_COMPILER_END,
   TASK_COMPILE_VYPER_LOG_COMPILATION_RESULT,
 } from "./task-names";
+<<<<<<< HEAD
 import {
   DEFAULT_VYPER_VERSION,
   OUTPUT_BREAKABLE_VYPER_VERSION,
 } from "./constants";
+=======
+import { DEFAULT_VYPER_VERSION } from "./constants";
+>>>>>>> 21729dc206 (Added support for Typed objects)
 import { Compiler } from "./compiler";
 import { CompilerDownloader } from "./downloader";
 import {

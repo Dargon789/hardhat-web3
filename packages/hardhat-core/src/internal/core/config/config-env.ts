@@ -4,6 +4,10 @@ import {
   ConfigurableScopeDefinition,
   ConfigurableTaskDefinition,
   EnvironmentExtender,
+<<<<<<< HEAD
+=======
+  ExperimentalHardhatNetworkMessageTraceHook,
+>>>>>>> 21729dc206 (Added support for Typed objects)
   ProviderExtender,
   TaskArguments,
 } from "../../../types";
@@ -162,8 +166,72 @@ export function extendConfig(extender: ConfigExtender) {
  * and returns a new one.
  */
 export function extendProvider(extender: ProviderExtender) {
+<<<<<<< HEAD
+=======
   const ctx = HardhatContext.getHardhatContext();
   ctx.providerExtenders.push(extender);
+}
+
+// NOTE: This is experimental and will be removed. Please contact our team
+// if you are planning to use it.
+export function experimentalAddHardhatNetworkMessageTraceHook(
+  hook: ExperimentalHardhatNetworkMessageTraceHook
+) {
+>>>>>>> 21729dc206 (Added support for Typed objects)
+  const ctx = HardhatContext.getHardhatContext();
+  ctx.providerExtenders.push(extender);
+}
+
+/**
+ * This object provides methods to interact with the configuration variables.
+ */
+export const vars = {
+  has: hasVar,
+  get: getVar,
+};
+
+/**
+ * Checks if a configuration variable exists.
+ *
+ * @remarks
+ * This method, when used during setup (via `npx hardhat vars setup`), will mark the variable as optional.
+ *
+ * @param varName - The name of the variable to check.
+ *
+ * @returns `true` if the variable exists, `false` otherwise.
+ */
+function hasVar(varName: string): boolean {
+  // varsManager will be an instance of VarsManager or VarsManagerSetup depending on the context (vars setup mode or not)
+  return HardhatContext.getHardhatContext().varsManager.has(varName, true);
+}
+
+/**
+ * Gets the value of the given configuration variable.
+ *
+ * @remarks
+ * This method, when used during setup (via `npx hardhat vars setup`), will mark the variable as required,
+ * unless a default value is provided.
+ *
+ * @param varName - The name of the variable to retrieve.
+ * @param [defaultValue] - An optional default value to return if the variable does not exist.
+ *
+ * @returns The value of the configuration variable if it exists, or the default value if provided.
+ *
+ * @throws HH1201 if the variable does not exist and no default value is set.
+ */
+function getVar(varName: string, defaultValue?: string): string {
+  // varsManager will be an instance of VarsManager or VarsManagerSetup depending on the context (vars setup mode or not)
+  const value = HardhatContext.getHardhatContext().varsManager.get(
+    varName,
+    defaultValue,
+    true
+  );
+
+  if (value !== undefined) return value;
+
+  throw new HardhatError(ERRORS.VARS.VALUE_NOT_FOUND_FOR_VAR, {
+    value: varName,
+  });
 }
 
 /**

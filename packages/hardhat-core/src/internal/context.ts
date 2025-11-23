@@ -1,6 +1,10 @@
 import {
   ConfigExtender,
   EnvironmentExtender,
+<<<<<<< HEAD
+=======
+  ExperimentalHardhatNetworkMessageTraceHook,
+>>>>>>> 21729dc206 (Added support for Typed objects)
   HardhatRuntimeEnvironment,
   ProviderExtender,
 } from "../types";

@@ -1,5 +1,6 @@
 # hardhat
 
+<<<<<<< HEAD
 ## 2.23.0
 
 ### Minor Changes
@@ -206,6 +207,8 @@
 - 15a0d2e6c: Fixed a race condition that occurred when multiple Hardhat processes ran a compilation at the same time.
 - 8f677ea9f: Added a fix to prevent submitting transactions with 0 priority fee (thanks @itsdevbear!)
 
+=======
+>>>>>>> 21729dc206 (Added support for Typed objects)
 ## 2.19.4
 
 ### Patch Changes

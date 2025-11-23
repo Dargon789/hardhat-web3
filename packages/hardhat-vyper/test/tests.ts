@@ -305,6 +305,7 @@ describe("Vyper plugin", function () {
       );
     });
   });
+<<<<<<< HEAD
 
   describe("compile project with different ouput identifiers returned from the vyper compiler", function () {
     useFixtureProject("compilation-with-vyper-output-breakable-version");
@@ -317,4 +318,6 @@ describe("Vyper plugin", function () {
       assert.equal(this.env.artifacts.readArtifactSync("B").contractName, "B");
     });
   });
+=======
+>>>>>>> 21729dc206 (Added support for Typed objects)
 });

@@ -108,6 +108,7 @@ describe("INTEGRATION: changeEtherBalances matcher", function () {
           ).to.changeEtherBalances([sender, receiver], [-200n, 200n]);
         });
 
+<<<<<<< HEAD
         it("Should pass when given a predicate", async () => {
           await expect(() =>
             sender.sendTransaction({
@@ -160,6 +161,8 @@ describe("INTEGRATION: changeEtherBalances matcher", function () {
           );
         });
 
+=======
+>>>>>>> 21729dc206 (Added support for Typed objects)
         it("Should take into account transaction fee (legacy tx)", async () => {
           await expect(() =>
             sender.sendTransaction({

@@ -91,9 +91,14 @@ describe("verify task integration tests", () => {
       });
 
       expect(logStub).to.be.calledOnceWith(
+<<<<<<< HEAD
         `The contract ${address} has already been verified on the block explorer. If you're trying to verify a partially verified contract, please use the --force flag.
 https://hardhat.etherscan.io/address/${address}#code
 `
+=======
+        `The contract ${address} has already been verified on Etherscan.
+https://hardhat.etherscan.io/address/${address}#code`
+>>>>>>> 21729dc206 (Added support for Typed objects)
       );
       logStub.restore();
       assert.isUndefined(taskResponse);
@@ -309,7 +314,11 @@ This can occur if the library is only called in the contract constructor. The mi
           constructorArgsParams: [],
         })
       ).to.be.rejectedWith(
+<<<<<<< HEAD
         /A network request failed\. This is an error from the block explorer, not Hardhat\. Error: getaddrinfo ENOTFOUND api-hardhat\.etherscan\.io/
+=======
+        /An unexpected error occurred during the verification process\.\nPlease report this issue to the Hardhat team\.\nError Details: getaddrinfo ENOTFOUND api-hardhat\.etherscan\.io/
+>>>>>>> 21729dc206 (Added support for Typed objects)
       );
     });
 
@@ -332,8 +341,13 @@ This can occur if the library is only called in the contract constructor. The mi
         result: "Unable to locate ContractCode at 0x...",
       });
 
+<<<<<<< HEAD
       try {
         await this.hre.run(TASK_VERIFY_ETHERSCAN, {
+=======
+      await expect(
+        this.hre.run(TASK_VERIFY_ETHERSCAN, {
+>>>>>>> 21729dc206 (Added support for Typed objects)
           address: simpleContractAddress,
           constructorArgsParams: [],
         });
@@ -376,7 +390,11 @@ This can occur if the library is only called in the contract constructor. The mi
           constructorArgsParams: [],
         })
       ).to.be.rejectedWith(
+<<<<<<< HEAD
         /A network request failed\. This is an error from the block explorer, not Hardhat\. Error: getaddrinfo ENOTFOUND api-hardhat\.etherscan\.io/
+=======
+        /An unexpected error occurred during the verification process\.\nPlease report this issue to the Hardhat team\.\nError Details: getaddrinfo ENOTFOUND api-hardhat\.etherscan\.io/
+>>>>>>> 21729dc206 (Added support for Typed objects)
       );
 
       expect(logStub).to.be
@@ -634,6 +652,7 @@ https://hardhat.etherscan.io/address/${bothLibsContractAddress}#code\n`);
       await this.hre.run(TASK_CLEAN);
     });
   });
+<<<<<<< HEAD
 
   describe("with a verified contract and '--force' flag", () => {
     let simpleContractAddress: string;
@@ -760,6 +779,8 @@ for verification on the block explorer. Waiting for verification result...
       await this.hre.run(TASK_CLEAN);
     });
   });
+=======
+>>>>>>> 21729dc206 (Added support for Typed objects)
 });
 
 describe("verify task Sourcify's integration tests", () => {
@@ -802,8 +823,12 @@ describe("verify task Sourcify's integration tests", () => {
       assert.equal(logStub.callCount, 1);
       (expect(logStub.getCall(0)).to.be as any)
         .calledWith(`Successfully verified contract SimpleContract on Sourcify.
+<<<<<<< HEAD
 https://repo.sourcify.dev/contracts/full_match/31337/${simpleContractAddress}/
 `);
+=======
+https://repo.sourcify.dev/contracts/full_match/31337/${simpleContractAddress}/`);
+>>>>>>> 21729dc206 (Added support for Typed objects)
       logStub.restore();
       assert.isUndefined(taskResponse);
     });

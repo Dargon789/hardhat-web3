@@ -55,6 +55,7 @@ interface AttemptVerificationArgs {
 subtask(TASK_VERIFY_SOURCIFY)
   .addParam("address")
   .addOptionalParam("contract")
+  // TODO: [remove-verify-subtask] change to types.inputFile
   .addOptionalParam("libraries", undefined, undefined, types.any)
   .setAction(async (taskArgs: VerifyTaskArgs, { config, network, run }) => {
     const { address, libraries, contractFQN }: VerificationArgs = await run(
@@ -151,6 +152,7 @@ ${contractURL}`);
 subtask(TASK_VERIFY_SOURCIFY_RESOLVE_ARGUMENTS)
   .addOptionalParam("address")
   .addOptionalParam("contract")
+  // TODO: [remove-verify-subtask] change to types.inputFile
   .addOptionalParam("libraries", undefined, undefined, types.any)
   .setAction(
     async ({
@@ -171,6 +173,7 @@ subtask(TASK_VERIFY_SOURCIFY_RESOLVE_ARGUMENTS)
         throw new InvalidContractNameError(contract);
       }
 
+      // TODO: [remove-verify-subtask] librariesModule should always be string
       let libraries;
       if (typeof librariesModule === "object") {
         libraries = librariesModule;

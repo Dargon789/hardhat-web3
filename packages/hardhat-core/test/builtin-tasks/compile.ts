@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 import { getLatestSupportedSolcVersion } from "@nomicfoundation/edr";
+=======
+>>>>>>> 21729dc206 (Added support for Typed objects)
 import { assert, expect } from "chai";
 import ci from "ci-info";
 import * as fsExtra from "fs-extra";
@@ -20,6 +23,7 @@ import {
   getAllFilesMatchingSync,
   getRealPathSync,
 } from "../../src/internal/util/fs-utils";
+import { getLatestSupportedVersion } from "../internal/hardhat-network/stack-traces/compilers-list";
 
 function assertFileExists(pathToFile: string) {
   assert.isTrue(
@@ -57,7 +61,11 @@ describe("compile task", function () {
       // Test to check that the last version of solc is being tested
       const userConfigSolcVersion = this.env.userConfig.solidity;
 
+<<<<<<< HEAD
       const lastSolcVersion = getLatestSupportedSolcVersion();
+=======
+      const lastSolcVersion = getLatestSupportedVersion();
+>>>>>>> 21729dc206 (Added support for Typed objects)
 
       assert.equal(
         userConfigSolcVersion,

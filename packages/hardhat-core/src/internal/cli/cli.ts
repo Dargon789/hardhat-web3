@@ -1,7 +1,6 @@
 import picocolors from "picocolors";
 import debug from "debug";
 import "source-map-support/register";
-
 import {
   TASK_COMPILE,
   TASK_HELP,
@@ -49,7 +48,10 @@ import {
   isHardhatVSCodeInstalled,
 } from "./hardhat-vscode-installation";
 import { handleVars } from "./vars";
+<<<<<<< HEAD
 import { BannerManager } from "./banner-manager";
+=======
+>>>>>>> 21729dc206 (Added support for Typed objects)
 
 const log = debug("hardhat:core:cli");
 
@@ -171,6 +173,7 @@ async function main() {
 
         // Warning for Hardhat V3 deprecation
         console.warn(
+<<<<<<< HEAD
           picocolors.yellow(picocolors.bold("\n\nDEPRECATION WARNING\n\n")),
           picocolors.yellow(
             `Initializing a project with ${picocolors.white(
@@ -181,6 +184,16 @@ async function main() {
             `Please use ${picocolors.white(
               picocolors.italic("npx hardhat init")
             )} instead.\n\n`
+=======
+          chalk.yellow.bold("\n\nDEPRECATION WARNING\n\n"),
+          chalk.yellow(
+            `Initializing a project with ${chalk.white.italic(
+              "npx hardhat"
+            )} is deprecated and will be removed in the future.\n`
+          ),
+          chalk.yellow(
+            `Please use ${chalk.white.italic("npx hardhat init")} instead.\n\n`
+>>>>>>> 21729dc206 (Added support for Typed objects)
           )
         );
 
@@ -231,6 +244,7 @@ async function main() {
     const taskDefinitions = ctx.tasksDSL.getTaskDefinitions();
     const scopesDefinitions = ctx.tasksDSL.getScopesDefinitions();
 
+<<<<<<< HEAD
     const env = new Environment(
       resolvedConfig,
       hardhatArguments,
@@ -243,6 +257,8 @@ async function main() {
 
     ctx.setHardhatRuntimeEnvironment(env);
 
+=======
+>>>>>>> 21729dc206 (Added support for Typed objects)
     // eslint-disable-next-line prefer-const
     let { scopeName, taskName, unparsedCLAs } =
       argumentsParser.parseScopeAndTaskNames(
@@ -319,6 +335,22 @@ async function main() {
       );
     }
 
+<<<<<<< HEAD
+=======
+    const env = new Environment(
+      resolvedConfig,
+      hardhatArguments,
+      taskDefinitions,
+      scopesDefinitions,
+      envExtenders,
+      ctx.experimentalHardhatNetworkMessageTraceHooks,
+      userConfig,
+      providerExtenders
+    );
+
+    ctx.setHardhatRuntimeEnvironment(env);
+
+>>>>>>> 21729dc206 (Added support for Typed objects)
     try {
       const timestampBeforeRun = new Date().getTime();
 

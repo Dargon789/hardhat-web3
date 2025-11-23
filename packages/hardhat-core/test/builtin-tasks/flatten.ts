@@ -1,10 +1,17 @@
 import { assert } from "chai";
+<<<<<<< HEAD
 import fs, { readFileSync } from "fs";
 
 import sinon, { SinonSpy } from "sinon";
 import picocolors from "picocolors";
 import { removeSync } from "fs-extra";
 import { tmpdir } from "os";
+=======
+import fs from "fs";
+
+import sinon, { SinonSpy } from "sinon";
+import chalk from "chalk";
+>>>>>>> 21729dc206 (Added support for Typed objects)
 import {
   TASK_FLATTEN,
   TASK_FLATTEN_GET_FLATTENED_SOURCE,
@@ -13,7 +20,11 @@ import {
 import { getPackageJson } from "../../src/internal/util/packageInfo";
 import { useEnvironment } from "../helpers/environment";
 import { useFixtureProject } from "../helpers/project";
+<<<<<<< HEAD
 import { compileLiteral } from "../helpers/compilation";
+=======
+import { compileLiteral } from "../internal/hardhat-network/stack-traces/compilation";
+>>>>>>> 21729dc206 (Added support for Typed objects)
 
 function getContractsOrder(flattenedFiles: string) {
   const CONTRACT_REGEX = /\s*contract(\s+)(\w)/gm;
@@ -383,7 +394,11 @@ describe("Flatten task", () => {
 
       assert(
         spyFunctionConsoleWarn.calledWith(
+<<<<<<< HEAD
           picocolors.yellow(
+=======
+          chalk.yellow(
+>>>>>>> 21729dc206 (Added support for Typed objects)
             `\nThe following file(s) do NOT specify SPDX licenses: contracts/A.sol, contracts/B.sol, contracts/C.sol`
           )
         )
@@ -391,7 +406,11 @@ describe("Flatten task", () => {
 
       assert(
         spyFunctionConsoleWarn.calledWith(
+<<<<<<< HEAD
           picocolors.yellow(
+=======
+          chalk.yellow(
+>>>>>>> 21729dc206 (Added support for Typed objects)
             `\nPragma abicoder directives are defined in some files, but they are not defined in the following ones: contracts/A.sol, contracts/B.sol`
           )
         )
@@ -399,7 +418,11 @@ describe("Flatten task", () => {
 
       assert(
         spyFunctionConsoleWarn.calledWith(
+<<<<<<< HEAD
           picocolors.yellow(
+=======
+          chalk.yellow(
+>>>>>>> 21729dc206 (Added support for Typed objects)
             `\nThe flattened file is using the pragma abicoder directive 'pragma abicoder v2' but these files have a different pragma abicoder directive: contracts/C.sol`
           )
         )
@@ -414,6 +437,7 @@ describe("Flatten task", () => {
       assert(!spyFunctionConsoleWarn.called);
     });
 
+<<<<<<< HEAD
     it("should write to an output file when the parameter output is specified", async function () {
       const outputFile = `${tmpdir()}/flatten.sol`;
       try {
@@ -429,6 +453,8 @@ describe("Flatten task", () => {
       }
     });
 
+=======
+>>>>>>> 21729dc206 (Added support for Typed objects)
     describe("No contracts to flatten", () => {
       useFixtureProject("flatten-task/no-contracts");
 

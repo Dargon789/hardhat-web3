@@ -1,4 +1,5 @@
 import type EthersT from "ethers";
+<<<<<<< HEAD
 
 import { buildAssert } from "../../utils";
 import { REVERTED_MATCHER } from "../constants";
@@ -9,6 +10,14 @@ import {
   parseBytes32String,
 } from "./utils";
 
+=======
+
+import { buildAssert } from "../../utils";
+import { REVERTED_MATCHER } from "../constants";
+import { assertIsNotNull, preventAsyncMatcherChaining } from "../utils";
+import { decodeReturnData, getReturnDataFromError } from "./utils";
+
+>>>>>>> 21729dc206 (Added support for Typed objects)
 export function supportReverted(
   Assertion: Chai.AssertionStatic,
   chaiUtils: Chai.ChaiUtils
@@ -40,6 +49,7 @@ export function supportReverted(
 
         const receipt = await getTransactionReceipt(hash);
 
+<<<<<<< HEAD
         if (receipt === null) {
           // If the receipt is null, maybe the string is a bytes32 string
           if (isBytes32String(hash)) {
@@ -48,6 +58,8 @@ export function supportReverted(
           }
         }
 
+=======
+>>>>>>> 21729dc206 (Added support for Typed objects)
         assertIsNotNull(receipt, "receipt");
         assert(
           receipt.status === 0,

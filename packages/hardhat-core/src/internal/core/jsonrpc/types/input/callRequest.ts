@@ -5,7 +5,10 @@ import { rpcAccessList } from "../access-list";
 import {
   rpcAddress,
   rpcData,
+<<<<<<< HEAD
   rpcHash,
+=======
+>>>>>>> 21729dc206 (Added support for Typed objects)
   rpcQuantity,
   rpcStorageSlot,
   rpcStorageSlotHexString,

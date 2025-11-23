@@ -1,5 +1,6 @@
 # @nomiclabs/hardhat-vyper
 
+<<<<<<< HEAD
 ## 3.0.8
 
 ### Patch Changes
@@ -18,6 +19,8 @@
 
 - f0e6389: Added support for vyper settings 'evmVersion' and 'optimize'
 
+=======
+>>>>>>> 21729dc206 (Added support for Typed objects)
 ## 3.0.5
 
 ### Patch Changes

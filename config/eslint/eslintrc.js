@@ -12,7 +12,11 @@ module.exports = {
   plugins: [
     "@nomicfoundation/hardhat-internal-rules",
     "import",
+<<<<<<< HEAD
     "mocha",
+=======
+    "no-only-tests",
+>>>>>>> 21729dc206 (Added support for Typed objects)
     "@typescript-eslint",
     "@nomicfoundation/slow-imports",
   ],

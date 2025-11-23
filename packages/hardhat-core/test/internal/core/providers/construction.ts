@@ -10,6 +10,10 @@ import { numberToRpcQuantity } from "../../../../src/internal/core/jsonrpc/types
 import { BackwardsCompatibilityProviderAdapter } from "../../../../src/internal/core/providers/backwards-compatibility";
 import { HardhatConfig } from "../../../../src/types";
 import {
+  BoundExperimentalHardhatNetworkMessageTraceHook,
+  HardhatConfig,
+} from "../../../../src/types";
+import {
   applyProviderWrappers,
   createProvider,
   isHDAccountsConfig,
@@ -43,6 +47,10 @@ describe("Base provider creation", () => {
 
   it("Should extend the base provider by calling each supplied extender", async () => {
     const artifacts = undefined;
+<<<<<<< HEAD
+=======
+    const hooks: BoundExperimentalHardhatNetworkMessageTraceHook[] = [];
+>>>>>>> 21729dc206 (Added support for Typed objects)
 
     const identity = (obj: any) => obj;
     const extenders = [sinon.spy(identity), sinon.spy(identity)];
@@ -56,7 +64,17 @@ describe("Base provider creation", () => {
       },
       paths: undefined,
     } as unknown as HardhatConfig;
+<<<<<<< HEAD
     const provider = await createProvider(config, "net", artifacts, extenders);
+=======
+    const provider = await createProvider(
+      config,
+      "net",
+      artifacts,
+      hooks,
+      extenders
+    );
+>>>>>>> 21729dc206 (Added support for Typed objects)
 
     assert.instanceOf(provider, BackwardsCompatibilityProviderAdapter);
     for (const extender of extenders) {

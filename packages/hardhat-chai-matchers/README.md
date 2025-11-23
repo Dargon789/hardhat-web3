@@ -17,13 +17,21 @@ npm install --save-dev @nomicfoundation/hardhat-chai-matchers
 If you are using an older version of npm, you'll also need to install all the packages used by the plugin.
 
 ```bash
+<<<<<<< HEAD
 npm install --save-dev @nomicfoundation/hardhat-chai-matchers chai@4 @nomicfoundation/hardhat-ethers ethers
+=======
+npm install --save-dev @nomicfoundation/hardhat-chai-matchers chai @nomicfoundation/hardhat-ethers ethers
+>>>>>>> 21729dc206 (Added support for Typed objects)
 ```
 
 That's also the case if you are using yarn:
 
 ```bash
+<<<<<<< HEAD
 yarn add --dev @nomicfoundation/hardhat-chai-matchers chai@4 @nomicfoundation/hardhat-ethers ethers
+=======
+yarn add --dev @nomicfoundation/hardhat-chai-matchers chai @nomicfoundation/hardhat-ethers ethers
+>>>>>>> 21729dc206 (Added support for Typed objects)
 ```
 
 ### Usage

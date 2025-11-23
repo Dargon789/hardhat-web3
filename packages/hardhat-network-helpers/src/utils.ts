@@ -19,7 +19,10 @@ async function checkIfDevelopmentNetwork(
 
       cachedIsDevelopmentNetwork =
         version.toLowerCase().startsWith("hardhatnetwork") ||
+<<<<<<< HEAD
         version.toLowerCase().startsWith("zksync") ||
+=======
+>>>>>>> 21729dc206 (Added support for Typed objects)
         version.toLowerCase().startsWith("anvil");
     } catch (e) {
       cachedIsDevelopmentNetwork = false;

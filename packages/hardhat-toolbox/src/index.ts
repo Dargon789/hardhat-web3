@@ -1,7 +1,10 @@
 import "@nomicfoundation/hardhat-chai-matchers";
 import "@nomicfoundation/hardhat-ethers";
 import "@nomicfoundation/hardhat-verify";
+<<<<<<< HEAD
 import "@nomicfoundation/hardhat-ignition-ethers";
+=======
+>>>>>>> 21729dc206 (Added support for Typed objects)
 import "@typechain/hardhat";
 import "hardhat-gas-reporter";
 import "solidity-coverage";

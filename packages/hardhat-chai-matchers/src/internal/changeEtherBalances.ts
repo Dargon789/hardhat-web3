@@ -1,7 +1,12 @@
 import type EthersT from "ethers";
 import type { Addressable, BigNumberish, TransactionResponse } from "ethers";
 import type { BalanceChangeOptions } from "./misc/balance";
+<<<<<<< HEAD
 import type OrdinalT from "ordinal";
+=======
+
+import ordinal from "ordinal";
+>>>>>>> 21729dc206 (Added support for Typed objects)
 
 import { buildAssert } from "../utils";
 import { getAddressOf } from "./misc/account";
@@ -18,11 +23,18 @@ export function supportChangeEtherBalances(
     function (
       this: any,
       accounts: Array<Addressable | string>,
+<<<<<<< HEAD
       balanceChanges: BigNumberish[] | ((changes: bigint[]) => boolean),
       options?: BalanceChangeOptions
     ) {
       const { toBigInt } = require("ethers") as typeof EthersT;
       const ordinal = require("ordinal") as typeof OrdinalT;
+=======
+      balanceChanges: BigNumberish[],
+      options?: BalanceChangeOptions
+    ) {
+      const { toBigInt } = require("ethers") as typeof EthersT;
+>>>>>>> 21729dc206 (Added support for Typed objects)
       // capture negated flag before async code executes; see buildAssert's jsdoc
       const negated = this.__flags.negate;
 
@@ -37,14 +49,18 @@ export function supportChangeEtherBalances(
         chaiUtils
       );
 
+<<<<<<< HEAD
       validateInput(this._obj, accounts, balanceChanges);
 
+=======
+>>>>>>> 21729dc206 (Added support for Typed objects)
       const checkBalanceChanges = ([actualChanges, accountAddresses]: [
         bigint[],
         string[]
       ]) => {
         const assert = buildAssert(negated, checkBalanceChanges);
 
+<<<<<<< HEAD
         if (typeof balanceChanges === "function") {
           assert(
             balanceChanges(actualChanges),
@@ -92,6 +108,47 @@ export function supportChangeEtherBalances(
             }
           );
         }
+=======
+        assert(
+          actualChanges.every(
+            (change, ind) => change === toBigInt(balanceChanges[ind])
+          ),
+          () => {
+            const lines: string[] = [];
+            actualChanges.forEach((change: bigint, i) => {
+              if (change !== toBigInt(balanceChanges[i])) {
+                lines.push(
+                  `Expected the ether balance of ${
+                    accountAddresses[i]
+                  } (the ${ordinal(
+                    i + 1
+                  )} address in the list) to change by ${balanceChanges[
+                    i
+                  ].toString()} wei, but it changed by ${change.toString()} wei`
+                );
+              }
+            });
+            return lines.join("\n");
+          },
+          () => {
+            const lines: string[] = [];
+            actualChanges.forEach((change: bigint, i) => {
+              if (change === toBigInt(balanceChanges[i])) {
+                lines.push(
+                  `Expected the ether balance of ${
+                    accountAddresses[i]
+                  } (the ${ordinal(
+                    i + 1
+                  )} address in the list) NOT to change by ${balanceChanges[
+                    i
+                  ].toString()} wei, but it did`
+                );
+              }
+            });
+            return lines.join("\n");
+          }
+        );
+>>>>>>> 21729dc206 (Added support for Typed objects)
       };
 
       const derivedPromise = Promise.all([
@@ -106,6 +163,7 @@ export function supportChangeEtherBalances(
   );
 }
 
+<<<<<<< HEAD
 function validateInput(
   obj: any,
   accounts: Array<Addressable | string>,
@@ -128,6 +186,8 @@ function validateInput(
   }
 }
 
+=======
+>>>>>>> 21729dc206 (Added support for Typed objects)
 export async function getBalanceChanges(
   transaction: TransactionResponse | Promise<TransactionResponse>,
   accounts: Array<Addressable | string>,

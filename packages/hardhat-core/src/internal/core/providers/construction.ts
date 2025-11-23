@@ -49,6 +49,10 @@ export async function createProvider(
   config: HardhatConfig,
   networkName: string,
   artifacts?: Artifacts,
+<<<<<<< HEAD
+=======
+  experimentalHardhatNetworkMessageTraceHooks: BoundExperimentalHardhatNetworkMessageTraceHook[] = [],
+>>>>>>> 21729dc206 (Added support for Typed objects)
   extenders: ProviderExtender[] = []
 ): Promise<EthereumProvider> {
   let eip1193Provider: EIP1193Provider;
@@ -111,10 +115,13 @@ export async function createProvider(
           paths !== undefined ? getForkCacheDirPath(paths) : undefined,
         enableTransientStorage:
           hardhatNetConfig.enableTransientStorage ?? false,
+<<<<<<< HEAD
         enableRip7212: hardhatNetConfig.enableRip7212 ?? false,
       },
       {
         enabled: hardhatNetConfig.loggingEnabled,
+=======
+>>>>>>> 21729dc206 (Added support for Typed objects)
       },
       artifacts
     );

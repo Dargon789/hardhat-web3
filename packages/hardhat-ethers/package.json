@@ -1,6 +1,10 @@
 {
   "name": "@nomicfoundation/hardhat-ethers",
+<<<<<<< HEAD
   "version": "3.0.8",
+=======
+  "version": "3.0.5",
+>>>>>>> 21729dc206 (Added support for Typed objects)
   "description": "Hardhat plugin for ethers",
   "homepage": "https://github.com/nomicfoundation/hardhat/tree/main/packages/hardhat-ethers",
   "repository": "github:nomicfoundation/hardhat",
@@ -21,7 +25,11 @@
     "eslint": "eslint 'src/**/*.ts' 'test/**/*.ts'",
     "prettier": "prettier \"**/*.{js,md,json}\"",
     "pretest": "cd ../.. && pnpm build",
+<<<<<<< HEAD
     "test": "mocha --recursive \"test/**/*.ts\" --exit",
+=======
+    "test": "mocha --recursive \"test/**/*.ts\"",
+>>>>>>> 21729dc206 (Added support for Typed objects)
     "build": "tsc --build .",
     "prepublishOnly": "pnpm build",
     "clean": "rimraf dist internal types *.{d.ts,js}{,.map} build-test tsconfig.tsbuildinfo"
@@ -50,16 +58,28 @@
     "@types/debug": "^4.1.4",
     "@types/lodash.isequal": "^4.5.6",
     "@types/mocha": ">=9.1.0",
+<<<<<<< HEAD
     "@types/node": "^18.0.0",
+=======
+    "@types/node": "^16.0.0",
+>>>>>>> 21729dc206 (Added support for Typed objects)
     "@types/sinon": "^9.0.8",
     "@typescript-eslint/eslint-plugin": "5.61.0",
     "@typescript-eslint/parser": "5.61.0",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
+<<<<<<< HEAD
     "eslint": "^8.44.0",
     "eslint-config-prettier": "8.3.0",
     "eslint-plugin-import": "2.27.5",
     "eslint-plugin-mocha": "10.4.1",
+=======
+    "chalk": "^2.4.2",
+    "eslint": "^8.44.0",
+    "eslint-config-prettier": "8.3.0",
+    "eslint-plugin-import": "2.27.5",
+    "eslint-plugin-no-only-tests": "3.0.0",
+>>>>>>> 21729dc206 (Added support for Typed objects)
     "eslint-plugin-prettier": "3.4.0",
     "ethers": "^6.1.0",
     "hardhat": "workspace:^2.0.0",
@@ -73,6 +93,10 @@
   },
   "peerDependencies": {
     "ethers": "^6.1.0",
+<<<<<<< HEAD
     "hardhat": "workspace:^2.0.0"
+=======
+    "hardhat": "^2.0.0"
+>>>>>>> 21729dc206 (Added support for Typed objects)
   }
 }

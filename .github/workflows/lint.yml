@@ -3,6 +3,7 @@ name: Lint
 on:
   push:
     branches:
+<<<<<<< HEAD
       - main
     paths:
       - ".github/workflows/lint.yml"
@@ -11,6 +12,9 @@ on:
     paths:
       - ".github/workflows/lint.yml"
       - "packages/**"
+=======
+      - "**"
+>>>>>>> 21729dc206 (Added support for Typed objects)
   workflow_dispatch:
 
 concurrency:
@@ -24,6 +28,7 @@ jobs:
     permissions:
       contents: read
     steps:
+<<<<<<< HEAD
       # NOTE: When running on a pull_request_target, we're checking out the repo
       # twice. The first checkout is for the base branch of the PR. The second,
       # for the merge commit. We do this to be able to use the `setup-env`
@@ -40,6 +45,19 @@ jobs:
         name: Check out setup-env action from the base branch
         run: git checkout --no-overlay $GITHUB_SHA -- .github/actions/setup-env
       - uses: ./.github/actions/setup-env
+=======
+      - uses: actions/checkout@v2
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          cache: "pnpm"
+          cache-dependency-path: |
+            pnpm-lock.yaml
+            docs/pnpm-lock.yaml
+>>>>>>> 21729dc206 (Added support for Typed objects)
       - name: Install
         run: pnpm install --frozen-lockfile --prefer-offline
       - name: Build
@@ -48,6 +66,7 @@ jobs:
         run: pnpm lint
       - name: Check dependency versions
         run: node scripts/check-dependencies.js
+<<<<<<< HEAD
   comment:
     needs: [lint]
     if: failure() && github.event_name == 'pull_request_target' && needs.lint.result == 'failure'
@@ -66,3 +85,11 @@ jobs:
               repo: context.repo.repo,
               body: "Thanks for submitting this PR!\n\nUnfortunately, it has some linter errors, so we can't merge it yet. Can you please fix them?\n\nRunning pnpm lint:fix in the root of the repository may fix them automatically."
             })
+=======
+      - name: Install website
+        working-directory: docs/
+        run: pnpm install --frozen-lockfile --prefer-offline
+      - name: Lint website
+        working-directory: docs/
+        run: pnpm lint
+>>>>>>> 21729dc206 (Added support for Typed objects)

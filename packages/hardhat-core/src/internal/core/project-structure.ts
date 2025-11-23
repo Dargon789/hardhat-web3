@@ -14,10 +14,17 @@ const CTS_CONFIG_FILENAME = "hardhat.config.cts";
 
 export function isCwdInsideProject() {
   return (
+<<<<<<< HEAD
     findUp.sync(TS_CONFIG_FILENAME) !== undefined ||
     findUp.sync(CTS_CONFIG_FILENAME) !== undefined ||
     findUp.sync(CJS_CONFIG_FILENAME) !== undefined ||
     findUp.sync(JS_CONFIG_FILENAME) !== undefined
+=======
+    findUp.sync(TS_CONFIG_FILENAME) !== null ||
+    findUp.sync(CTS_CONFIG_FILENAME) !== null ||
+    findUp.sync(CJS_CONFIG_FILENAME) !== null ||
+    findUp.sync(JS_CONFIG_FILENAME) !== null
+>>>>>>> 21729dc206 (Added support for Typed objects)
   );
 }
 
@@ -28,7 +35,11 @@ export function getUserConfigPath() {
   }
 
   const ctsConfigPath = findUp.sync(CTS_CONFIG_FILENAME);
+<<<<<<< HEAD
   if (ctsConfigPath !== undefined) {
+=======
+  if (ctsConfigPath !== null) {
+>>>>>>> 21729dc206 (Added support for Typed objects)
     return ctsConfigPath;
   }
 

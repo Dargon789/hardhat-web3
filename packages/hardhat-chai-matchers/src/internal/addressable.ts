@@ -1,4 +1,4 @@
-import type EthersT from "ethers";
+import { isAddress, isAddressable } from "ethers";
 
 <<<<<<< HEAD
 import { tryDereference } from "./typed";
@@ -31,6 +31,7 @@ function override(
 // so we are looking for a sync way of getting the address. If an address was recovered, it is returned as a string,
 // otherwise undefined is returned.
 function tryGetAddressSync(value: any): string | undefined {
+<<<<<<< HEAD
   const { isAddress, isAddressable } = require("ethers") as typeof EthersT;
 <<<<<<< HEAD
 
@@ -41,6 +42,8 @@ function tryGetAddressSync(value: any): string | undefined {
   if (isAddress(value)) {
     return value;
 =======
+=======
+>>>>>>> 21729dc206 (Added support for Typed objects)
   if (isAddress(value)) {
     return value;
   } else if (isAddressable(value)) {

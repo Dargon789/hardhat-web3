@@ -67,8 +67,23 @@ function checkPeerDependencies(packageJson) {
     }
 
     const peerDep = packageJson.peerDependencies[dependency];
+<<<<<<< HEAD
     const devDep = packageJson.devDependencies[dependency];
 
+=======
+    if (peerDep.startsWith("workspace:")) {
+      console.error(
+        `${packageJson.name} uses the workspace protocol for ${dependency}, which is a peer dependency`
+      );
+
+      success = false;
+    }
+
+    const devDep = packageJson.devDependencies[dependency].replace(
+      /^workspace:/,
+      ""
+    );
+>>>>>>> 21729dc206 (Added support for Typed objects)
     if (peerDep !== devDep) {
       console.error(
         `${packageJson.name} has different versions of ${dependency} as peerDependency and devDependency`

@@ -44,7 +44,11 @@ describe("Lock", function () {
         deployOneYearLockFixture
       );
 
+<<<<<<< HEAD
       expect(await hre.ethers.provider.getBalance(lock.target)).to.equal(
+=======
+      expect(await ethers.provider.getBalance(lock.target)).to.equal(
+>>>>>>> 21729dc206 (Added support for Typed objects)
         lockedAmount
       );
     });

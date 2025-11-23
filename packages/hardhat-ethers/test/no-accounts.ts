@@ -94,8 +94,12 @@ describe("hardhat-ethers plugin", function () {
         assert.isTrue(signers.every((aSigner) => aSigner.address !== address));
 
         const signer = await this.env.ethers.getSigner(address);
+<<<<<<< HEAD
         // We need an as any here because the type of instanceOf expects a public constructor
         assert.instanceOf(signer, HardhatEthersSigner as any);
+=======
+        assert.instanceOf(signer, HardhatEthersSigner);
+>>>>>>> 21729dc206 (Added support for Typed objects)
         assert.strictEqual(signer.address, address);
       });
     });

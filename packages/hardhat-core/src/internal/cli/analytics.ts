@@ -126,10 +126,14 @@ export class Analytics {
     }
 
     let eventParams = {};
+<<<<<<< HEAD
     if (
       (scopeName === "ignition" && taskName === "deploy") ||
       (scopeName === undefined && taskName === "deploy")
     ) {
+=======
+    if (scopeName === "ignition" && taskName === "deploy") {
+>>>>>>> 21729dc206 (Added support for Typed objects)
       eventParams = {
         scope: scopeName,
         task: taskName,

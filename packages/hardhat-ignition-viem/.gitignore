@@ -1,3 +1,4 @@
+<<<<<<< HEAD:packages/hardhat-ignition-viem/.gitignore
 # Logs
 logs
 *.log
@@ -7,6 +8,43 @@ yarn-error.log*
 lerna-debug.log*
 .pnpm-debug.log*
 *.ndjson
+=======
+# node modules
+/node_modules
+
+# vuepress
+/docs/.vuepress/dist/
+
+# Tests compilation output
+/build-test/
+
+# Code coverage artifacts
+/coverage
+/.nyc_output
+
+# TSC prod output. This has to be in sync with the to directories in ./src, and with pnpm script clean
+
+/*.js
+/*.js.map
+/*.d.ts
+/*.d.ts.map
+/*.node
+/builtin-tasks
+/common
+/internal
+/types
+/utils
+
+test/internal/hardhat-network/provider/.hardhat_node_test_cache/
+!.eslintrc.js
+
+# Below is Github's node gitignore template,
+# ignoring the node_modules part, as it'd ignore every node_modules, and we have some for testing
+
+# Logs
+logs
+*.log
+>>>>>>> 21729dc206 (Added support for Typed objects):crates/rethnet_evm_napi/.gitignore
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
@@ -49,9 +87,6 @@ web_modules/
 # TypeScript cache
 *.tsbuildinfo
 
-# Optional npm cache directory
-.npm
-
 # Optional eslint cache
 .eslintcache
 
@@ -67,9 +102,10 @@ web_modules/
 # Optional REPL history
 .node_repl_history
 
-# Output of 'npm pack'
+# Output of 'pnpm pack'
 *.tgz
 
+<<<<<<< HEAD:packages/hardhat-ignition-viem/.gitignore
 # Yarn Integrity file
 .yarn-integrity
 
@@ -80,6 +116,8 @@ web_modules/
 .env.production.local
 .env.local
 
+=======
+>>>>>>> 21729dc206 (Added support for Typed objects):crates/rethnet_evm_napi/.gitignore
 # parcel-bundler cache (https://parceljs.org/)
 .cache
 .parcel-cache

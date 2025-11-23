@@ -17,11 +17,14 @@ export interface SourcifyConfig {
   enabled: boolean;
   apiUrl?: string;
   browserUrl?: string;
+<<<<<<< HEAD
 }
 
 export interface BlockscoutConfig {
   enabled: boolean;
   customChains: ChainConfig[];
+=======
+>>>>>>> 21729dc206 (Added support for Typed objects)
 }
 
 export type ApiKey = string | Record<string, string>;

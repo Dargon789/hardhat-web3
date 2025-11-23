@@ -1,5 +1,6 @@
 # @nomicfoundation/hardhat-foundry
 
+<<<<<<< HEAD
 ## 1.1.3
 
 ### Patch Changes
@@ -12,6 +13,8 @@
 
 - a93e240: Fixed an issue where paths were set as relative instead of absolute when overriding sources
 
+=======
+>>>>>>> 21729dc206 (Added support for Typed objects)
 ## 1.1.1
 
 ### Patch Changes

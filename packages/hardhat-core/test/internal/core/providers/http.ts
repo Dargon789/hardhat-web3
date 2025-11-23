@@ -4,8 +4,11 @@ import { MockAgent, MockPool } from "undici";
 import { HttpProvider } from "../../../../src/internal/core/providers/http";
 import { ERRORS } from "../../../../src/internal/core/errors-list";
 import { SuccessfulJsonRpcResponse } from "../../../../src/internal/util/jsonrpc";
+<<<<<<< HEAD
 import { expectHardhatError } from "../../../helpers/errors";
 import { ProviderError } from "../../../../src/internal/core/providers/errors";
+=======
+>>>>>>> 21729dc206 (Added support for Typed objects)
 
 const TOO_MANY_REQUEST_STATUS = 429;
 

@@ -273,6 +273,7 @@ export class AutomaticGasPriceProvider extends ProviderWrapper {
         }
       }
 
+<<<<<<< HEAD
       // If after all of these we still have a 0 wei maxPriorityFeePerGas, we
       // use 1 wei. This is to improve the UX of the automatic gas price
       // on chains that are very empty (i.e local testnets). This will be very
@@ -281,6 +282,8 @@ export class AutomaticGasPriceProvider extends ProviderWrapper {
         maxPriorityFeePerGas = 1n;
       }
 
+=======
+>>>>>>> 21729dc206 (Added support for Typed objects)
       return {
         // Each block increases the base fee by 1/8 at most, when full.
         // We have the next block's base fee, so we compute a cap for the

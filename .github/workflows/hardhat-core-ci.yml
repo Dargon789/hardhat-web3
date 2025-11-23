@@ -17,6 +17,7 @@ on:
     paths:
       - ".github/workflows/hardhat-core-ci.yml"
       - "config/**"
+<<<<<<< HEAD
       - "packages/hardhat-core/**"
       - "packages/hardhat-common/**"
   workflow_dispatch:
@@ -25,6 +26,9 @@ on:
         description: Test all solc versions
         required: false
         default: "false"
+=======
+  workflow_dispatch:
+>>>>>>> 21729dc206 (Added support for Typed objects)
 
 defaults:
   run:
@@ -35,6 +39,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+<<<<<<< HEAD
   test-core:
     name: Test core (${{ matrix.os }}, Node ${{ matrix.node }})
     runs-on: ${{ matrix.os }}
@@ -63,12 +68,31 @@ jobs:
       - name: Build
         run: pnpm build
 
+=======
+  test_on_windows:
+    name: Test hardhat-core on Windows with Node 16
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          cache: "pnpm"
+      - name: Install
+        run: pnpm install --frozen-lockfile --prefer-offline
+      - name: Build
+        run: pnpm build
+>>>>>>> 21729dc206 (Added support for Typed objects)
       - name: Run tests
         env:
           INFURA_URL: ${{ secrets.INFURA_URL }}
           ALCHEMY_URL: ${{ secrets.ALCHEMY_URL }}
           DO_NOT_SET_THIS_ENV_VAR____IS_HARDHAT_CI: true
           FORCE_COLOR: 3
+<<<<<<< HEAD
           NODE_OPTIONS: --max-old-space-size=4096
           HARDHAT_TESTS_ALL_SOLC_VERSIONS: ${{ github.event.inputs.test-all-solc-versions}}
         run: pnpm test:except-provider
@@ -101,19 +125,46 @@ jobs:
       - name: Build
         run: pnpm build
 
+=======
+        run: pnpm test:except-tracing
+
+  test_on_macos:
+    name: Test hardhat-core on MacOS with Node 16
+    runs-on: macos-latest
+    # disable until actions/virtual-environments#4896 is fixed
+    if: ${{ false }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          cache: "pnpm"
+      - name: Install
+        run: pnpm install --frozen-lockfile --prefer-offline
+      - name: Build
+        run: pnpm build
+>>>>>>> 21729dc206 (Added support for Typed objects)
       - name: Run tests
         env:
           INFURA_URL: ${{ secrets.INFURA_URL }}
           ALCHEMY_URL: ${{ secrets.ALCHEMY_URL }}
           DO_NOT_SET_THIS_ENV_VAR____IS_HARDHAT_CI: true
           FORCE_COLOR: 3
+<<<<<<< HEAD
         run: pnpm test:provider
+=======
+        run: pnpm test:except-tracing
+>>>>>>> 21729dc206 (Added support for Typed objects)
 
   test_types_node:
     name: Test different versions of @types/node
     runs-on: ubuntu-latest
     strategy:
       matrix:
+<<<<<<< HEAD
         # TODO: Currently there is no @types/node for Node 22,
         # include it when it is available.
         node: [18, 20]
@@ -126,6 +177,20 @@ jobs:
         run: pnpm install --frozen-lockfile --prefer-offline
       - name: Install @types/node
         run: pnpm add --save-dev @types/node@${{ matrix.node }}
+=======
+        node: [16, 18, 20]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      - uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node }}
+          cache: "pnpm"
+      - name: Install
+        run: pnpm install --frozen-lockfile --prefer-offline
+>>>>>>> 21729dc206 (Added support for Typed objects)
       - name: Build
         run: pnpm build
       - name: Run tests
@@ -133,3 +198,33 @@ jobs:
           DO_NOT_SET_THIS_ENV_VAR____IS_HARDHAT_CI: true
           FORCE_COLOR: 3
         run: pnpm test:except-tracing
+<<<<<<< HEAD
+=======
+
+  test_types_node:
+    name: Test different versions of @types/node
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [16, 18, 20]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      - uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node }}
+          cache: "pnpm"
+      - name: Install
+        run: pnpm install --frozen-lockfile --prefer-offline
+      - name: Install @types/node
+        run: pnpm add --save-dev @types/node@${{ matrix.node }}
+      - name: Build
+        run: pnpm build
+      - name: Run tests
+        env:
+          DO_NOT_SET_THIS_ENV_VAR____IS_HARDHAT_CI: true
+          FORCE_COLOR: 3
+        run: pnpm test:except-tracing
+>>>>>>> 21729dc206 (Added support for Typed objects)

@@ -82,8 +82,38 @@ export const defaultHardhatNetworkParams: Omit<
           [HardforkName.GRAY_GLACIER, 15_050_000],
           [HardforkName.MERGE, 15_537_394],
           [HardforkName.SHANGHAI, 17_034_870],
+<<<<<<< HEAD
           [HardforkName.CANCUN, 19_426_589],
           [HardforkName.PRAGUE, 30_000_000], // TODO: replace with actual block number
+=======
+        ]),
+      },
+    ],
+    [
+      3, // ropsten
+      {
+        hardforkHistory: new Map([
+          [HardforkName.BYZANTIUM, 1700000],
+          [HardforkName.CONSTANTINOPLE, 4230000],
+          [HardforkName.PETERSBURG, 4939394],
+          [HardforkName.ISTANBUL, 6485846],
+          [HardforkName.MUIR_GLACIER, 7117117],
+          [HardforkName.BERLIN, 9812189],
+          [HardforkName.LONDON, 10499401],
+        ]),
+      },
+    ],
+    [
+      4, // rinkeby
+      {
+        hardforkHistory: new Map([
+          [HardforkName.BYZANTIUM, 1035301],
+          [HardforkName.CONSTANTINOPLE, 3660663],
+          [HardforkName.PETERSBURG, 4321234],
+          [HardforkName.ISTANBUL, 5435345],
+          [HardforkName.BERLIN, 8290928],
+          [HardforkName.LONDON, 8897988],
+>>>>>>> 21729dc206 (Added support for Typed objects)
         ]),
       },
     ],

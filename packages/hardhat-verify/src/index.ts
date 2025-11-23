@@ -5,7 +5,11 @@ import type {
 } from "./internal/solc/artifacts";
 import type { Bytecode } from "./internal/solc/bytecode";
 
+<<<<<<< HEAD
 import picocolors from "picocolors";
+=======
+import chalk from "chalk";
+>>>>>>> 21729dc206 (Added support for Typed objects)
 import { extendConfig, subtask, task, types } from "hardhat/config";
 
 import {
@@ -17,12 +21,18 @@ import {
   TASK_VERIFY_SOURCIFY,
   TASK_VERIFY_SOURCIFY_DISABLED_WARNING,
   TASK_VERIFY_GET_CONTRACT_INFORMATION,
+<<<<<<< HEAD
   TASK_VERIFY_BLOCKSCOUT,
+=======
+>>>>>>> 21729dc206 (Added support for Typed objects)
 } from "./internal/task-names";
 import {
   etherscanConfigExtender,
   sourcifyConfigExtender,
+<<<<<<< HEAD
   blockscoutConfigExtender,
+=======
+>>>>>>> 21729dc206 (Added support for Typed objects)
 } from "./internal/config";
 import {
   InvalidConstructorArgumentsError,
@@ -46,7 +56,10 @@ import {
 import "./internal/type-extensions";
 import "./internal/tasks/etherscan";
 import "./internal/tasks/sourcify";
+<<<<<<< HEAD
 import "./internal/tasks/blockscout";
+=======
+>>>>>>> 21729dc206 (Added support for Typed objects)
 
 // Main task args
 export interface VerifyTaskArgs {
@@ -65,7 +78,10 @@ interface VerifySubtaskArgs {
   constructorArguments: string[];
   libraries: LibraryToAddress;
   contract?: string;
+<<<<<<< HEAD
   force?: boolean;
+=======
+>>>>>>> 21729dc206 (Added support for Typed objects)
 }
 
 export interface VerificationResponse {
@@ -87,7 +103,10 @@ export interface VerificationSubtask {
 
 extendConfig(etherscanConfigExtender);
 extendConfig(sourcifyConfigExtender);
+<<<<<<< HEAD
 extendConfig(blockscoutConfigExtender);
+=======
+>>>>>>> 21729dc206 (Added support for Typed objects)
 
 /**
  * Main verification task.
@@ -184,6 +203,7 @@ subtask(
       });
     }
 
+<<<<<<< HEAD
     if (config.blockscout.enabled) {
       verificationSubtasks.push({
         label: "Blockscout",
@@ -198,6 +218,11 @@ subtask(
     ) {
       console.warn(
         picocolors.yellow(
+=======
+    if (!config.etherscan.enabled && !config.sourcify.enabled) {
+      console.warn(
+        chalk.yellow(
+>>>>>>> 21729dc206 (Added support for Typed objects)
           `[WARNING] No verification services are enabled. Please enable at least one verification service in your configuration.`
         )
       );
@@ -281,13 +306,20 @@ subtask(TASK_VERIFY_GET_CONTRACT_INFORMATION)
   );
 
 /**
+<<<<<<< HEAD
  * This subtask is used to programmatically verify a contract on Etherscan or Sourcify.
+=======
+ * This subtask is used for backwards compatibility.
+ * TODO [remove-verify-subtask]: if you're going to remove this subtask,
+ * update TASK_VERIFY_ETHERSCAN and TASK_VERIFY_ETHERSCAN_RESOLVE_ARGUMENTS accordingly
+>>>>>>> 21729dc206 (Added support for Typed objects)
  */
 subtask(TASK_VERIFY_VERIFY)
   .addOptionalParam("address")
   .addOptionalParam("constructorArguments", undefined, [], types.any)
   .addOptionalParam("libraries", undefined, {}, types.any)
   .addOptionalParam("contract")
+<<<<<<< HEAD
   .addFlag("force")
   .setAction(
     async (
@@ -299,6 +331,12 @@ subtask(TASK_VERIFY_VERIFY)
         force,
       }: VerifySubtaskArgs,
       { run, config }
+=======
+  .setAction(
+    async (
+      { address, constructorArguments, libraries, contract }: VerifySubtaskArgs,
+      { run }
+>>>>>>> 21729dc206 (Added support for Typed objects)
     ) => {
       // This can only happen if the subtask is invoked from within Hardhat by a user script or another task.
       if (!Array.isArray(constructorArguments)) {
@@ -309,6 +347,7 @@ subtask(TASK_VERIFY_VERIFY)
         throw new InvalidLibrariesError();
       }
 
+<<<<<<< HEAD
       if (config.etherscan.enabled) {
         await run(TASK_VERIFY_ETHERSCAN, {
           address,
@@ -326,5 +365,13 @@ subtask(TASK_VERIFY_VERIFY)
           contract,
         });
       }
+=======
+      await run(TASK_VERIFY_ETHERSCAN, {
+        address,
+        constructorArgsParams: constructorArguments,
+        libraries,
+        contract,
+      });
+>>>>>>> 21729dc206 (Added support for Typed objects)
     }
   );

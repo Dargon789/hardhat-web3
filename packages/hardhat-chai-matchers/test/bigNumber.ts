@@ -1,5 +1,9 @@
 import { expect, AssertionError } from "chai";
+<<<<<<< HEAD
 import { default as BigNumberJs } from "bignumber.js";
+=======
+import { BigNumber as BigNumberJs } from "bignumber.js";
+>>>>>>> 21729dc206 (Added support for Typed objects)
 import BN from "bn.js";
 
 import { HardhatError } from "hardhat/internal/core/errors";

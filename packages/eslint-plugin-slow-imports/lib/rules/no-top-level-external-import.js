@@ -9,8 +9,12 @@ const { isBuiltin } = require("module");
 =======
 const fs = require("node:fs");
 const { isBuiltin } = require("node:module");
+<<<<<<< HEAD
 >>>>>>> fac1221b81 ("hardhat": patch)
 const { relative } = require("eslint-module-utils/resolve");
+=======
+const resolve = require("eslint-module-utils/resolve").default;
+>>>>>>> 21729dc206 (Added support for Typed objects)
 const parse = require("eslint-module-utils/parse").default;
 const visit = require("eslint-module-utils/visit").default;
 const { visitModules } = require("../helpers/module-visitor");
@@ -50,8 +54,6 @@ module.exports = {
     messages: {
       ENFORCE_DYNAMIC_IMPORT:
         "This import transitively imports the slow dependency '{{dependency}}' in file '{{filename}}' at line {{line}}",
-      CANNOT_RESOLVE_MODULE:
-        "Unable to resolve the absolute module path. This is likely an error in the rule configuration or the file paths.",
     },
   },
 
@@ -62,7 +64,7 @@ module.exports = {
     function visitor(filename, originalNode, node) {
       const modulePath = node.value;
       if (ignoreModules.has(modulePath) || isBuiltin(modulePath)) {
-        return;
+        return {};
       }
 
       function detectTopLevelExternalDependency(path) {
@@ -87,22 +89,10 @@ module.exports = {
       }
 
       if (!isExternalModule(modulePath)) {
-        const absoluteModulePath = relative(
-          modulePath,
-          filename,
-          context.settings
-        );
+        const absoluteModulePath = resolve(modulePath, context);
 
-        if (!absoluteModulePath) {
-          context.report({
-            node: originalNode,
-            messageId: "CANNOT_RESOLVE_MODULE",
-          });
-          return;
-        }
-
-        if (traversed.has(absoluteModulePath)) {
-          return;
+        if (!absoluteModulePath || traversed.has(absoluteModulePath)) {
+          return {};
         }
 
         traversed.add(absoluteModulePath);

@@ -405,9 +405,19 @@ describe("INTEGRATION: Reverted with custom error", function () {
         );
       });
 
+<<<<<<< HEAD
       describe("Should handle argument predicates", function () {
         it("Should pass when a predicate argument returns true", async function () {
           await expect(matchers.revertWithCustomErrorWithUint(1))
+=======
+      it("should work with predicates", async function () {
+        await expect(matchers.revertWithCustomErrorWithUint(1))
+          .to.be.revertedWithCustomError(matchers, "CustomErrorWithUint")
+          .withArgs(anyValue);
+
+        await expect(
+          expect(matchers.revertWithCustomErrorWithUint(1))
+>>>>>>> 21729dc206 (Added support for Typed objects)
             .to.be.revertedWithCustomError(matchers, "CustomErrorWithUint")
             .withArgs(anyValue);
           await expect(matchers.revertWithCustomErrorWithUint(1))

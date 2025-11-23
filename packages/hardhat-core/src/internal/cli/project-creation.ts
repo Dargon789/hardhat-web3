@@ -23,7 +23,10 @@ import {
 import { emoji } from "./emoji";
 import { Dependencies, PackageManager } from "./types";
 import { requestTelemetryConsent } from "./analytics";
+<<<<<<< HEAD
 import { BannerManager } from "./banner-manager";
+=======
+>>>>>>> 21729dc206 (Added support for Typed objects)
 
 enum Action {
   CREATE_JAVASCRIPT_PROJECT_ACTION = "Create a JavaScript project",
@@ -43,11 +46,19 @@ const HARDHAT_PACKAGE_NAME = "hardhat";
 const PROJECT_DEPENDENCIES: Dependencies = {};
 
 const ETHERS_PROJECT_DEPENDENCIES: Dependencies = {
+<<<<<<< HEAD
   "@nomicfoundation/hardhat-toolbox": "^5.0.0",
 };
 
 const VIEM_PROJECT_DEPENDENCIES: Dependencies = {
   "@nomicfoundation/hardhat-toolbox-viem": "^3.0.0",
+=======
+  "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+};
+
+const VIEM_PROJECT_DEPENDENCIES: Dependencies = {
+  "@nomicfoundation/hardhat-toolbox-viem": "^2.0.0",
+>>>>>>> 21729dc206 (Added support for Typed objects)
 };
 
 const PEER_DEPENDENCIES: Dependencies = {
@@ -57,7 +68,10 @@ const PEER_DEPENDENCIES: Dependencies = {
   chai: "^4.2.0",
   "hardhat-gas-reporter": "^1.0.8",
   "solidity-coverage": "^0.8.0",
+<<<<<<< HEAD
   "@nomicfoundation/hardhat-ignition": "^0.15.0",
+=======
+>>>>>>> 21729dc206 (Added support for Typed objects)
 };
 
 const ETHERS_PEER_DEPENDENCIES: Dependencies = {
@@ -67,6 +81,7 @@ const ETHERS_PEER_DEPENDENCIES: Dependencies = {
   "@typechain/hardhat": "^9.0.0",
   typechain: "^8.3.0",
   "@typechain/ethers-v6": "^0.5.0",
+<<<<<<< HEAD
   "@nomicfoundation/hardhat-ignition-ethers": "^0.15.0",
 };
 
@@ -74,6 +89,13 @@ const VIEM_PEER_DEPENDENCIES: Dependencies = {
   "@nomicfoundation/hardhat-viem": "^2.0.0",
   viem: "^2.7.6",
   "@nomicfoundation/hardhat-ignition-viem": "^0.15.0",
+=======
+};
+
+const VIEM_PEER_DEPENDENCIES: Dependencies = {
+  "@nomicfoundation/hardhat-viem": "^1.0.0",
+  viem: "^1.15.1",
+>>>>>>> 21729dc206 (Added support for Typed objects)
 };
 
 const TYPESCRIPT_DEPENDENCIES: Dependencies = {};
@@ -81,7 +103,11 @@ const TYPESCRIPT_DEPENDENCIES: Dependencies = {};
 const TYPESCRIPT_PEER_DEPENDENCIES: Dependencies = {
   "@types/chai": "^4.2.0",
   "@types/mocha": ">=9.1.0",
+<<<<<<< HEAD
   "@types/node": ">=18.0.0",
+=======
+  "@types/node": ">=16.0.0",
+>>>>>>> 21729dc206 (Added support for Typed objects)
   "ts-node": ">=8.0.0",
   typescript: ">=4.5.0",
 };
@@ -261,7 +287,11 @@ async function printRecommendedDepsInstallationInstructions(
 // exported so we can test that it uses the latest supported version of solidity
 export const EMPTY_HARDHAT_CONFIG = `/** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
+<<<<<<< HEAD
   solidity: "0.8.28",
+=======
+  solidity: "0.8.19",
+>>>>>>> 21729dc206 (Added support for Typed objects)
 };
 `;
 
@@ -363,7 +393,11 @@ async function createPackageJson() {
 
 function showStarOnGitHubMessage() {
   console.log(
+<<<<<<< HEAD
     picocolors.cyan("Give Hardhat a star on Github if you're enjoying it!") +
+=======
+    chalk.cyan("Give Hardhat a star on Github if you're enjoying it!") +
+>>>>>>> 21729dc206 (Added support for Typed objects)
       emoji(" ⭐️✨")
   );
   console.log();
@@ -382,6 +416,20 @@ export function showSoliditySurveyMessage() {
   console.log(
     picocolors.cyan(
       "Please take a moment to complete the 2024 Solidity Survey: https://hardhat.org/solidity-survey-2024"
+    )
+  );
+}
+
+export function showSoliditySurveyMessage() {
+  if (new Date() > new Date("2024-01-07 23:39")) {
+    // the survey has finished
+    return;
+  }
+
+  console.log();
+  console.log(
+    chalk.cyan(
+      "Please take a moment to complete the 2023 Solidity Survey: https://hardhat.org/solidity-survey-2023"
     )
   );
 }
@@ -537,9 +585,12 @@ export async function createProject() {
   console.log();
   showStarOnGitHubMessage();
   showSoliditySurveyMessage();
+<<<<<<< HEAD
 
   const hardhat3BannerManager = await BannerManager.getInstance();
   await hardhat3BannerManager.showBanner();
+=======
+>>>>>>> 21729dc206 (Added support for Typed objects)
 }
 
 async function canInstallRecommendedDeps() {
@@ -597,6 +648,12 @@ async function doesNpmAutoInstallPeerDependencies() {
 async function installRecommendedDependencies(dependencies: Dependencies) {
   console.log("");
 
+<<<<<<< HEAD
+=======
+  // The reason we don't quote the dependencies here is because they are going
+  // to be used in child_process.spawn, which doesn't require escaping string,
+  // and can actually fail if you do.
+>>>>>>> 21729dc206 (Added support for Typed objects)
   const installCmd = await getRecommendedDependenciesInstallationCommand(
     dependencies
   );

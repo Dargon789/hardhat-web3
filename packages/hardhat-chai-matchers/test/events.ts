@@ -2,7 +2,10 @@ import type {
   AnotherContract,
   EventsContract,
   MatchersContract,
+<<<<<<< HEAD
   OverrideEventContract,
+=======
+>>>>>>> 21729dc206 (Added support for Typed objects)
 } from "./contracts";
 
 import { expect, AssertionError } from "chai";
@@ -15,7 +18,10 @@ import { useEnvironment, useEnvironmentWithNode } from "./helpers";
 describe(".to.emit (contract events)", () => {
   let contract: EventsContract;
   let otherContract: AnotherContract;
+<<<<<<< HEAD
   let overrideEventContract: OverrideEventContract;
+=======
+>>>>>>> 21729dc206 (Added support for Typed objects)
   let matchers: MatchersContract;
 
   describe("with the in-process hardhat network", function () {
@@ -32,7 +38,13 @@ describe(".to.emit (contract events)", () => {
 
   function runTests() {
     beforeEach(async function () {
+<<<<<<< HEAD
       otherContract = await this.hre.ethers.deployContract("AnotherContract");
+=======
+      otherContract = await (
+        await this.hre.ethers.getContractFactory("AnotherContract")
+      ).deploy();
+>>>>>>> 21729dc206 (Added support for Typed objects)
 
       contract = await (
         await this.hre.ethers.getContractFactory<[string], EventsContract>(
@@ -40,12 +52,15 @@ describe(".to.emit (contract events)", () => {
         )
       ).deploy(await otherContract.getAddress());
 
+<<<<<<< HEAD
       overrideEventContract = await (
         await this.hre.ethers.getContractFactory<[], OverrideEventContract>(
           "OverrideEventContract"
         )
       ).deploy();
 
+=======
+>>>>>>> 21729dc206 (Added support for Typed objects)
       const Matchers = await this.hre.ethers.getContractFactory<
         [],
         MatchersContract
@@ -192,7 +207,11 @@ describe(".to.emit (contract events)", () => {
               .withArgs(otherAddressable)
           ).to.be.eventually.rejectedWith(
             AssertionError,
+<<<<<<< HEAD
             `Error in "WithAddressArg" event: Error in the 1st argument assertion: expected '${address}' to equal '${otherAddress}'`
+=======
+            `expected '${address}' to equal '${otherAddress}'`
+>>>>>>> 21729dc206 (Added support for Typed objects)
           );
         });
 
@@ -203,7 +222,11 @@ describe(".to.emit (contract events)", () => {
               .withArgs(otherAddress)
           ).to.be.eventually.rejectedWith(
             AssertionError,
+<<<<<<< HEAD
             `Error in "WithAddressArg" event: Error in the 1st argument assertion: expected '${address}' to equal '${otherAddress}'`
+=======
+            `expected '${address}' to equal '${otherAddress}'`
+>>>>>>> 21729dc206 (Added support for Typed objects)
           );
         });
 
@@ -214,16 +237,29 @@ describe(".to.emit (contract events)", () => {
               .withArgs(address, otherAddress)
           ).to.be.eventually.rejectedWith(
             AssertionError,
+<<<<<<< HEAD
             'Error in "WithAddressArg" event: Expected arguments array to have length 2, but it has 1'
           );
         });
       });
+=======
+            'Expected "WithAddressArg" event to have 2 argument(s), but it has 1'
+          );
+        });
+      });
+
+      const string1 = "string1";
+      const string1Bytes = ethers.hexlify(ethers.toUtf8Bytes(string1));
+      const string2 = "string2";
+      const string2Bytes = ethers.hexlify(ethers.toUtf8Bytes(string2));
+>>>>>>> 21729dc206 (Added support for Typed objects)
 
       // for abbreviating long strings in diff views like chai does:
       function abbrev(longString: string): string {
         return `${longString.substring(0, 37)}…`;
       }
 
+<<<<<<< HEAD
       function formatHash(str: string, hashFn = ethers.id) {
         const hash = hashFn(str);
         return {
@@ -231,6 +267,10 @@ describe(".to.emit (contract events)", () => {
           hash,
           abbrev: abbrev(hash),
         };
+=======
+      function hash(s: string): string {
+        return ethers.keccak256(s);
+>>>>>>> 21729dc206 (Added support for Typed objects)
       }
 
       function formatBytes(str: string) {
@@ -357,6 +397,11 @@ describe(".to.emit (contract events)", () => {
         });
       });
 
+<<<<<<< HEAD
+=======
+      const string1Bytes32 = ethers.zeroPadValue(string1Bytes, 32);
+      const string2Bytes32 = ethers.zeroPadValue(string2Bytes, 32);
+>>>>>>> 21729dc206 (Added support for Typed objects)
       describe("with a bytes32 argument", function () {
         it("Should match the argument", async function () {
           await expect(contract.emitBytes32(str1.bytes32))
@@ -371,7 +416,13 @@ describe(".to.emit (contract events)", () => {
               .withArgs(str1.bytes32)
           ).to.be.eventually.rejectedWith(
             AssertionError,
+<<<<<<< HEAD
             `Error in "WithBytes32Arg" event: Error in the 1st argument assertion: expected '${str2.abbrev32}' to equal '${str1.abbrev32}'`
+=======
+            `expected '${abbrev(
+              ethers.hexlify(string2Bytes32)
+            )}' to equal '${abbrev(ethers.hexlify(string1Bytes32))}'`
+>>>>>>> 21729dc206 (Added support for Typed objects)
           );
         });
       });
@@ -390,7 +441,13 @@ describe(".to.emit (contract events)", () => {
               .withArgs(str1.bytes32)
           ).to.be.eventually.rejectedWith(
             AssertionError,
+<<<<<<< HEAD
             `Error in "WithIndexedBytes32Arg" event: Error in the 1st argument assertion: expected '${str2.abbrev32}' to equal '${str1.abbrev32}'`
+=======
+            `expected '${abbrev(
+              ethers.hexlify(string2Bytes32)
+            )}' to equal '${abbrev(ethers.hexlify(string1Bytes32))}'`
+>>>>>>> 21729dc206 (Added support for Typed objects)
           );
         });
       });
