@@ -40,6 +40,8 @@ jobs:
   report-coverage:
     needs: test
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
         ## Check out the repository to obtain the vitest.config file
       - uses: actions/checkout@v4
