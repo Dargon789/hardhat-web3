@@ -42,7 +42,7 @@
     "chai": "^5.1.2",
     "chai-as-promised": "^8.0.0",
     "eslint": "9.25.1",
-    "mermaid": "10.9.3",
+    "mermaid": "10.9.4",
     "mocha": "^11.0.0",
     "prettier": "3.2.5",
     "react": "^18.2.0",
@@ -54,7 +54,7 @@
     "svg-pan-zoom": "^3.6.1",
     "ts-node": "10.9.2",
     "typescript": "~5.8.0",
-    "vite": "^5.0.0",
+    "vite": "^7.2.4",
     "vite-plugin-singlefile": "^2.0.1"
   }
 }
