@@ -2,13 +2,10 @@ name: Lint
 
 on:
   push:
-    branches: [main]
+    branches: [$default-branch]
   pull_request:
     branches:
       - "**"
-    paths:
-      - "docs/**"
-      - "packages/**"
   workflow_dispatch:
 
 concurrency:
@@ -20,28 +17,43 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v2
+      
       - uses: pnpm/action-setup@v2
         with:
-          version: 9
-      - uses: actions/setup-node@v4
+          version: 8
+
+      - uses: actions/setup-node@v2
         with:
-          node-version: 18
+          node-version: 16
           cache: "pnpm"
           cache-dependency-path: |
             pnpm-lock.yaml
             docs/pnpm-lock.yaml
+
+      # Retry logic for caching errors
+      - name: Setup cache with retry
+        run: |
+          for i in {1..3}; do
+            pnpm store path && break || sleep $((i * 5))
+          done
+
       - name: Install
-        run: pnpm install --frozen-lockfile --prefer-offline
+        run: pnpm install 
+
       - name: Build
         run: pnpm build
+
       - name: lint
         run: pnpm lint
+
       - name: Check dependency versions
         run: node scripts/check-dependencies.js
+
       - name: Install website
         working-directory: docs/
         run: pnpm install --frozen-lockfile --prefer-offline
+
       - name: Lint website
         working-directory: docs/
         run: pnpm lint

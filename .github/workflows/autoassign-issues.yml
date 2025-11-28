@@ -10,17 +10,14 @@ jobs:
     permissions:
       issues: write
     steps:
-      - uses: actions/github-script@v7
+      - uses: actions/github-script@v6
         with:
           script: |
             // each user has a chance of (p - (previousP ?? 0)) to be assigned
             const potentialAssignees = [
-              ["kanej", 1/6],
-              ["michalbrabec", 2/6],
-              ["schaable", 3/6],
-              ["ChristopherDedominici", 4/6],
-              ["antico5", 5/6],
-              ["zoeyTM", 1.0],
+              ["fvictorio", 0.5],
+              ["schaable", 0.75],
+              ["ChristopherDedominici", 1.0],
             ];
 
             let assignee;

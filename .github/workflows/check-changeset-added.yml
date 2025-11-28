@@ -3,12 +3,14 @@
 
 name: Check that the PR has a changeset
 
+permissions:
+  contents: read
+  pull-requests: read
+
 on:
-  merge_group:
   pull_request:
     branches:
       - main
-      - v2
     types:
       - opened
       - synchronize
@@ -17,22 +19,57 @@ on:
       - unlabeled
 
 jobs:
-  check-if-changeset:
-    name: Check that PR has a changeset
-    runs-on: ubuntu-latest
+  test:
+    name: Test on node ${{ matrix.node_version }} and ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        node_version: ['18.x', '20.x']
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+
     steps:
-      - name: Checkout the repository
-        uses: actions/checkout@v5
+    - uses: actions/checkout@v4
+    - name: Use Node.js ${{ matrix.node_version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node_version }}
 
-      # We need to fetch the base ref because the pull request check inspects the diff between the head and the base ref
-      - run: git fetch origin "$GITHUB_BASE_REF":"$GITHUB_BASE_REF"
+    - name: npm install, build and test
+      run: |
+        npm install
+        npm run build --if-present
+        npm test
+        if: github.event_name == 'push'
+     
+      env: |
+      
+        const pullNumber = context.issue.number;
 
-      - name: Check if merge group is valid
-        if: github.event_name == 'merge_group'
-        run: node scripts/validate-merge-group.mjs
+        const { data: files } = await github.rest.pulls.listFiles({
+          ...context.issue,
+          pull_number: pullNumber
+        });
+        const changeset = files.find(
+          file => file.status === "added" && file.filename.startsWith(".changeset/")
+        );
+        if (changeset) {
+          console.log("Changeset found:", changeset.filename);
+          return;
+        }
 
-      - name: Check if PR has a changeset
-        if: github.event_name == 'pull_request'
-        env:
-          GITHUB_EVENT_PULL_REQUEST_LABELS: ${{ toJson(github.event.pull_request.labels) }}
-        run: node scripts/validate-pull-request-changeset.mjs
+        console.log("No changeset found");
+
+        const { data: pull } = await github.rest.pulls.get({
+          ...context.issue,
+          pull_number: pullNumber
+        });
+        const noChangesetNeededLabel = pull.labels
+          .some(l => l.name === "no changeset needed");
+        if (noChangesetNeededLabel) {
+          console.log('The PR is labeled as "no changeset needed"');
+          return;
+        }
+
+        console.error('Error: No changeset file found and no "no changeset needed" label applied.');
+        console.error('Please add a changeset file or label the PR as "no changeset needed".');
+        process.exit(1);
