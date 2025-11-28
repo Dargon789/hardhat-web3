@@ -23,6 +23,8 @@ concurrency:
   group: ${{github.workflow}}-${{github.ref}}
   cancel-in-progress: true
 
+permissions:
+  contents: read
 jobs:
   test_on_windows:
     name: Test hardhat-chai-matchers on Windows with Node 16
