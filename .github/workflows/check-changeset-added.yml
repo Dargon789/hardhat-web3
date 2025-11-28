@@ -2,6 +2,8 @@
 # as "no changeset needed"
 
 name: Check that the PR has a changeset
+permissions:
+  contents: read
 
 on:
   pull_request:
