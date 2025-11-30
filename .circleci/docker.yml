@@ -24,9 +24,6 @@ env:
 
 jobs:
   build:
-    - name: Build the Docker image
-      run: docker build . --file path/to/Dockerfile --tag my-image-name:$(date +%s)
-
   runs-on: ubuntu-latest
    permissions:
       contents: read
