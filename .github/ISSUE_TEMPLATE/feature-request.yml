@@ -1,15 +1,18 @@
+---
 name: Feature request
-description: Suggest a new feature
-body:
-  - type: textarea
-    id: feature-description
-    attributes:
-      label: "Describe the feature"
-      description: "A description of what you would like us to add to Hardhat and your use case for it"
-    validations:
-      required: true
-  - type: input
-    id: search-terms
-    attributes:
-      label: "Search terms"
-      description: "Include the search terms you used before opening this issue. This will make it easier for others to find it."
+about: Suggest an idea for this project
+title: ''
+labels: ''
+assignees: ''
+
+---
+
+**Is your feature request related to a problem? Please describe.** A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+
+**Describe the solution you'd like** A clear and concise description of what you want to happen.
+
+**Describe alternatives you've considered** A clear and concise description of any alternative solutions or features you've considered.
+
+**Additional context** Add any other context or screenshots about the feature request here.
+
+---
