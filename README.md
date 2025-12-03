@@ -52,7 +52,7 @@
 ---
 
 ## 🌀 Timeline
-- **Month 1–3:** Setup Hardhat + Foundry  
+- **Month 1–3:** Set up Hardhat + Foundry  
 - **Month 4–6:** Wallet integration (wagmi/viem)  
 - **Month 7–9:** DEX + DeFi rails (Uniswap, 1inch)  
 - **Month 10–11:** Sequence Builder integration → ecosystem hub  
