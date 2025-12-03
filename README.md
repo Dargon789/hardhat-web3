@@ -38,7 +38,7 @@
 - [Accounts UI Kit](https://github.com/Dargon789/accounts-ui-kit)  
 - [Ethereum.org](https://ethereum.org/)  
 - [0x.org](https://0x.org/)
-- [uniswap.org](https://app.uniswap.org/)
+- [Uniswap](https://app.uniswap.org/)
 - [1inch](https://app.1inch.io/)
 
 ---
