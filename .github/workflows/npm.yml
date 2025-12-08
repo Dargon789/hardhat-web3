@@ -254,14 +254,31 @@ jobs:
             echo "No foundry artifacts found to publish" >&2
             exit 1
           fi
-          version_part=$(basename "$first_file")
-          version_part=${version_part#foundry_}
+          # Artifacts are filtered earlier, but harden further: check for unsafe filename characters
+          first_basename=$(basename "${first_file}")
+          if [[ "$first_basename" == *"/"* || "$first_basename" == *"\\"* || "$first_basename" == *$'\n'* || "$first_basename" == *$'\r'* || "$first_basename" == *$'\t'* ]]; then
+            echo "ERROR: Found artifact with suspicious filename: '$first_basename'" >&2
+            exit 1
+          fi
+          # Only allow expected artifact filename pattern
+          if ! [[ "$first_basename" =~ ^foundry_v?[0-9]+\.[0-9]+\.[0-9]+([\-+a-zA-Z0-9\.]*)?_[^_]+_[^_]+\.(tar\.gz|zip)$ ]]; then
+            echo "ERROR: Artifact filename '$first_basename' does not match expected foundry artifact pattern" >&2
+            exit 1
+          fi
+          version_part=${first_basename#foundry_}
           export RELEASE_VERSION=${version_part%%_*}
           # Validate RELEASE_VERSION: allow "v" optional, then e.g. 1.2.3(-rc.1) etc (semver)
           if ! [[ "$RELEASE_VERSION" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+([\-+a-zA-Z0-9\.]*)?$ ]]; then
             echo "ERROR: RELEASE_VERSION '$RELEASE_VERSION' does not match expected pattern (semver, e.g. v1.2.3)" >&2
             exit 1
           fi
+          # Block any RELEASE_VERSION containing control characters after regex match (for defense-in-depth)
+          case "$RELEASE_VERSION" in
+            *[/$'\n'$'\r'$'\t']*)
+              echo "ERROR: RELEASE_VERSION contains invalid characters" >&2
+              exit 1
+              ;;
+          esac
           echo "Detected RELEASE_VERSION=$RELEASE_VERSION"
 
           printf 'RELEASE_VERSION=%s\n' "$RELEASE_VERSION" >>"$GITHUB_OUTPUT"
