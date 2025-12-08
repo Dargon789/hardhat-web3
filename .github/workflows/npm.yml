@@ -159,6 +159,12 @@ jobs:
           node-version: "24"
           registry-url: "https://registry.npmjs.org"
 
+      - name: Ensure npm workspace is unmodified
+        run: |
+          set -euo pipefail
+          # Fail if package.json or bun.lockb are different from committed version
+          git diff --exit-code ./npm/package.json ./npm/bun.lockb
+
       - name: Install Dependencies
         working-directory: ./npm
         run: bun install --frozen-lockfile
