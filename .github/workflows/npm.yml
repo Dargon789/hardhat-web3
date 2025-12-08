@@ -204,13 +204,29 @@ jobs:
             echo "::error::Found possibly untrusted or suspicious files in npm workspace: $SUSPECT" >&2
             exit 1
           fi
-          # Optional: warn if any files that originated from ARTIFACT_DIR are present (by inode/mtime)
-          if [ -d "${{ steps.paths.outputs.artifact_dir }}" ]; then
-            for afile in $(find . -type f -exec ls -l {} \; | awk '{print $9}'); do
-              case "$afile" in
-                *foundry_*) echo "::warning::File $afile may originate from untrusted artifacts"; exit 1 ;;
-              esac
+          # Strictly block any files originating from artifact directory by inode or mtime (strong check)
+          ARTIFACT_DIR="${{ steps.paths.outputs.artifact_dir }}"
+          if [ -d "$ARTIFACT_DIR" ]; then
+            cd ..
+            for artifact_file in $(find "$ARTIFACT_DIR" -type f); do
+              # Get inode number of the artifact file
+              inode=$(stat -c %i "$artifact_file")
+              # Look for files in npm/ with the same inode (hard link or move)
+              SUSPECT_TARGET=$(find ./npm -type f -inum "$inode" 2>/dev/null || true)
+              if [ -n "$SUSPECT_TARGET" ]; then
+                echo "::error::Workspace file $SUSPECT_TARGET is hardlinked to untrusted artifact $artifact_file" >&2
+                exit 1
+              fi
             done
+            # Optionally, block any files with unexpected recent mtime (could indicate tampering)
+            RECENT_FILES=$(find ./npm -type f -newer "$ARTIFACT_DIR" 2>/dev/null || true)
+            if [ -n "$RECENT_FILES" ]; then
+              for recfile in $RECENT_FILES; do
+                echo "::error::File $recfile was modified after artifact extraction (possible artifact poisoning)"
+                exit 1
+              done
+            fi
+            cd ./npm
           fi
           echo "NPM workspace is clean."
 
