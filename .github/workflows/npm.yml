@@ -163,11 +163,33 @@ jobs:
         working-directory: ./npm
         run: bun install --frozen-lockfile
 
+      - name: Re-Validate Artifact Archive Contents
+        env:
+          ARTIFACT_DIR: ${{ steps.paths.outputs.artifact_dir }}
+        run: |
+          set -euo pipefail
+          # For each artifact archive, list its (uncompressed) content and search for suspicious files
+          for archive in "$ARTIFACT_DIR"/foundry_*.tar.gz; do
+            [ -e "$archive" ] || continue
+            echo "Checking contents of $archive"
+            if tar -tzvf "$archive" | grep -E '\.(sh|exe|js|bat|py)$'; then
+              echo "::error::Detected suspicious file (script or executable) in $archive" >&2
+              exit 1
+            fi
+          done
+          for archive in "$ARTIFACT_DIR"/foundry_*.zip; do
+            [ -e "$archive" ] || continue
+            echo "Checking contents of $archive"
+            if unzip -l "$archive" | grep -E '\.(sh|exe|js|bat|py)$'; then
+              echo "::error::Detected suspicious file (script or executable) in $archive" >&2
+              exit 1
+            fi
+          done
+          echo "All artifact archives contents look safe."
+
       - name: Transpile TS -> JS
         working-directory: ./npm
         run: bun run build
-
-      - name: Derive RELEASE_VERSION
         id: release-version
         working-directory: ./npm
         env:
