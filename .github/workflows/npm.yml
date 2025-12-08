@@ -106,6 +106,45 @@ jobs:
               echo "Prohibited executable/script file found: $file" >&2
               exit 1
             fi
+            # Check inside archives for prohibited content
+            if [[ "$file" == *.tar.gz ]]; then
+              # List contents, normalize to remove potential path traversal
+              tar -tzf "$file" > "$file.list"
+              while IFS= read -r entry; do
+                # Deny symlinks, dotfiles, scripts, executables, workspace overrides
+                if [[ "$entry" =~ \.sh$|\.js$|\.exe$ ]]; then
+                  echo "Prohibited script/executable found inside $file: $entry" >&2
+                  exit 1
+                fi
+                if [[ "$entry" =~ ^package\.json$|^bun\.lockb$|^package-lock\.json$|^\.npmrc$|^node_modules/|^npm/ ]]; then
+                  echo "Prohibited workspace override found in $file: $entry" >&2
+                  exit 1
+                fi
+                if [[ "$entry" == *".."* ]]; then
+                  echo "Prohibited path traversal in $file: $entry" >&2
+                  exit 1
+                fi
+              done < "$file.list"
+              rm -f "$file.list"
+            elif [[ "$file" == *.zip ]]; then
+              unzip -l "$file" > "$file.zlist"
+              # Extract file names from the listing; skip headers
+              awk 'NR>3{print $4}' "$file.zlist" | while IFS= read -r entry; do
+                if [[ "$entry" =~ \.sh$|\.js$|\.exe$ ]]; then
+                  echo "Prohibited script/executable found inside $file: $entry" >&2
+                  exit 1
+                fi
+                if [[ "$entry" =~ ^package\.json$|^bun\.lockb$|^package-lock\.json$|^\.npmrc$|^node_modules/|^npm/ ]]; then
+                  echo "Prohibited workspace override found in $file: $entry" >&2
+                  exit 1
+                fi
+                if [[ "$entry" == *".."* ]]; then
+                  echo "Prohibited path traversal in $file: $entry" >&2
+                  exit 1
+                fi
+              done
+              rm -f "$file.zlist"
+            fi
           done
           echo "Artifact validation passed."
 
