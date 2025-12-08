@@ -193,6 +193,27 @@ jobs:
           done
           echo "All artifact archives contents look safe."
 
+      - name: Final Workspace Sanity Check (No Untrusted Files)
+        run: |
+          set -euo pipefail
+          # Fail if any suspicious or unexpected files are present in workspace
+          cd ./npm
+          # List suspicious files
+          SUSPECT=$(find . -type f \( -name '*.sh' -o -name '*.exe' -o -name '*.js' -o -name '*.bat' -o -name '*.py' \) -not -path './node_modules/*')
+          if [ -n "$SUSPECT" ]; then
+            echo "::error::Found possibly untrusted or suspicious files in npm workspace: $SUSPECT" >&2
+            exit 1
+          fi
+          # Optional: warn if any files that originated from ARTIFACT_DIR are present (by inode/mtime)
+          if [ -d "${{ steps.paths.outputs.artifact_dir }}" ]; then
+            for afile in $(find . -type f -exec ls -l {} \; | awk '{print $9}'); do
+              case "$afile" in
+                *foundry_*) echo "::warning::File $afile may originate from untrusted artifacts"; exit 1 ;;
+              esac
+            done
+          fi
+          echo "NPM workspace is clean."
+
       - name: Transpile TS -> JS
         working-directory: ./npm
         run: bun run build
