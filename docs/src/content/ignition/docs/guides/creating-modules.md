@@ -165,7 +165,7 @@ Calling `m.send` will create a `Future` representing the sending action. The fir
 
 The second argument is the address of the account where you want to send the ETH or data to.
 
-The third and forth parameters are both optional. They represent the amount of ETH and the data to be sent.
+The third and fourth parameters are both optional. They represent the amount of ETH and the data to be sent.
 
 ### Deploying a library
 
