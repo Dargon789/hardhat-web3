@@ -122,7 +122,7 @@ m.call(myContract, "receivesEth" [], {
 
 ### Reading a value from a contract
 
-If you need to call a `view` or `pure` function in a contract to retreive a value, you can do it with `m.staticCall`:
+If you need to call a `view` or `pure` function in a contract to retrieve a value, you can do it with `m.staticCall`:
 
 ```js
 const balance = m.staticCall(token, "balanceOf", [address]);
