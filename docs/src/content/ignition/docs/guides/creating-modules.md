@@ -179,7 +179,7 @@ If you need to link libraries take a look at the [Linking Libraries](#linking-li
 
 ## `Future` IDs
 
-Each `Future` that is created should have a unique ID. In most cases, Hardhat Ignition will automatically generate an ID for the every `Future` you create, based on the creation parameters.
+Each `Future` that is created should have a unique ID. In most cases, Hardhat Ignition will automatically generate an ID for every `Future` you create, based on the creation parameters.
 
 In some cases, this automatic process may lead to an ID clash with an existing `Future`. If that happens, Hardhat Ignition won't try to resolve the clash, and you will need to define an ID manually to resolve the issue. Every method of `ModuleBuilder` accepts an options object as last argument, which has an `id` field that can be used like this:
 
