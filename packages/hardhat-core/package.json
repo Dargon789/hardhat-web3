@@ -126,7 +126,7 @@
     "find-up": "^2.1.0",
     "fp-ts": "1.19.3",
     "fs-extra": "^7.0.1",
-    "glob": "7.2.0",
+    "glob": "9.0.0",
     "immutable": "^4.0.0-rc.12",
     "io-ts": "1.10.4",
     "keccak": "^3.0.2",
@@ -137,13 +137,13 @@
     "raw-body": "^2.4.1",
     "resolve": "1.17.0",
     "semver": "^6.3.0",
-    "solc": "0.7.3",
+    "solc": "0.8.12",
     "source-map-support": "^0.5.13",
     "stacktrace-parser": "^0.1.10",
     "tsort": "0.0.1",
-    "undici": "^5.14.0",
+    "undici": "^5.29.0",
     "uuid": "^8.3.2",
-    "ws": "^7.4.6"
+    "ws": "^7.5.10"
   },
   "peerDependencies": {
     "ts-node": "*",
