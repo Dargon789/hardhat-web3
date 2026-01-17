@@ -240,9 +240,23 @@ jobs:
           fi
           echo "NPM workspace is clean."
 
+      - name: Ensure No Artifacts In npm Workspace
+        env:
+          ARTIFACT_DIR: ${{ steps.paths.outputs.artifact_dir }}
+        run: |
+          set -euo pipefail
+          # Assert artifact directory is outside the npm workspace
+          if [[ "$ARTIFACT_DIR" == "$GITHUB_WORKSPACE/npm"* ]]; then
+            echo "Artifact directory must not be inside the npm workspace"
+            exit 1
+          fi
+          # Ensure no foundry_* artifacts exist under ./npm
+          if compgen -G "$GITHUB_WORKSPACE/npm/foundry_*" > /dev/null; then
+            echo "Found unexpected foundry_* files under ./npm; removing to avoid artifact poisoning."
+            rm -f "$GITHUB_WORKSPACE"/npm/foundry_*
+          fi
+
       - name: Transpile TS -> JS
-        working-directory: ./npm
-        run: bun run build
         id: release-version
         working-directory: ./npm
         env:
@@ -250,8 +264,7 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_REGISTRY_URL: ${{ env.NPM_REGISTRY_URL }}
-          ARTIFACT_DIR: ${{ steps.paths.outputs.artifact_dir }}
-        run: |
+        run: bun run build
           set -euo pipefail
 
           echo "Artifacts in $ARTIFACT_DIR:"
