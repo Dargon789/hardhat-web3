@@ -144,12 +144,19 @@ export class WindowMessageHandler extends BaseWalletTransport {
 
     if (init) {
       // init message transmission prefers a specific origin when possible
-      const targetOrigin =
-        (this.appOrigin && this.appOrigin.length > 4 ? this.appOrigin : undefined) ||
-        (typeof window !== 'undefined' && window.location && window.location.origin
-          ? window.location.origin
-          : undefined) ||
-        '*'
+      let targetOrigin: string | undefined
+
+      if (this.appOrigin && this.appOrigin.length > 4) {
+        targetOrigin = this.appOrigin
+      } else if (typeof window !== 'undefined' && window.location && window.location.origin) {
+        targetOrigin = window.location.origin
+      }
+
+      if (!targetOrigin) {
+        logger.error('unable to postMessage init as no valid target origin is available')
+        return
+      }
+
       this.parentWindow.postMessage(message, targetOrigin)
     } else {
       // open message transmission
