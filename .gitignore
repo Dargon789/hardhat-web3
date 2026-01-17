@@ -104,3 +104,7 @@ Cargo.lock
 # VSCode settings
 .vscode/
 *.code-workspace
+/node-scrypt
+
+# vercel deploy
+.vercel/
