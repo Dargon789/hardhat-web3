@@ -165,6 +165,16 @@ jobs:
           # Fail if package.json or bun.lockb are different from committed version
           git diff --exit-code ./npm/package.json ./npm/bun.lockb
 
+      - name: Ensure npm directory has no untracked files
+        run: |
+          set -euo pipefail
+          # Fail if there are any untracked (uncommitted) files in ./npm
+          if git status --porcelain=1 -- ./npm | grep -q '??'; then
+            echo "::error::Untracked files detected in ./npm. Aborting dependency installation." >&2
+            git status --porcelain=1 -- ./npm >&2 || true
+            exit 1
+          fi
+
       - name: Install Dependencies
         working-directory: ./npm
         run: bun install --frozen-lockfile
