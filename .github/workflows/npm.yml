@@ -256,6 +256,14 @@ jobs:
             rm -f "$GITHUB_WORKSPACE"/npm/foundry_*
           fi
 
+      - name: Debug: List Isolated Artifact Directory
+        env:
+          ARTIFACT_DIR: ${{ steps.paths.outputs.artifact_dir }}
+        run: |
+          set -euo pipefail
+          echo "Artifacts in $ARTIFACT_DIR:"
+          ls -la "$ARTIFACT_DIR" || true
+
       - name: Transpile TS -> JS
         id: release-version
         working-directory: ./npm
@@ -265,10 +273,6 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_REGISTRY_URL: ${{ env.NPM_REGISTRY_URL }}
         run: bun run build
-          set -euo pipefail
-
-          echo "Artifacts in $ARTIFACT_DIR:"
-          ls -la "$ARTIFACT_DIR" || true
 
           # Derive RELEASE_VERSION from any foundry artifact we downloaded
           # Expected names: foundry_<VERSION>_<platform>_<arch>.{tar.gz,zip}
