@@ -32,7 +32,6 @@
 # 5. Change the values in the "env" block to match your values.
 
 name: "Build and Deploy to GKE"
-
 on:
   push:
     branches:
@@ -114,3 +113,4 @@ jobs:
           ./kustomize build . | kubectl apply -f -
           kubectl rollout status deployment/$DEPLOYMENT_NAME
           kubectl get services -o wide
+          

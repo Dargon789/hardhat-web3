@@ -35,7 +35,7 @@
     "README.md"
   ],
   "dependencies": {
-    "solhint": "^5.0.5"
+    "solhint": "^3.4.0"
   },
   "devDependencies": {
     "@nomicfoundation/eslint-plugin-hardhat-internal-rules": "workspace:^",
@@ -43,7 +43,7 @@
     "@types/chai": "^4.2.0",
     "@types/fs-extra": "^5.1.0",
     "@types/mocha": ">=9.1.0",
-    "@types/node": "^22.14.1",
+    "@types/node": "^16.0.0",
     "@types/sinon": "^9.0.8",
     "@typescript-eslint/eslint-plugin": "5.61.0",
     "@typescript-eslint/parser": "5.61.0",
