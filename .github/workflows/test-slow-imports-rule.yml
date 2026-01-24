@@ -3,7 +3,6 @@
 # that we got a non-zero exit code. It's not a completely fault-proof strategy,
 # but it's an useful smoke test.
 name: Slow imports rule check
-
 on:
   schedule:
     - cron: "0 0 * * *"

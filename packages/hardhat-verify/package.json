@@ -41,13 +41,13 @@
   "dependencies": {
     "@ethersproject/abi": "^5.1.2",
     "@ethersproject/address": "^5.0.2",
-    "cbor": "^10.0.3",
-    "chalk": "^5.4.1",
+    "cbor": "^8.1.0",
+    "chalk": "^2.4.2",
     "debug": "^4.1.1",
     "lodash.clonedeep": "^4.5.0",
-    "semver": "^7.7.1",
+    "semver": "^6.3.0",
     "table": "^6.8.0",
-    "undici": "^7.3.0"
+    "undici": "^5.29.0"
   },
   "devDependencies": {
     "@nomicfoundation/eslint-plugin-hardhat-internal-rules": "workspace:^",
@@ -58,29 +58,29 @@
     "@types/debug": "^4.1.4",
     "@types/lodash.clonedeep": "^4.5.7",
     "@types/mocha": ">=9.1.0",
-    "@types/node": "^22.15.18",
+    "@types/node": "^16.0.0",
     "@types/semver": "^6.0.2",
     "@types/sinon": "^9.0.8",
     "@types/sinon-chai": "^3.2.9",
     "@typescript-eslint/eslint-plugin": "5.61.0",
-    "@typescript-eslint/parser": "8.32.1",
+    "@typescript-eslint/parser": "5.61.0",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
-    "eslint": "^9.27.0",
+    "eslint": "^8.44.0",
     "eslint-config-prettier": "8.3.0",
     "eslint-plugin-import": "2.27.5",
     "eslint-plugin-no-only-tests": "3.0.0",
     "eslint-plugin-prettier": "3.4.0",
-    "ethers": "^6.14.1",
+    "ethers": "^5.0.0",
     "hardhat": "^2.0.4",
     "mocha": "^10.0.0",
     "nyc": "^15.1.0",
-    "prettier": "3.5.3",
+    "prettier": "2.4.1",
     "rimraf": "^3.0.2",
     "sinon": "^9.0.0",
     "sinon-chai": "^3.7.0",
     "ts-node": "^10.8.0",
-    "typescript": "~5.8.3"
+    "typescript": "~5.0.0"
   },
   "peerDependencies": {
     "hardhat": "^2.0.4"
