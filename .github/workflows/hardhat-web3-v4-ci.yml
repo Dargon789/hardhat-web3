@@ -1,4 +1,6 @@
 name: hardhat-web3-v4 CI
+permissions:
+  contents: read
 
 on:
   push:
