@@ -159,19 +159,19 @@ jobs:
           node-version: "24"
           registry-url: "https://registry.npmjs.org"
 
-      - name: Ensure npm workspace is unmodified and clean
+      - name: Ensure npm workspace is unmodified
         run: |
           set -euo pipefail
           # Fail if package.json or bun.lockb are different from committed version
           git diff --exit-code ./npm/package.json ./npm/bun.lockb
-          # Ensure npm workspace directory exists
-          if [ ! -d "./npm" ]; then
-            echo "::error::Expected ./npm directory to exist before installing dependencies." >&2
-            exit 1
-          fi
-          # Sanity check: ensure no obvious scripts or executables have appeared in ./npm
-          if find ./npm -type f -regextype posix-extended -regex '.*\.(sh|exe|js|bat|py)$' | grep .; then
-            echo "::error::Detected unexpected script or executable file under ./npm; refusing to run bun install." >&2
+
+      - name: Ensure npm directory has no untracked files
+        run: |
+          set -euo pipefail
+          # Fail if there are any untracked (uncommitted) files in ./npm
+          if git status --porcelain=1 -- ./npm | grep -q '??'; then
+            echo "::error::Untracked files detected in ./npm. Aborting dependency installation." >&2
+            git status --porcelain=1 -- ./npm >&2 || true
             exit 1
           fi
 
@@ -240,15 +240,39 @@ jobs:
           fi
           echo "NPM workspace is clean."
 
-      - name: Derive Release Version from Artifacts
-        id: release-version
+      - name: Ensure No Artifacts In npm Workspace
         env:
           ARTIFACT_DIR: ${{ steps.paths.outputs.artifact_dir }}
         run: |
           set -euo pipefail
+          # Assert artifact directory is outside the npm workspace
+          if [[ "$ARTIFACT_DIR" == "$GITHUB_WORKSPACE/npm"* ]]; then
+            echo "Artifact directory must not be inside the npm workspace"
+            exit 1
+          fi
+          # Ensure no foundry_* artifacts exist under ./npm
+          if compgen -G "$GITHUB_WORKSPACE/npm/foundry_*" > /dev/null; then
+            echo "Found unexpected foundry_* files under ./npm; removing to avoid artifact poisoning."
+            rm -f "$GITHUB_WORKSPACE"/npm/foundry_*
+          fi
 
+      - name: Debug: List Isolated Artifact Directory
+        env:
+          ARTIFACT_DIR: ${{ steps.paths.outputs.artifact_dir }}
+        run: |
+          set -euo pipefail
           echo "Artifacts in $ARTIFACT_DIR:"
           ls -la "$ARTIFACT_DIR" || true
+
+      - name: Transpile TS -> JS
+        id: release-version
+        working-directory: ./npm
+        env:
+          PROVENANCE: true
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_REGISTRY_URL: ${{ env.NPM_REGISTRY_URL }}
+        run: bun run build
 
           # Derive RELEASE_VERSION from any foundry artifact we downloaded
           # Expected names: foundry_<VERSION>_<platform>_<arch>.{tar.gz,zip}
@@ -269,7 +293,7 @@ jobs:
             exit 1
           fi
           version_part=${first_basename#foundry_}
-          RELEASE_VERSION=${version_part%%_*}
+          export RELEASE_VERSION=${version_part%%_*}
           # Validate RELEASE_VERSION: allow "v" optional, then e.g. 1.2.3(-rc.1) etc (semver)
           if ! [[ "$RELEASE_VERSION" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+([\-+a-zA-Z0-9\.]*)?$ ]]; then
             echo "ERROR: RELEASE_VERSION '$RELEASE_VERSION' does not match expected pattern (semver, e.g. v1.2.3)" >&2
@@ -282,39 +306,7 @@ jobs:
               exit 1
               ;;
           esac
-          # Expose the strictly validated RELEASE_VERSION to later steps
           echo "Detected RELEASE_VERSION=$RELEASE_VERSION"
-
-      - name: Transpile TS -> JS
-        working-directory: ./npm
-        env:
-          PROVENANCE: true
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_REGISTRY_URL: ${{ env.NPM_REGISTRY_URL }}
-          # Use the validated release version derived earlier, not any arbitrary environment value.
-          RELEASE_VERSION: ${{ steps.release-version.outputs.RELEASE_VERSION }}
-        run: |
-          set -euo pipefail
-
-          # Validate RELEASE_VERSION before using or exporting it. Only allow semantic-version-like strings,
-          # and reject any value containing whitespace or newlines to prevent artifact poisoning.
-          if [[ -z "${RELEASE_VERSION:-}" ]]; then
-            echo "RELEASE_VERSION is empty or unset; refusing to export." >&2
-            exit 1
-          fi
-          # Disallow whitespace (including newlines, tabs) in RELEASE_VERSION
-          if [[ "$RELEASE_VERSION" =~ [[:space:]] ]]; then
-            echo "RELEASE_VERSION contains whitespace; refusing to export." >&2
-            exit 1
-          fi
-          # Only allow versions like 1.2.3 or 1.2.3-beta.1
-          if ! [[ "$RELEASE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
-            echo "RELEASE_VERSION '$RELEASE_VERSION' has an invalid format; refusing to export." >&2
-            exit 1
-          fi
-
-          bun run build
 
           printf 'RELEASE_VERSION=%s\n' "$RELEASE_VERSION" >>"$GITHUB_OUTPUT"
 
