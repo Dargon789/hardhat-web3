@@ -14,6 +14,9 @@ importers:
       '@docsearch/react':
         specifier: '3'
         version: 3.9.0(@algolia/client-search@5.46.0)(@types/react@17.0.39)(react-dom@17.0.2(react@17.0.2))(react@17.0.2)(search-insights@2.17.3)
+      '@vercel/analytics':
+        specifier: ^1.6.1
+        version: 1.6.1(next@14.2.35(@babel/core@7.28.5)(react-dom@17.0.2(react@17.0.2))(react@17.0.2))(react@17.0.2)
       glob:
         specifier: ^8.0.1
         version: 8.1.0
@@ -2278,6 +2281,32 @@ packages:
     peerDependencies:
       react: ^16.0.0 || ^15.5.4
       react-dom: ^16.0.0 || ^15.5.4
+
+  '@vercel/analytics@1.6.1':
+    resolution: {integrity: sha512-oH9He/bEM+6oKlv3chWuOOcp8Y6fo6/PSro8hEkgCW3pu9/OiCXiUpRUogDh3Fs3LH2sosDrx8CxeOLBEE+afg==}
+    peerDependencies:
+      '@remix-run/react': ^2
+      '@sveltejs/kit': ^1 || ^2
+      next: '>= 13'
+      react: ^18 || ^19 || ^19.0.0-rc
+      svelte: '>= 4'
+      vue: ^3
+      vue-router: ^4
+    peerDependenciesMeta:
+      '@remix-run/react':
+        optional: true
+      '@sveltejs/kit':
+        optional: true
+      next:
+        optional: true
+      react:
+        optional: true
+      svelte:
+        optional: true
+      vue:
+        optional: true
+      vue-router:
+        optional: true
 
   '@vitest/pretty-format@2.1.9':
     resolution: {integrity: sha512-KhRIdGV2U9HOUzxfiHmY8IFHTdqtOhIzCpd8WRdJiE7D/HUcZVD0EgQCVjm+Q9gkUXWgBvMmTtZgIG48wq7sOQ==}
@@ -9950,7 +9979,7 @@ snapshots:
       case-sensitive-paths-webpack-plugin: 2.4.0
       core-js: 3.47.0
       css-loader: 3.6.0(webpack@4.47.0)
-      file-loader: 6.2.0(webpack@5.103.0(esbuild@0.25.12))
+      file-loader: 6.2.0(webpack@4.47.0)
       find-up: 5.0.0
       fork-ts-checker-webpack-plugin: 4.1.6(eslint@8.10.0)(typescript@4.5.5)(webpack@4.47.0)
       glob: 7.2.3
@@ -10363,7 +10392,7 @@ snapshots:
       core-js: 3.47.0
       css-loader: 3.6.0(webpack@4.47.0)
       express: 4.22.1
-      file-loader: 6.2.0(webpack@4.47.0)
+      file-loader: 6.2.0(webpack@5.103.0(esbuild@0.25.12))
       find-up: 5.0.0
       fs-extra: 9.1.0
       html-webpack-plugin: 4.5.2(webpack@4.47.0)
@@ -10990,6 +11019,11 @@ snapshots:
       react-textarea-autosize: 6.1.0(react@17.0.2)
     transitivePeerDependencies:
       - encoding
+
+  '@vercel/analytics@1.6.1(next@14.2.35(@babel/core@7.28.5)(react-dom@17.0.2(react@17.0.2))(react@17.0.2))(react@17.0.2)':
+    optionalDependencies:
+      next: 14.2.35(@babel/core@7.28.5)(react-dom@17.0.2(react@17.0.2))(react@17.0.2)
+      react: 17.0.2
 
   '@vitest/pretty-format@2.1.9':
     dependencies:
