@@ -19,7 +19,6 @@ async function checkIfDevelopmentNetwork(
 
       cachedIsDevelopmentNetwork =
         version.toLowerCase().startsWith("hardhatnetwork") ||
-        version.toLowerCase().startsWith("zksync") ||
         version.toLowerCase().startsWith("anvil");
     } catch (e) {
       cachedIsDevelopmentNetwork = false;

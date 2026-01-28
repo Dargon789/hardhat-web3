@@ -1,16 +1,6 @@
 const fs = require("fs");
 const path = require("path");
 
-// Ignition packages are allowed to have different versions of the same
-// dependency for now as we will sync them properly in Hardhat v3
-const IGNORE_SAME_VERSION_FOR_IGNITION_PACKAGES = [
-  "@nomicfoundation/hardhat-ignition",
-  "@nomicfoundation/ignition-core",
-  "@nomicfoundation/hardhat-ignition-ethers",
-  "@nomicfoundation/hardhat-ignition-viem",
-  "@nomicfoundation/ignition-ui",
-];
-
 // An array of dependencies whose version checks are ignored for all the
 // packages
 const IGNORE_SAME_VERSION_FROM_ALL = ["web3", "hardhat"];
@@ -33,7 +23,7 @@ const IGNORE_PEER_DEPENDENCIES_CHECK_FOR_PACKAGES = {
   ["ts-node"]: ["hardhat"],
 };
 
-function checkPeerDependencies(packageJson) {
+function checkPeerDepedencies(packageJson) {
   if (packageJson.peerDependencies === undefined) {
     return true;
   }
@@ -67,8 +57,18 @@ function checkPeerDependencies(packageJson) {
     }
 
     const peerDep = packageJson.peerDependencies[dependency];
-    const devDep = packageJson.devDependencies[dependency];
+    if (peerDep.startsWith("workspace:")) {
+      console.error(
+        `${packageJson.name} uses the workspace protocol for ${dependency}, which is a peer dependency`
+      );
 
+      success = false;
+    }
+
+    const devDep = packageJson.devDependencies[dependency].replace(
+      /^workspace:/,
+      ""
+    );
     if (peerDep !== devDep) {
       console.error(
         `${packageJson.name} has different versions of ${dependency} as peerDependency and devDependency`
@@ -93,9 +93,8 @@ function addDependencies(packageName, dependenciesToAdd, allDependenciesMap) {
     }
 
     if (
-      (IGNORE_SAME_VERSION_FOR_PACKAGES[name] !== undefined &&
-        IGNORE_SAME_VERSION_FOR_PACKAGES[name].includes(packageName)) ||
-      IGNORE_SAME_VERSION_FOR_IGNITION_PACKAGES.includes(packageName)
+      IGNORE_SAME_VERSION_FOR_PACKAGES[name] !== undefined &&
+      IGNORE_SAME_VERSION_FOR_PACKAGES[name].includes(packageName)
     ) {
       continue;
     }
@@ -180,7 +179,7 @@ function main() {
       continue;
     }
 
-    const peersOk = checkPeerDependencies(packageJson);
+    const peersOk = checkPeerDepedencies(packageJson);
     const dependencyMap = getDependencyMap(packageJson);
     dependencyMaps.push(dependencyMap);
 

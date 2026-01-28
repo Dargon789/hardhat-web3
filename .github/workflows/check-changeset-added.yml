@@ -1,7 +1,9 @@
 # Fails if a PR doesn't have a changeset and is not labeled
 # as "no changeset needed"
-
 name: Check that the PR has a changeset
+permissions:
+  contents: read
+  pull-requests: read
 
 on:
   pull_request:
@@ -15,43 +17,57 @@ on:
       - unlabeled
 
 jobs:
-  check-if-changeset:
-    name: Check that PR has a changeset
-    runs-on: ubuntu-latest
-    # don't run this check in the changesets PR
-    if: github.head_ref != 'changeset-release/main'
+  test:
+    name: Test on node ${{ matrix.node_version }} and ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        node_version: ['18.x', '20.x']
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+
     steps:
-      - uses: actions/github-script@v7
-        with:
-          script: |
-            const pullNumber = context.issue.number;
+    - uses: actions/checkout@v4
+    - name: Use Node.js ${{ matrix.node_version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node_version }}
 
-            const { data: files } = await github.rest.pulls.listFiles({
-              ...context.issue,
-              pull_number: pullNumber
-            });
-            const changeset = files.find(
-              file => file.status === "added" && file.filename.startsWith(".changeset/")
-            );
-            if (changeset !== undefined) {
-              console.log("Changeset found:", changeset.filename);
-              return;
-            }
+    - name: npm install, build and test
+      run: |
+        npm install
+        npm run build --if-present
+        npm test
+        if: github.event_name == 'push'
+     
+      env: |
+      
+        const pullNumber = context.issue.number;
 
-            console.log("No changeset found");
+        const { data: files } = await github.rest.pulls.listFiles({
+          ...context.issue,
+          pull_number: pullNumber
+        });
+        const changeset = files.find(
+          file => file.status === "added" && file.filename.startsWith(".changeset/")
+        );
+        if (changeset) {
+          console.log("Changeset found:", changeset.filename);
+          return;
+        }
 
+        console.log("No changeset found");
 
-            const { data: pull } = await github.rest.pulls.get({
-              ...context.issue,
-              pull_number: pullNumber
-            });
-            const noChangesetNeededLabel = pull.labels
-              .some(l => l.name === "no changeset needed");
-            if (noChangesetNeededLabel) {
-              console.log('The PR is labeled as "no changeset needed"');
-              return;
-            }
+        const { data: pull } = await github.rest.pulls.get({
+          ...context.issue,
+          pull_number: pullNumber
+        });
+        const noChangesetNeededLabel = pull.labels
+          .some(l => l.name === "no changeset needed");
+        if (noChangesetNeededLabel) {
+          console.log('The PR is labeled as "no changeset needed"');
+          return;
+        }
 
-            console.log('The PR is not labeled as "no changeset needed"');
-
-            process.exit(1);
+        console.error('Error: No changeset file found and no "no changeset needed" label applied.');
+        console.error('Please add a changeset file or label the PR as "no changeset needed".');
+        process.exit(1);

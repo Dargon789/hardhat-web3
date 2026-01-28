@@ -1,9 +1,9 @@
 import {
-  bytesToBigInt,
-  bytesToHex as bufferToHex,
-  bytesToInt,
+  bufferToBigInt,
+  bufferToHex,
+  bufferToInt,
   fromSigned,
-} from "@ethereumjs/util";
+} from "@nomicfoundation/ethereumjs-util";
 import util from "util";
 
 import {
@@ -42,62 +42,107 @@ import {
   Bytes8Ty,
   Bytes9Ty,
   BytesTy,
+  ConsoleLogs,
   Int256Ty,
   StringTy,
   Uint256Ty,
-  CONSOLE_LOG_SIGNATURES,
 } from "./logger";
+import {
+  CallMessageTrace,
+  EvmMessageTrace,
+  isCallTrace,
+  isEvmStep,
+  isPrecompileTrace,
+  MessageTrace,
+} from "./message-trace";
 
+const CONSOLE_ADDRESS = "0x000000000000000000636F6e736F6c652e6c6f67"; // toHex("console.log")
 const REGISTER_SIZE = 32;
 
-/** The decoded string representation of the arguments supplied to console.log */
-export type ConsoleLogArgs = string[];
-export type ConsoleLogs = ConsoleLogArgs[];
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+interface ConsoleLogArray extends Array<ConsoleLogEntry> {}
+
+export type ConsoleLogEntry = string | ConsoleLogArray;
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export type ConsoleLogs = ConsoleLogEntry[];
 
 export class ConsoleLogger {
-  /**
-   * Temporary code to print console.sol messages that come from EDR
-   */
-  public static getDecodedLogs(messages: Buffer[]): string[] {
-    const logs: string[] = [];
+  private readonly _consoleLogs: {
+    [key: number]: string[];
+  } = {};
 
-    for (const message of messages) {
-      const log = ConsoleLogger._maybeConsoleLog(message);
-      if (log !== undefined) {
-        logs.push(ConsoleLogger.format(log));
+  constructor() {
+    this._consoleLogs = ConsoleLogs;
+  }
+
+  public getLogMessages(maybeDecodedMessageTrace: MessageTrace): string[] {
+    return this.getExecutionLogs(maybeDecodedMessageTrace).map((log) => {
+      if (log === undefined) {
+        return "";
       }
+
+      // special case for console.log()
+      if (log.length === 0) {
+        return "";
+      }
+
+      return util.format(log[0], ...log.slice(1));
+    });
+  }
+
+  public getExecutionLogs(
+    maybeDecodedMessageTrace: MessageTrace
+  ): ConsoleLogs[] {
+    if (isPrecompileTrace(maybeDecodedMessageTrace)) {
+      return [];
     }
 
+    const logs: ConsoleLogs[] = [];
+    this._collectExecutionLogs(maybeDecodedMessageTrace, logs);
     return logs;
   }
 
-  /**
-   * Returns a formatted string using the first argument as a `printf`-like
-   * format string which can contain zero or more format specifiers.
-   *
-   * If there are more arguments passed than the number of specifiers, the
-   * extra arguments are concatenated to the returned string, separated by spaces.
-   */
-  public static format(args: ConsoleLogArgs = []): string {
-    return util.format(...args);
+  private _collectExecutionLogs(trace: EvmMessageTrace, logs: ConsoleLogs) {
+    for (const messageTrace of trace.steps) {
+      if (isEvmStep(messageTrace) || isPrecompileTrace(messageTrace)) {
+        continue;
+      }
+
+      if (
+        isCallTrace(messageTrace) &&
+        bufferToHex(messageTrace.address) === CONSOLE_ADDRESS.toLowerCase()
+      ) {
+        const log = this._maybeConsoleLog(messageTrace);
+        if (log !== undefined) {
+          logs.push(log);
+        }
+
+        continue;
+      }
+
+      this._collectExecutionLogs(messageTrace, logs);
+    }
   }
 
-  /** Decodes a calldata buffer into string arguments for a console log. */
-  private static _maybeConsoleLog(
-    calldata: Buffer
-  ): ConsoleLogArgs | undefined {
-    const selector = bytesToInt(calldata.slice(0, 4));
-    const parameters = calldata.slice(4);
+  private _maybeConsoleLog(call: CallMessageTrace): ConsoleLogs | undefined {
+    const sig = bufferToInt(call.calldata.slice(0, 4));
+    const parameters = call.calldata.slice(4);
 
-    const argTypes = CONSOLE_LOG_SIGNATURES[selector];
-    if (argTypes === undefined) {
+    const types = this._consoleLogs[sig];
+    if (types === undefined) {
       return;
     }
 
-    const decodedArgs = ConsoleLogger._decode(parameters, argTypes);
+    const consoleLogs = this._decode(parameters, types);
 
+    this._replaceNumberFormatSpecifiers(consoleLogs);
+
+    return consoleLogs;
+  }
+
+  private _replaceNumberFormatSpecifiers(consoleLogs: ConsoleLogs) {
     /**
-     * The first argument is interpreted as the format string, which may need adjusting.
      * Replace the occurrences of %d and %i with %s. This is necessary because if the arguments passed are numbers,
      * they could be too large to be formatted as a Number or an Integer, so it is safer to use a String.
      * %d and %i are replaced only if there is an odd number of % before the d or i.
@@ -109,23 +154,20 @@ export class ConsoleLogger {
      * (?<!%) negative look-behind to make this work.
      * The (?:) is just to avoid capturing that inner group.
      */
-    if (decodedArgs.length > 0) {
-      decodedArgs[0] = decodedArgs[0].replace(
+    if (consoleLogs.length > 0 && typeof consoleLogs[0] === "string") {
+      consoleLogs[0] = consoleLogs[0].replace(
         /((?<!%)(?:%%)*)(%[di])/g,
         "$1%s"
       );
     }
-
-    return decodedArgs;
   }
 
-  /** Decodes calldata parameters from `data` according to `types` into their string representation. */
-  private static _decode(data: Buffer, types: string[]): string[] {
+  private _decode(data: Buffer, types: string[]): ConsoleLogs {
     return types.map((type, i) => {
       const position: number = i * 32;
       switch (types[i]) {
         case Uint256Ty:
-          return bytesToBigInt(
+          return bufferToBigInt(
             data.slice(position, position + REGISTER_SIZE)
           ).toString(10);
 
@@ -141,10 +183,10 @@ export class ConsoleLogger {
           return "false";
 
         case StringTy:
-          const sStart = bytesToInt(
+          const sStart = bufferToInt(
             data.slice(position, position + REGISTER_SIZE)
           );
-          const sLen = bytesToInt(data.slice(sStart, sStart + REGISTER_SIZE));
+          const sLen = bufferToInt(data.slice(sStart, sStart + REGISTER_SIZE));
           return data
             .slice(sStart + REGISTER_SIZE, sStart + REGISTER_SIZE + sLen)
             .toString();
@@ -155,10 +197,10 @@ export class ConsoleLogger {
           );
 
         case BytesTy:
-          const bStart = bytesToInt(
+          const bStart = bufferToInt(
             data.slice(position, position + REGISTER_SIZE)
           );
-          const bLen = bytesToInt(data.slice(bStart, bStart + REGISTER_SIZE));
+          const bLen = bufferToInt(data.slice(bStart, bStart + REGISTER_SIZE));
           return bufferToHex(
             data.slice(bStart + REGISTER_SIZE, bStart + REGISTER_SIZE + bLen)
           );

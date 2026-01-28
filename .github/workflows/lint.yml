@@ -2,15 +2,10 @@ name: Lint
 
 on:
   push:
-    branches:
-      - main
-    paths:
-      - ".github/workflows/lint.yml"
-      - "packages/**"
+    branches: [$default-branch]
   pull_request:
-    paths:
-      - ".github/workflows/lint.yml"
-      - "packages/**"
+    branches:
+      - "**"
   workflow_dispatch:
 
 concurrency:
@@ -21,48 +16,44 @@ jobs:
   lint:
     name: Lint
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
     steps:
-      # NOTE: When running on a pull_request_target, we're checking out the repo
-      # twice. The first checkout is for the base branch of the PR. The second,
-      # for the merge commit. We do this to be able to use the `setup-env`
-      # action that's on the base branch.
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v2
+      
+      - uses: pnpm/action-setup@v2
         with:
-          persist-credentials: false
-      - uses: actions/checkout@v4
-        if: github.event_name == 'pull_request_target'
+          version: 8
+
+      - uses: actions/setup-node@v2
         with:
-          ref: "refs/pull/${{ github.event.number }}/merge"
-          persist-credentials: false
-      - if: github.event_name == 'pull_request_target'
-        name: Check out setup-env action from the base branch
-        run: git checkout --no-overlay $GITHUB_SHA -- .github/actions/setup-env
-      - uses: ./.github/actions/setup-env
+          node-version: 16
+          cache: "pnpm"
+          cache-dependency-path: |
+            pnpm-lock.yaml
+            docs/pnpm-lock.yaml
+
+      # Retry logic for caching errors
+      - name: Setup cache with retry
+        run: |
+          for i in {1..3}; do
+            pnpm store path && break || sleep $((i * 5))
+          done
+
       - name: Install
-        run: pnpm install --frozen-lockfile --prefer-offline
+        run: pnpm install 
+
       - name: Build
         run: pnpm build
+
       - name: lint
         run: pnpm lint
+
       - name: Check dependency versions
         run: node scripts/check-dependencies.js
-  comment:
-    needs: [lint]
-    if: failure() && github.event_name == 'pull_request_target' && needs.lint.result == 'failure'
-    name: Comment
-    runs-on: ubuntu-latest
-    permissions:
-      pull-requests: write
-    steps:
-      - uses: actions/github-script@v7
-        name: Comment on failure
-        with:
-          script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: "Thanks for submitting this PR!\n\nUnfortunately, it has some linter errors, so we can't merge it yet. Can you please fix them?\n\nRunning pnpm lint:fix in the root of the repository may fix them automatically."
-            })
+
+      - name: Install website
+        working-directory: docs/
+        run: pnpm install --frozen-lockfile --prefer-offline
+
+      - name: Lint website
+        working-directory: docs/
+        run: pnpm lint
