@@ -76,6 +76,33 @@ jobs:
           mkdir -p "$ARTIFACT_DIR"
           ls -la "$ARTIFACT_DIR" || true
 
+      - name: Normalize Run ID
+        id: run-id
+        run: |
+          set -euo pipefail
+
+          # Prefer the workflow_run id when present; otherwise fall back to the manual input.
+          RAW_RUN_ID="${{ github.event.workflow_run.id || inputs.run_id }}"
+
+          if [[ -z "${RAW_RUN_ID:-}" ]]; then
+            echo "RAW_RUN_ID is empty; refusing to use it as a run-id for artifact download." >&2
+            exit 1
+          fi
+
+          # Disallow any whitespace.
+          if [[ "$RAW_RUN_ID" =~ [[:space:]] ]]; then
+            echo "RAW_RUN_ID contains whitespace; refusing to use it as a run-id." >&2
+            exit 1
+          fi
+
+          # Only allow a strictly numeric run ID.
+          if ! [[ "$RAW_RUN_ID" =~ ^[0-9]+$ ]]; then
+            echo "RAW_RUN_ID '$RAW_RUN_ID' is not a valid numeric run-id." >&2
+            exit 1
+          fi
+
+          printf 'normalized_run_id=%s\n' "$RAW_RUN_ID" >>"$GITHUB_OUTPUT"
+
       - name: Download Release Assets
         uses: actions/download-artifact@v5
         with:
@@ -85,7 +112,7 @@ jobs:
           # Extract artifacts into an isolated temp directory, not the workspace
           path: ${{ steps.paths.outputs.artifact_dir }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          run-id: ${{ github.event.workflow_run.id || inputs.run_id }}
+          run-id: ${{ steps.run-id.outputs.normalized_run_id }}
 
       - name: Validate Downloaded Artifacts
         env:
