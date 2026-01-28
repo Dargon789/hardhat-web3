@@ -292,31 +292,36 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_REGISTRY_URL: ${{ env.NPM_REGISTRY_URL }}
-          # Use the validated release version derived earlier, not any arbitrary environment value.
-          RELEASE_VERSION: ${{ steps.release-version.outputs.RELEASE_VERSION }}
         run: |
           set -euo pipefail
 
-          # Validate RELEASE_VERSION before using or exporting it. Only allow semantic-version-like strings,
+          # Derive the release version from the trusted output of the earlier step.
+          SAFE_RELEASE_VERSION='${{ steps.release-version.outputs.RELEASE_VERSION }}'
+
+          # Validate SAFE_RELEASE_VERSION before using or exporting it. Only allow semantic-version-like strings,
           # and reject any value containing whitespace or newlines to prevent artifact poisoning.
-          if [[ -z "${RELEASE_VERSION:-}" ]]; then
-            echo "RELEASE_VERSION is empty or unset; refusing to export." >&2
+          if [[ -z "${SAFE_RELEASE_VERSION:-}" ]]; then
+            echo "SAFE_RELEASE_VERSION is empty or unset; refusing to export." >&2
             exit 1
           fi
-          # Disallow whitespace (including newlines, tabs) in RELEASE_VERSION
-          if [[ "$RELEASE_VERSION" =~ [[:space:]] ]]; then
-            echo "RELEASE_VERSION contains whitespace; refusing to export." >&2
+          # Disallow whitespace (including newlines, tabs) in SAFE_RELEASE_VERSION
+          if [[ "$SAFE_RELEASE_VERSION" =~ [[:space:]] ]]; then
+            echo "SAFE_RELEASE_VERSION contains whitespace; refusing to export." >&2
             exit 1
           fi
           # Only allow versions like 1.2.3 or 1.2.3-beta.1
-          if ! [[ "$RELEASE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
-            echo "RELEASE_VERSION '$RELEASE_VERSION' has an invalid format; refusing to export." >&2
+          if ! [[ "$SAFE_RELEASE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "SAFE_RELEASE_VERSION '$SAFE_RELEASE_VERSION' has an invalid format; refusing to export." >&2
             exit 1
           fi
 
+          # Expose the validated version to the build as an environment variable if needed.
+          export RELEASE_VERSION="$SAFE_RELEASE_VERSION"
+
           bun run build
 
-          printf 'RELEASE_VERSION=%s\n' "$RELEASE_VERSION" >>"$GITHUB_OUTPUT"
+          # Write the validated version to the job output.
+          printf 'RELEASE_VERSION=%s\n' "$SAFE_RELEASE_VERSION" >>"$GITHUB_OUTPUT"
 
       - name: Stage Binary Into Package
         run: |
