@@ -33,7 +33,7 @@
   "resolutions": {
     "**/antlr4": "4.7.1"
   },
-  "description": "packages/hardhat-core/README.md",
+  "description": "packages/hardhat-core/CONTRIBUTING.md",
   "main": "index.js",
   "directories": {
     "doc": "docs"
