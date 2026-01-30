@@ -33,7 +33,7 @@
   "resolutions": {
     "**/antlr4": "4.7.1"
   },
-  "description": "packages/hardhat-core/README.md",
+  "description": "Hardhat is an Ethereum development environment for professionals.",
   "main": "index.js",
   "directories": {
     "doc": "docs"
