@@ -20,7 +20,7 @@
     "gray-matter": "^4.0.3",
     "hastscript": "^7.0.2",
     "linaria": "^2.3.1",
-    "next": "14.2.35",
+    "next": "15.5.10",
     "next-linaria": "^0.11.0",
     "next-mdx-remote": "^5.0.0",
     "react": "17.0.2",
