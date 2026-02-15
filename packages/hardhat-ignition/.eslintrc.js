@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 const {
   slowImportsCommonIgnoredModules,
 } = require("../../config/eslint/constants");
@@ -21,4 +22,13 @@ module.exports = {
       },
     },
   ],
+=======
+module.exports = {
+  extends: [`${__dirname}/../../config/eslint/eslintrc.js`],
+  parserOptions: {
+    project: `${__dirname}/tsconfig.json`,
+    sourceType: "module",
+  },
+  ignorePatterns: [".eslintrc.js"],
+>>>>>>> Stashed changes
 };
