@@ -1,0 +1,23 @@
+node_modules
+.env
+
+# Hardhat files
+/cache
+/artifacts
+
+# TypeChain files
+/typechain
+/typechain-types
+
+<<<<<<< HEAD:v-next/hardhat/templates/hardhat-2/03-mocha-ethers-ts/.gitignore
+pnpm-lock.yaml
+
+# Environment files
+.env
+.env.*
+!.env.example
+=======
+# solidity-coverage files
+/coverage
+/coverage.json
+>>>>>>> 0f69d949197497ebc6a1ee225cb405a2df0eaa9e:packages/hardhat-core/recommended-gitignore.txt

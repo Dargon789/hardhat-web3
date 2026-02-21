@@ -1,0 +1,477 @@
+name: npm
+
+permissions: {}
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        type: string
+        required: false
+        description: The run id of the release to publish
+  workflow_run:
+    types: [completed]
+    workflows: [release]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  ACTIONS_RUNNER_DEBUG: true
+  NPM_CONFIG_PROVENANCE: true
+  NPM_REGISTRY_URL: "https://registry.npmjs.org"
+
+jobs:
+  publish-arch:
+    permissions:
+      contents: read
+      actions: read
+      id-token: write
+    name: ${{ matrix.os }}-${{ matrix.arch }}
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 3
+      fail-fast: false
+      matrix:
+        include:
+          - os: linux
+            arch: amd64
+          - os: linux
+            arch: arm64
+          - os: darwin
+            arch: amd64
+          - os: darwin
+            arch: arm64
+          - os: win32
+            arch: amd64
+    # Run automatically after a successful 'release' workflow, or manually if a run_id is provided
+    if: >-
+      ${{
+        (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') ||
+        (github.event_name == 'workflow_dispatch' && inputs.run_id != '')
+      }}
+    outputs:
+      RELEASE_VERSION: ${{ steps.release-version.outputs.RELEASE_VERSION }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: Set Isolated Artifact Directory
+        id: paths
+        run: |
+          set -euo pipefail
+          printf 'artifact_dir=%s\n' "$RUNNER_TEMP/foundry_artifacts" >> "$GITHUB_OUTPUT"
+
+      - name: Prepare Isolated Artifact Directory
+        env:
+          ARTIFACT_DIR: ${{ steps.paths.outputs.artifact_dir }}
+        run: |
+          mkdir -p "$ARTIFACT_DIR"
+          ls -la "$ARTIFACT_DIR" || true
+
+      - name: Download Release Assets
+        uses: actions/download-artifact@v5
+        with:
+          merge-multiple: true
+          # Download all foundry artifacts from the triggering release run
+          pattern: "foundry_*"
+          # Extract artifacts into an isolated temp directory, not the workspace
+          path: ${{ steps.paths.outputs.artifact_dir }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id || inputs.run_id }}
+
+      - name: Validate Downloaded Artifacts
+        env:
+          ARTIFACT_DIR: ${{ steps.paths.outputs.artifact_dir }}
+        run: |
+          set -euo pipefail
+          # Only allow .tar.gz and .zip, block any executable/scripts (e.g. *.sh, *.js, *.exe)
+          for file in "$ARTIFACT_DIR"/foundry_*; do
+            [ -e "$file" ] || continue
+            case "$file" in
+              *.tar.gz|*.zip) ;;
+              *)
+                echo "Unexpected file type: $file" >&2
+                exit 1
+                ;;
+            esac
+            if file "$file" | grep -E 'shell script|executable|ELF' >/dev/null; then
+              echo "Prohibited executable/script file found: $file" >&2
+              exit 1
+            fi
+            # Check inside archives for prohibited content
+            if [[ "$file" == *.tar.gz ]]; then
+              # List contents, normalize to remove potential path traversal
+              tar -tzf "$file" > "$file.list"
+              while IFS= read -r entry; do
+                # Deny symlinks, dotfiles, scripts, executables, workspace overrides
+                if [[ "$entry" =~ \.sh$|\.js$|\.exe$ ]]; then
+                  echo "Prohibited script/executable found inside $file: $entry" >&2
+                  exit 1
+                fi
+                if [[ "$entry" =~ ^package\.json$|^bun\.lockb$|^package-lock\.json$|^\.npmrc$|^node_modules/|^npm/ ]]; then
+                  echo "Prohibited workspace override found in $file: $entry" >&2
+                  exit 1
+                fi
+                if [[ "$entry" == *".."* ]]; then
+                  echo "Prohibited path traversal in $file: $entry" >&2
+                  exit 1
+                fi
+              done < "$file.list"
+              rm -f "$file.list"
+            elif [[ "$file" == *.zip ]]; then
+              unzip -l "$file" > "$file.zlist"
+              # Extract file names from the listing; skip headers
+              awk 'NR>3{print $4}' "$file.zlist" | while IFS= read -r entry; do
+                if [[ "$entry" =~ \.sh$|\.js$|\.exe$ ]]; then
+                  echo "Prohibited script/executable found inside $file: $entry" >&2
+                  exit 1
+                fi
+                if [[ "$entry" =~ ^package\.json$|^bun\.lockb$|^package-lock\.json$|^\.npmrc$|^node_modules/|^npm/ ]]; then
+                  echo "Prohibited workspace override found in $file: $entry" >&2
+                  exit 1
+                fi
+                if [[ "$entry" == *".."* ]]; then
+                  echo "Prohibited path traversal in $file: $entry" >&2
+                  exit 1
+                fi
+              done
+              rm -f "$file.zlist"
+            fi
+          done
+          echo "Artifact validation passed."
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@735343b667d3e6f658f44d0eca948eb6282f2b76 # v2
+        with:
+          bun-version: latest
+
+      - name: Setup Node (for npm publish auth)
+        uses: actions/setup-node@v5
+        with:
+          node-version: "24"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Ensure npm workspace is unmodified and clean
+        run: |
+          set -euo pipefail
+          # Fail if package.json or bun.lockb are different from committed version
+          git diff --exit-code ./npm/package.json ./npm/bun.lockb
+          # Ensure npm workspace directory exists
+          if [ ! -d "./npm" ]; then
+            echo "::error::Expected ./npm directory to exist before installing dependencies." >&2
+            exit 1
+          fi
+          # Sanity check: ensure no obvious scripts or executables have appeared in ./npm
+          if find ./npm -type f -regextype posix-extended -regex '.*\.(sh|exe|js|bat|py)$' | grep .; then
+            echo "::error::Detected unexpected script or executable file under ./npm; refusing to run bun install." >&2
+            exit 1
+          fi
+
+      - name: Install Dependencies
+        working-directory: ./npm
+        run: bun install --frozen-lockfile
+
+      - name: Re-Validate Artifact Archive Contents
+        env:
+          ARTIFACT_DIR: ${{ steps.paths.outputs.artifact_dir }}
+        run: |
+          set -euo pipefail
+          # For each artifact archive, list its (uncompressed) content and search for suspicious files
+          for archive in "$ARTIFACT_DIR"/foundry_*.tar.gz; do
+            [ -e "$archive" ] || continue
+            echo "Checking contents of $archive"
+            if tar -tzvf "$archive" | grep -E '\.(sh|exe|js|bat|py)$'; then
+              echo "::error::Detected suspicious file (script or executable) in $archive" >&2
+              exit 1
+            fi
+          done
+          for archive in "$ARTIFACT_DIR"/foundry_*.zip; do
+            [ -e "$archive" ] || continue
+            echo "Checking contents of $archive"
+            if unzip -l "$archive" | grep -E '\.(sh|exe|js|bat|py)$'; then
+              echo "::error::Detected suspicious file (script or executable) in $archive" >&2
+              exit 1
+            fi
+          done
+          echo "All artifact archives contents look safe."
+
+      - name: Final Workspace Sanity Check (No Untrusted Files)
+        run: |
+          set -euo pipefail
+          # Fail if any suspicious or unexpected files are present in workspace
+          cd ./npm
+          # List suspicious files
+          SUSPECT=$(find . -type f \( -name '*.sh' -o -name '*.exe' -o -name '*.js' -o -name '*.bat' -o -name '*.py' \) -not -path './node_modules/*')
+          if [ -n "$SUSPECT" ]; then
+            echo "::error::Found possibly untrusted or suspicious files in npm workspace: $SUSPECT" >&2
+            exit 1
+          fi
+          # Strictly block any files originating from artifact directory by inode or mtime (strong check)
+          ARTIFACT_DIR="${{ steps.paths.outputs.artifact_dir }}"
+          if [ -d "$ARTIFACT_DIR" ]; then
+            cd ..
+            for artifact_file in $(find "$ARTIFACT_DIR" -type f); do
+              # Get inode number of the artifact file
+              inode=$(stat -c %i "$artifact_file")
+              # Look for files in npm/ with the same inode (hard link or move)
+              SUSPECT_TARGET=$(find ./npm -type f -inum "$inode" 2>/dev/null || true)
+              if [ -n "$SUSPECT_TARGET" ]; then
+                echo "::error::Workspace file $SUSPECT_TARGET is hardlinked to untrusted artifact $artifact_file" >&2
+                exit 1
+              fi
+            done
+            # Optionally, block any files with unexpected recent mtime (could indicate tampering)
+            RECENT_FILES=$(find ./npm -type f -newer "$ARTIFACT_DIR" 2>/dev/null || true)
+            if [ -n "$RECENT_FILES" ]; then
+              for recfile in $RECENT_FILES; do
+                echo "::error::File $recfile was modified after artifact extraction (possible artifact poisoning)"
+                exit 1
+              done
+            fi
+            cd ./npm
+          fi
+          echo "NPM workspace is clean."
+
+      - name: Derive Release Version from Artifacts
+        id: release-version
+        env:
+          ARTIFACT_DIR: ${{ steps.paths.outputs.artifact_dir }}
+        run: |
+          set -euo pipefail
+
+          echo "Artifacts in $ARTIFACT_DIR:"
+          ls -la "$ARTIFACT_DIR" || true
+
+          # Derive RELEASE_VERSION from any foundry artifact we downloaded
+          # Expected names: foundry_<VERSION>_<platform>_<arch>.{tar.gz,zip}
+          first_file=$(ls "$ARTIFACT_DIR"/foundry_* 2>/dev/null | head -n1 || true)
+          if [[ -z "${first_file}" ]]; then
+            echo "No foundry artifacts found to publish" >&2
+            exit 1
+          fi
+          # Artifacts are filtered earlier, but harden further: check for unsafe filename characters
+          first_basename=$(basename "${first_file}")
+          if [[ "$first_basename" == *"/"* || "$first_basename" == *"\\"* || "$first_basename" == *$'\n'* || "$first_basename" == *$'\r'* || "$first_basename" == *$'\t'* ]]; then
+            echo "ERROR: Found artifact with suspicious filename: '$first_basename'" >&2
+            exit 1
+          fi
+          # Only allow expected artifact filename pattern
+          if ! [[ "$first_basename" =~ ^foundry_v?[0-9]+\.[0-9]+\.[0-9]+([\-+a-zA-Z0-9\.]*)?_[^_]+_[^_]+\.(tar\.gz|zip)$ ]]; then
+            echo "ERROR: Artifact filename '$first_basename' does not match expected foundry artifact pattern" >&2
+            exit 1
+          fi
+          version_part=${first_basename#foundry_}
+          RELEASE_VERSION=${version_part%%_*}
+          # Validate RELEASE_VERSION: allow "v" optional, then e.g. 1.2.3(-rc.1) etc (semver)
+          if ! [[ "$RELEASE_VERSION" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+([\-+a-zA-Z0-9\.]*)?$ ]]; then
+            echo "ERROR: RELEASE_VERSION '$RELEASE_VERSION' does not match expected pattern (semver, e.g. v1.2.3)" >&2
+            exit 1
+          fi
+          # Block any RELEASE_VERSION containing control characters after regex match (for defense-in-depth)
+          case "$RELEASE_VERSION" in
+            *[/$'\n'$'\r'$'\t']*)
+              echo "ERROR: RELEASE_VERSION contains invalid characters" >&2
+              exit 1
+              ;;
+          esac
+          # Expose the strictly validated RELEASE_VERSION to later steps
+          echo "Detected RELEASE_VERSION=$RELEASE_VERSION"
+
+      - name: Transpile TS -> JS
+        working-directory: ./npm
+        env:
+          PROVENANCE: true
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_REGISTRY_URL: ${{ env.NPM_REGISTRY_URL }}
+          # Use the validated release version derived earlier, not any arbitrary environment value.
+          RELEASE_VERSION: ${{ steps.release-version.outputs.RELEASE_VERSION }}
+        run: |
+          set -euo pipefail
+
+          # Validate RELEASE_VERSION before using or exporting it to GITHUB_OUTPUT.
+          # Treat it as untrusted input that may originate from artifacts or external triggers.
+          # Requirements:
+          #   - non-empty
+          #   - no whitespace (including newlines, tabs)
+          #   - no '=' (to avoid corrupting key=value format in GITHUB_OUTPUT)
+          #   - semantic-version-like: 1.2.3 or 1.2.3-beta.1
+          if [[ -z "${RELEASE_VERSION:-}" ]]; then
+            echo "RELEASE_VERSION is empty or unset; refusing to export." >&2
+            exit 1
+          fi
+          # Disallow whitespace (including newlines, tabs) in RELEASE_VERSION
+          if [[ "$RELEASE_VERSION" =~ [[:space:]] ]]; then
+            echo "RELEASE_VERSION contains whitespace; refusing to export." >&2
+            exit 1
+          fi
+          # Disallow '=' to protect the key=value format used by GITHUB_OUTPUT
+          if [[ "$RELEASE_VERSION" == *"="* ]]; then
+            echo "RELEASE_VERSION contains '='; refusing to export." >&2
+            exit 1
+          fi
+          # Only allow versions like 1.2.3 or 1.2.3-beta.1 with restricted characters
+          if ! [[ "$RELEASE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "RELEASE_VERSION '$RELEASE_VERSION' has an invalid format; refusing to export." >&2
+            exit 1
+          fi
+
+          bun run build
+
+          printf 'RELEASE_VERSION=%s\n' "$RELEASE_VERSION" >>"$GITHUB_OUTPUT"
+
+      - name: Stage Binary Into Package
+        run: |
+          set -euo pipefail
+          # Only allow specific, non-executable artifact files to be staged
+          for file in "$ARTIFACT_DIR"/foundry_*; do
+            [ -e "$file" ] || continue
+            case "$file" in
+              *.tar.gz|*.zip) ;;
+              *)
+                echo "Refusing to package unexpected file type: $file" >&2
+                exit 1
+                ;;
+            esac
+            if file "$file" | grep -E 'shell script|executable|ELF' >/dev/null; then
+              echo "Refusing to package executable/script file: $file" >&2
+              exit 1
+            fi
+            # Only copy to npm dir AFTER install/build
+            cp "$file" ./npm/
+          done
+        working-directory: ./npm
+        env:
+          RELEASE_VERSION: ${{ steps.release-version.outputs.RELEASE_VERSION }}
+          ARTIFACT_DIR: ${{ steps.paths.outputs.artifact_dir }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$ARTIFACT_DIR/tmp"
+
+          FILE_PREFIX="$ARTIFACT_DIR/foundry_${RELEASE_VERSION}_${{ matrix.os }}_${{ matrix.arch }}"
+          if [[ -f "${FILE_PREFIX}.zip" ]]; then
+            echo "Extracting ${FILE_PREFIX}.zip"
+            if ! command -v unzip >/dev/null 2>&1; then
+              sudo apt-get update -y && sudo apt-get install -y unzip
+            fi
+            unzip -o "${FILE_PREFIX}.zip" -d "$ARTIFACT_DIR/tmp"
+            # Determine binary name based on platform or by inspecting extracted files
+            if [[ "${{ matrix.os }}" == "windows" ]]; then
+              BIN=$(find "$ARTIFACT_DIR/tmp" -type f -name "forge.exe" | head -n 1)
+            else
+              BIN=$(find "$ARTIFACT_DIR/tmp" -type f -name "forge" | head -n 1)
+              # Fallback: if not found, try to find any executable file
+              if [[ -z "$BIN" ]]; then
+                BIN=$(find "$ARTIFACT_DIR/tmp" -type f -perm -u=x | head -n 1)
+              fi
+            fi
+          else
+            echo "Extracting ${FILE_PREFIX}.tar.gz"
+            tar -xzf "${FILE_PREFIX}.tar.gz" -C "$ARTIFACT_DIR/tmp"
+            BIN=$(find "$ARTIFACT_DIR/tmp" -type f -name "forge" | head -n 1)
+            # Fallback: if not found, try to find any executable file
+            if [[ -z "$BIN" ]]; then
+              BIN=$(find "$ARTIFACT_DIR/tmp" -type f -perm -u=x | head -n 1)
+            fi
+          fi
+
+          echo "Staging binary $BIN into @foundry-rs/forge-${{ matrix.os }}-${{ matrix.arch }}"
+          PLATFORM_NAME=${{ matrix.os }} ARCH=${{ matrix.arch }} FORGE_BIN_PATH="$BIN" bun ./scripts/prepublish.ts
+
+      - name: Sanity Check Binary
+        env:
+          ARTIFACT_DIR: ${{ steps.paths.outputs.artifact_dir }}
+        run: |
+          set -euo pipefail
+          PKG_DIR="$ARTIFACT_DIR/@foundry-rs/forge-${{ matrix.os }}-${{ matrix.arch }}"
+          BIN="$PKG_DIR/bin/forge"
+          if [[ "${{ matrix.os }}" == "win32" ]]; then
+            BIN="$PKG_DIR/bin/forge.exe"
+          fi
+          echo "Verifying binary at: $BIN"
+          ls -la "$BIN"
+          if [[ ! -f "$BIN" ]]; then
+            echo "ERROR: Binary not found at $BIN" >&2
+            exit 1
+          fi
+
+          if [[ "${{ matrix.os }}" != "win32" ]]; then
+            if [[ ! -x "$BIN" ]]; then
+              echo "ERROR: Binary not marked executable" >&2
+              exit 1
+            fi
+          fi
+          
+      # Run automatically after a successful 'release' workflow, or manually if a run_id is provided
+      - name: Publish ${{ matrix.os }}-${{ matrix.arch }} Binary
+          ARTIFACT_DIR: ${{ steps.paths.outputs.artifact_dir }}
+        env:
+          PROVENANCE: true
+          VERSION_NAME: ${{ steps.release-version.outputs.RELEASE_VERSION }}
+          RELEASE_VERSION: ${{ steps.release-version.outputs.RELEASE_VERSION }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          ls -la "$ARTIFACT_DIR/@foundry-rs/forge-${{ matrix.os }}-${{ matrix.arch }}"
+
+          bun ./scripts/publish.ts "$ARTIFACT_DIR/@foundry-rs/forge-${{ matrix.os }}-${{ matrix.arch }}"
+
+          echo "Published @foundry-rs/forge-${{ matrix.os }}-${{ matrix.arch }}"
+
+  publish-meta:
+    permissions:
+      contents: read
+      actions: read
+      id-token: write
+    needs: publish-arch
+    name: Publish Meta Package
+    runs-on: ubuntu-latest
+    env:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      RELEASE_VERSION: ${{ needs.publish-arch.outputs.RELEASE_VERSION }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@735343b667d3e6f658f44d0eca948eb6282f2b76 # v2
+        with:
+          bun-version: latest
+
+      - name: Setup Node (for npm publish auth)
+        uses: actions/setup-node@v5
+        with:
+          node-version: "24"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install Dependencies
+        working-directory: ./npm
+        run: bun install --frozen-lockfile
+
+      - name: Transpile TS -> JS
+        working-directory: ./npm
+        run: bun run build
+
+      - name: Publish Meta
+        working-directory: ./npm
+        run: bun run ./scripts/publish.ts ./@foundry-rs/forge
+        env:
+          PROVENANCE: true
+          VERSION_NAME: ${{ env.RELEASE_VERSION }}
+          RELEASE_VERSION: ${{ env.RELEASE_VERSION }}
+          NPM_TOKEN: ${{ env.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ env.NODE_AUTH_TOKEN }}
+          NPM_REGISTRY_URL: ${{ env.NPM_REGISTRY_URL }}
