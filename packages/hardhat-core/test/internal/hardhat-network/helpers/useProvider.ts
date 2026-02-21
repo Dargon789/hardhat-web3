@@ -101,7 +101,6 @@ export function useProvider({
         coinbase,
         allowBlocksWithSameTimestamp,
         enableTransientStorage: false,
-        enableRip7212: false,
       },
       {
         enabled: loggerEnabled,

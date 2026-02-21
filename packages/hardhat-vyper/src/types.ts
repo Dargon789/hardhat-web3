@@ -1,13 +1,7 @@
 export type VyperUserConfig = string | VyperConfig | MultiVyperConfig;
 
-export interface VyperSettings {
-  evmVersion?: string;
-  optimize?: string | boolean;
-}
-
 export interface VyperConfig {
   version: string;
-  settings?: VyperSettings;
 }
 
 export interface MultiVyperConfig {

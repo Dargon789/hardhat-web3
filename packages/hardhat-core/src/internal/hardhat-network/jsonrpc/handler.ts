@@ -1,7 +1,6 @@
 import { IncomingMessage, ServerResponse } from "http";
 import getRawBody from "raw-body";
 import WebSocket from "ws";
-import { JsonStreamStringify } from "json-stream-stringify";
 
 import { EIP1193Provider } from "../../../types";
 import {
@@ -136,7 +135,7 @@ export class JsonRpcHandler {
   ) {
     res.statusCode = 200;
     res.setHeader("Content-Type", "application/json");
-    new JsonStreamStringify(rpcResp).pipe(res);
+    res.end(JSON.stringify(rpcResp));
   }
 
   private async _handleSingleRequest(

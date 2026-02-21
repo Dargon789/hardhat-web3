@@ -23,6 +23,7 @@
     "prettier": "prettier \"**/*.{js,md,json}\"",
     "pretest": "cd ../.. && pnpm build",
     "test": "mocha --recursive \"test/**/*.ts\" --exit",
+    "prebuild": "cd ../../crates/edr_napi && yarn build",
     "build": "tsc --build .",
     "prepublishOnly": "pnpm build",
     "clean": "rimraf dist"
@@ -54,7 +55,7 @@
     "eslint": "^8.44.0",
     "eslint-config-prettier": "8.3.0",
     "eslint-plugin-import": "2.27.5",
-    "eslint-plugin-mocha": "10.4.1",
+    "eslint-plugin-no-only-tests": "3.0.0",
     "eslint-plugin-prettier": "3.4.0",
     "hardhat": "workspace:^2.6.4",
     "mocha": "^10.0.0",
@@ -62,13 +63,11 @@
     "rimraf": "^3.0.2",
     "ts-node": "^10.8.0",
     "typescript": "~5.0.0",
-    "web3": "^1.5.3",
-    "web3-eth-abi": "1.10.4",
-    "web3-utils": "1.10.4"
+    "web3": "^1.0.0-beta.36"
   },
   "peerDependencies": {
     "@nomiclabs/hardhat-web3": "workspace:^2.0.0",
     "hardhat": "workspace:^2.6.4",
-    "web3": "^1.5.3"
+    "web3": "^1.0.0-beta.36"
   }
 }

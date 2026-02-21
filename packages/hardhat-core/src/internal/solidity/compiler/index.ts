@@ -12,39 +12,61 @@ export interface ICompiler {
 }
 
 export class Compiler implements ICompiler {
+  private _loadedSolc?: any;
+
   constructor(private _pathToSolcJs: string) {}
 
   public async compile(input: CompilerInput) {
-    const scriptPath = path.join(__dirname, "./solcjs-runner.js");
+    const solc = await this.getSolc();
 
-    const output: string = await new Promise((resolve, reject) => {
-      try {
-        const subprocess = execFile(
-          process.execPath,
-          [scriptPath, this._pathToSolcJs],
-          {
-            maxBuffer: 1024 * 1024 * 500,
-          },
-          (err, stdout) => {
-            if (err !== null) {
-              return reject(err);
-            }
-            resolve(stdout);
-          }
-        );
+    const jsonOutput = solc.compile(JSON.stringify(input));
+    return JSON.parse(jsonOutput);
+  }
 
-        subprocess.stdin!.write(JSON.stringify(input));
-        subprocess.stdin!.end();
-      } catch (e: any) {
-        throw new HardhatError(
-          ERRORS.SOLC.SOLCJS_ERROR,
-          { error: e.message },
-          e
-        );
-      }
-    });
+  public async getSolc() {
+    if (this._loadedSolc !== undefined) {
+      return this._loadedSolc;
+    }
 
-    return JSON.parse(output);
+    const solcWrapper = require("solc/wrapper");
+    this._loadedSolc = solcWrapper(
+      this._loadCompilerSources(this._pathToSolcJs)
+    );
+
+    return this._loadedSolc;
+  }
+
+  /**
+   * This function loads the compiler sources bypassing any require hook.
+   *
+   * The compiler is a huge asm.js file, and using a simple require may trigger
+   * babel/register and hang the process.
+   */
+  private _loadCompilerSources(compilerPath: string) {
+    const Module = module.constructor as any;
+
+    // if Hardhat is bundled (for example, in the vscode extension), then
+    // Module._extenions might be undefined. In that case, we just use a plain
+    // require.
+    if (Module._extensions === undefined) {
+      return require(compilerPath);
+    }
+
+    const previousHook = Module._extensions[".js"];
+
+    Module._extensions[".js"] = function (
+      module: NodeJS.Module,
+      filename: string
+    ) {
+      const content = fs.readFileSync(filename, "utf8");
+      Object.getPrototypeOf(module)._compile.call(module, content, filename);
+    };
+
+    const loadedSolc = require(compilerPath);
+
+    Module._extensions[".js"] = previousHook;
+
+    return loadedSolc;
   }
 }
 

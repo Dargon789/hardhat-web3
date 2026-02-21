@@ -1,6 +1,6 @@
-import type EthereumjsUtilT from "@ethereumjs/util";
+import type EthereumjsUtilT from "@nomicfoundation/ethereumjs-util";
 
-import picocolors from "picocolors";
+import chalk from "chalk";
 import debug from "debug";
 import fsExtra from "fs-extra";
 
@@ -35,12 +35,12 @@ const log = debug("hardhat:core:tasks:node");
 
 function printDefaultConfigWarning() {
   console.log(
-    picocolors.bold(
+    chalk.bold(
       "WARNING: These accounts, and their private keys, are publicly known."
     )
   );
   console.log(
-    picocolors.bold(
+    chalk.bold(
       "Any funds sent to them on Mainnet or any other live network WILL BE LOST."
     )
   );
@@ -56,7 +56,7 @@ function logHardhatNetworkAccounts(networkConfig: HardhatNetworkConfig) {
     privateToAddress,
     toBytes,
     toChecksumAddress,
-  } = require("@ethereumjs/util") as typeof EthereumjsUtilT;
+  } = require("@nomicfoundation/ethereumjs-util") as typeof EthereumjsUtilT;
 
   console.log("Accounts");
   console.log("========");
@@ -211,7 +211,7 @@ subtask(TASK_NODE_SERVER_CREATED)
       provider: EthereumProvider;
       server: JsonRpcServer;
     }) => {
-      // this task is meant to be overridden by plugin writers
+      // this task is meant to be overriden by plugin writers
     }
   );
 
@@ -237,7 +237,7 @@ subtask(TASK_NODE_SERVER_READY)
       { config }
     ) => {
       console.log(
-        picocolors.green(
+        chalk.green(
           `Started HTTP and WebSocket JSON-RPC server at http://${address}:${port}/`
         )
       );
@@ -339,7 +339,7 @@ task(TASK_NODE, "Starts a JSON-RPC server on top of Hardhat Network")
           watcher = await watchCompilerOutput(provider, config.paths);
         } catch (error) {
           console.warn(
-            picocolors.yellow(
+            chalk.yellow(
               "There was a problem watching the compiler output, changes in the contracts won't be reflected in the Hardhat Network. Run Hardhat with --verbose to learn more."
             )
           );

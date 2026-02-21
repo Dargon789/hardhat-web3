@@ -27,8 +27,7 @@ const baseBlockResponse = {
   receiptsRoot: rpcHash,
   miner: rpcAddress,
   difficulty: rpcQuantity,
-  // now optional since https://github.com/ethereum/execution-apis/pull/570
-  totalDifficulty: optional(rpcQuantity),
+  totalDifficulty: rpcQuantity,
   extraData: rpcData,
   size: rpcQuantity,
   gasLimit: rpcQuantity,

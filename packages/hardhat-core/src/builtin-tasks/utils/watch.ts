@@ -1,4 +1,4 @@
-import picocolors from "picocolors";
+import chalk from "chalk";
 import { FSWatcher } from "chokidar";
 import debug from "debug";
 import fsExtra from "fs-extra";
@@ -34,7 +34,7 @@ export async function watchCompilerOutput(
       });
     } catch (error) {
       console.warn(
-        picocolors.yellow(
+        chalk.yellow(
           "There was a problem adding the new compiler result. Run Hardhat with --verbose to learn more."
         )
       );

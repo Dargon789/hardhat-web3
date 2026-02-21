@@ -7,7 +7,7 @@ import { useEnvironment } from "../helpers/environment";
 import { expectHardhatError } from "../helpers/errors";
 import { useFixtureProject } from "../helpers/project";
 
-describe("Hardhat context", function () {
+describe("Hardhat context", async function () {
   describe("no context", () => {
     it("context is not defined", async function () {
       assert.isFalse(HardhatContext.isCreated());
@@ -21,7 +21,7 @@ describe("Hardhat context", function () {
     });
   });
 
-  describe("create context but no environment", function () {
+  describe("create context but no environment", async function () {
     afterEach("reset context", function () {
       resetHardhatContext();
     });
@@ -63,7 +63,7 @@ describe("Hardhat context", function () {
     });
   });
 
-  describe("environment creates context", function () {
+  describe("environment creates context", async function () {
     useFixtureProject("config-project");
     useEnvironment();
     it("should create context and set HRE into context", async function () {

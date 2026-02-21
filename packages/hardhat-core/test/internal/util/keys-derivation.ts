@@ -2,7 +2,7 @@ import {
   bytesToHex as bufferToHex,
   privateToAddress,
   toChecksumAddress,
-} from "@ethereumjs/util";
+} from "@nomicfoundation/ethereumjs-util";
 import { assert } from "chai";
 
 import { deriveKeyFromMnemonicAndPath } from "../../../src/internal/util/keys-derivation";

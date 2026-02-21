@@ -1,12 +1,16 @@
-import React from 'react';
-import type { AppProps } from 'next/app';
-import { Analytics } from '@vercel/analytics/next';
+import React from "react";
+import type { AppProps } from "next/app";
+import "../styles/globals.css";
+import "../styles/prism.css";
+import { TabsProvider } from "../global-tabs";
 
-export default function MyApp({ Component, pageProps }: AppProps) {
+function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <>
+    <TabsProvider>
+      {/* @ts-ignore */}
       <Component {...pageProps} />
-      <Analytics />
-    </>
+    </TabsProvider>
   );
 }
+
+export default MyApp;

@@ -6,9 +6,9 @@ import { Anonymizer } from "../../../src/internal/sentry/anonymizer";
 const PROJECT_ROOT = "/path/to/project";
 
 class MockedAnonymizer extends Anonymizer {
-  public getFilePackageJsonPathResult: string | undefined = undefined;
+  public getFilePackageJsonPathResult: string | null = null;
 
-  protected _getFilePackageJsonPath(_: string): string | undefined {
+  protected _getFilePackageJsonPath(_: string): string | null {
     return this.getFilePackageJsonPathResult;
   }
 }

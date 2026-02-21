@@ -1,7 +1,9 @@
 import * as t from "io-ts";
 
+import { signTypedData, SignTypedDataVersion } from "@metamask/eth-sig-util";
+import { FeeMarketEIP1559Transaction } from "@nomicfoundation/ethereumjs-tx";
 import { EIP1193Provider, RequestArguments } from "../../../types";
-import { assertHardhatInvariant, HardhatError } from "../errors";
+import { HardhatError } from "../errors";
 import { ERRORS } from "../errors-list";
 import {
   rpcAddress,
@@ -14,7 +16,6 @@ import {
 } from "../jsonrpc/types/input/transactionRequest";
 import { validateParams } from "../jsonrpc/types/input/validation";
 
-import { normalizeToBigInt } from "../../../common/bigInt";
 import { ProviderWrapperWithChainId } from "./chainId";
 import { derivePrivateKeys } from "./util";
 import { ProviderWrapper } from "./wrapper";
@@ -48,8 +49,7 @@ export class LocalAccountsProvider extends ProviderWrapperWithChainId {
       toRpcSig,
       toBytes,
       bytesToHex: bufferToHex,
-    } = await import("@ethereumjs/util");
-    const { signTyped } = await import("micro-eth-signer/typed-data");
+    } = await import("@nomicfoundation/ethereumjs-util");
 
     if (
       args.method === "eth_accounts" ||
@@ -117,8 +117,11 @@ export class LocalAccountsProvider extends ProviderWrapperWithChainId {
       // if we don't manage the address, the method is forwarded
       const privateKey = this._getPrivateKeyForAddressOrNull(address);
       if (privateKey !== null) {
-        // Explicitly set extraEntropy to false to make the signing result deterministic
-        return signTyped(typedMessage, privateKey, false);
+        return signTypedData({
+          privateKey,
+          version: SignTypedDataVersion.V4,
+          data: typedMessage,
+        });
       }
     }
 
@@ -143,7 +146,6 @@ export class LocalAccountsProvider extends ProviderWrapperWithChainId {
       const hasEip1559Fields =
         txRequest.maxFeePerGas !== undefined ||
         txRequest.maxPriorityFeePerGas !== undefined;
-      const hasEip7702Fields = txRequest.authorizationList !== undefined;
 
       if (!hasGasPrice && !hasEip1559Fields) {
         throw new HardhatError(ERRORS.NETWORK.MISSING_FEE_PRICE_FIELDS);
@@ -151,10 +153,6 @@ export class LocalAccountsProvider extends ProviderWrapperWithChainId {
 
       if (hasGasPrice && hasEip1559Fields) {
         throw new HardhatError(ERRORS.NETWORK.INCOMPATIBLE_FEE_PRICE_FIELDS);
-      }
-
-      if (hasGasPrice && hasEip7702Fields) {
-        throw new HardhatError(ERRORS.NETWORK.INCOMPATIBLE_EIP7702_FIELDS);
       }
 
       if (hasEip1559Fields && txRequest.maxFeePerGas === undefined) {
@@ -168,12 +166,6 @@ export class LocalAccountsProvider extends ProviderWrapperWithChainId {
         throw new HardhatError(
           ERRORS.NETWORK.MISSING_TX_PARAM_TO_SIGN_LOCALLY,
           { param: "maxPriorityFeePerGas" }
-        );
-      }
-
-      if (txRequest.to === undefined && txRequest.data === undefined) {
-        throw new HardhatError(
-          ERRORS.NETWORK.DATA_FIELD_CANNOT_BE_NULL_WITH_NULL_ADDRESS
         );
       }
 
@@ -205,7 +197,7 @@ export class LocalAccountsProvider extends ProviderWrapperWithChainId {
       bytesToHex: bufferToHex,
       toBytes,
       privateToAddress,
-    } = require("@ethereumjs/util");
+    } = require("@nomicfoundation/ethereumjs-util");
 
     const privateKeys: Buffer[] = localAccountsHexPrivateKeys.map((h) =>
       toBytes(h)
@@ -218,7 +210,9 @@ export class LocalAccountsProvider extends ProviderWrapperWithChainId {
   }
 
   private _getPrivateKeyForAddress(address: Buffer): Buffer {
-    const { bytesToHex: bufferToHex } = require("@ethereumjs/util");
+    const {
+      bytesToHex: bufferToHex,
+    } = require("@nomicfoundation/ethereumjs-util");
     const pk = this._addressToPrivateKey.get(bufferToHex(address));
     if (pk === undefined) {
       throw new HardhatError(ERRORS.NETWORK.NOT_LOCAL_ACCOUNT, {
@@ -238,7 +232,9 @@ export class LocalAccountsProvider extends ProviderWrapperWithChainId {
   }
 
   private async _getNonce(address: Buffer): Promise<bigint> {
-    const { bytesToHex: bufferToHex } = await import("@ethereumjs/util");
+    const { bytesToHex: bufferToHex } = await import(
+      "@nomicfoundation/ethereumjs-util"
+    );
 
     const response = (await this._wrappedProvider.request({
       method: "eth_getTransactionCount",
@@ -253,120 +249,54 @@ export class LocalAccountsProvider extends ProviderWrapperWithChainId {
     chainId: number,
     privateKey: Buffer
   ): Promise<Uint8Array> {
-    const { bytesToHex, bytesToInt, bytesToBigInt } = await import(
-      "@ethereumjs/util"
+    const { AccessListEIP2930Transaction, LegacyTransaction } = await import(
+      "@nomicfoundation/ethereumjs-tx"
     );
-    const { addr, Transaction } = await import("micro-eth-signer");
+
+    const { Common } = await import("@nomicfoundation/ethereumjs-common");
 
     const txData = {
       ...transactionRequest,
       gasLimit: transactionRequest.gas,
     };
 
-    const accessList = txData.accessList?.map(({ address, storageKeys }) => {
-      return {
-        address: addr.addChecksum(bytesToHex(address)),
-        storageKeys:
-          storageKeys !== null ? storageKeys.map((k) => bytesToHex(k)) : [],
-      };
-    });
+    // We don't specify a hardfork here because the default hardfork should
+    // support all possible types of transactions.
+    // If the network doesn't support a given transaction type, then the
+    // transaction it will be rejected somewhere else.
+    const common = Common.custom({ chainId, networkId: chainId });
 
-    const authorizationList = txData.authorizationList?.map(
-      ({ chainId: authChainId, address, nonce, yParity, r, s }) => {
-        return {
-          chainId: authChainId,
-          address: addr.addChecksum(bytesToHex(address)),
-          nonce,
-          yParity: bytesToInt(yParity),
-          r: bytesToBigInt(r),
-          s: bytesToBigInt(s),
-        };
-      }
-    );
-
-    const checksummedAddress = addr.addChecksum(
-      bytesToHex(txData.to ?? new Uint8Array()),
-      true
-    );
-
-    assertHardhatInvariant(
-      txData.nonce !== undefined,
-      "nonce should be defined"
+    // we convert the access list to the type
+    // that AccessListEIP2930Transaction expects
+    const accessList = txData.accessList?.map(
+      ({ address, storageKeys }) => [address, storageKeys] as [Buffer, Buffer[]]
     );
 
     let transaction;
-    const baseTxParams = {
-      to: checksummedAddress,
-      nonce: txData.nonce,
-      chainId: txData.chainId ?? normalizeToBigInt(chainId),
-      value: txData.value ?? 0n,
-      data: bytesToHex(txData.data ?? new Uint8Array()),
-      gasLimit: txData.gasLimit,
-    };
-
-    // Disable strict mode for chainIds > 2 ** 32 - 1.
-    //
-    // micro-eth-signer throws if strict mode is enabled with a chainId above 2 ** 32 - 1
-    // (see: https://github.com/paulmillr/micro-eth-signer/blob/baa4b8c922c3253b125e3f46b1fce6dee7c33853/src/tx.ts#L500).
-    //
-    // As a workaround we disable strict mode for larger chains. This also bypasses
-    // other internal checks enforced by the library, which is not ideal.
-    const strictMode =
-      txData.chainId === undefined || txData.chainId <= BigInt(2 ** 32 - 1);
-
-    if (authorizationList !== undefined) {
-      assertHardhatInvariant(
-        txData.maxFeePerGas !== undefined,
-        "maxFeePerGas should be defined"
-      );
-
-      transaction = Transaction.prepare(
+    if (txData.maxFeePerGas !== undefined) {
+      transaction = FeeMarketEIP1559Transaction.fromTxData(
         {
-          type: "eip7702",
-          ...baseTxParams,
-          maxFeePerGas: txData.maxFeePerGas,
-          maxPriorityFeePerGas: txData.maxPriorityFeePerGas,
-          accessList: accessList ?? [],
-          authorizationList: authorizationList ?? [],
+          ...txData,
+          accessList,
+          gasPrice: undefined,
         },
-        strictMode
-      );
-    } else if (txData.maxFeePerGas !== undefined) {
-      transaction = Transaction.prepare(
-        {
-          type: "eip1559",
-          ...baseTxParams,
-          maxFeePerGas: txData.maxFeePerGas,
-          maxPriorityFeePerGas: txData.maxPriorityFeePerGas,
-          accessList: accessList ?? [],
-        },
-        strictMode
+        { common }
       );
     } else if (accessList !== undefined) {
-      transaction = Transaction.prepare(
+      transaction = AccessListEIP2930Transaction.fromTxData(
         {
-          type: "eip2930",
-          ...baseTxParams,
-          gasPrice: txData.gasPrice ?? 0n,
+          ...txData,
           accessList,
         },
-        strictMode
+        { common }
       );
     } else {
-      transaction = Transaction.prepare(
-        {
-          type: "legacy",
-          ...baseTxParams,
-          gasPrice: txData.gasPrice ?? 0n,
-        },
-        strictMode
-      );
+      transaction = LegacyTransaction.fromTxData(txData, { common });
     }
 
-    // Explicitly set extraEntropy to false to make the signing result deterministic
-    const signedTransaction = transaction.signBy(privateKey, false);
+    const signedTransaction = transaction.sign(privateKey);
 
-    return signedTransaction.toRawBytes();
+    return signedTransaction.serialize();
   }
 }
 
@@ -390,7 +320,9 @@ export class HDWalletProvider extends LocalAccountsProvider {
       passphrase
     );
 
-    const { bytesToHex: bufferToHex } = require("@ethereumjs/util");
+    const {
+      bytesToHex: bufferToHex,
+    } = require("@nomicfoundation/ethereumjs-util");
     const privateKeysAsHex = privateKeys.map((pk) => bufferToHex(pk));
     super(provider, privateKeysAsHex);
   }

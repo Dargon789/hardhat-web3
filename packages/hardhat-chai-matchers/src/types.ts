@@ -24,14 +24,14 @@ declare namespace Chai {
     ): AsyncAssertion;
     changeEtherBalances(
       accounts: any[],
-      balances: any[] | ((changes: bigint[]) => boolean),
+      balances: any[],
       options?: any
     ): AsyncAssertion;
     changeTokenBalance(token: any, account: any, balance: any): AsyncAssertion;
     changeTokenBalances(
       token: any,
       account: any[],
-      balance: any[] | ((changes: bigint[]) => boolean)
+      balance: any[]
     ): AsyncAssertion;
   }
 

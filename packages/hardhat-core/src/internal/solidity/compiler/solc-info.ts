@@ -1,25 +1,3 @@
-import os from "node:os";
-
-import semver from "semver";
-
-// The first solc version with official ARM64 Linux builds
-export const FIRST_OFFICIAL_ARM64_SOLC_VERSION = "0.8.31";
-
-/**
- * Determines if a solc version has an official ARM64 Linux build.
- */
-export function hasOfficialArm64Build(version: string): boolean {
-  return semver.gte(version, FIRST_OFFICIAL_ARM64_SOLC_VERSION);
-}
-
-/**
- * Returns true if running on a platform that doesn't have official native
- * solc builds for all versions (currently ARM64 Linux before 0.8.31).
- */
-export function missesSomeOfficialNativeBuilds(): boolean {
-  return os.platform() === "linux" && os.arch() === "arm64";
-}
-
 const defaultEvmTargets: { [key: string]: string } = {
   "0.5.1": "byzantium",
   "0.5.2": "byzantium",
@@ -82,19 +60,7 @@ const defaultEvmTargets: { [key: string]: string } = {
   "0.8.21": "shanghai",
   "0.8.22": "shanghai",
   "0.8.23": "shanghai",
-<<<<<<< HEAD:v-next/hardhat/src/internal/builtin-plugins/solidity/build-system/solc-info.ts
   "0.8.24": "shanghai",
-  "0.8.25": "cancun",
-  "0.8.26": "cancun",
-  "0.8.27": "cancun",
-  "0.8.28": "cancun",
-  "0.8.29": "cancun",
-  "0.8.30": "prague",
-  "0.8.31": "osaka",
-  "0.8.32": "osaka",
-  "0.8.33": "osaka",
-=======
->>>>>>> 0f69d949197497ebc6a1ee225cb405a2df0eaa9e:packages/hardhat-core/src/internal/solidity/compiler/solc-info.ts
 };
 
 export function getEvmVersionFromSolcVersion(

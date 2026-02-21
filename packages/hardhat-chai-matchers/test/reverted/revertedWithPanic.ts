@@ -246,7 +246,8 @@ describe("INTEGRATION: Reverted with panic", function () {
         await runSuccessfulAsserts({
           matchers,
           method: "succeeds",
-          successfulAssert: (x) => expect(x).not.to.be.revertedWithPanic(1n),
+          successfulAssert: (x) =>
+            expect(x).not.to.be.revertedWithPanic(BigInt(1)),
         });
       });
 

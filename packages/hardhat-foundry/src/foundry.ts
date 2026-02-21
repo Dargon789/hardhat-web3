@@ -1,4 +1,4 @@
-import picocolors from "picocolors";
+import chalk from "chalk";
 import { exec as execCallback, execSync } from "child_process";
 import { NomicLabsHardhatPluginError } from "hardhat/internal/core/errors";
 import { promisify } from "util";
@@ -75,7 +75,7 @@ export async function getRemappings() {
 
 export async function installDependency(dependency: string) {
   const cmd = `forge install --no-commit ${dependency}`;
-  console.log(`Running '${picocolors.blue(cmd)}'`);
+  console.log(`Running '${chalk.blue(cmd)}'`);
 
   try {
     await exec(cmd);

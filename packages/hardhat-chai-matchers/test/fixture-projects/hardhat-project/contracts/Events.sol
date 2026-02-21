@@ -4,10 +4,7 @@ pragma solidity ^0.8.0;
 contract Events {
   AnotherContract anotherContract;
 
-  struct Struct {
-    uint u;
-    uint v;
-  }
+  struct Struct { uint u; uint v; }
 
   event WithoutArgs();
   event WithUintArg(uint u);
@@ -116,18 +113,5 @@ contract AnotherContract {
 
   function emitUint(uint u) public {
     emit WithUintArg(u);
-  }
-}
-
-contract OverrideEventContract {
-  event simpleEvent(uint u);
-  event simpleEvent();
-
-  function emitSimpleEventWithUintArg(uint u) public {
-    emit simpleEvent(u);
-  }
-
-  function emitSimpleEventWithoutArg() public {
-    emit simpleEvent();
   }
 }
