@@ -1,0 +1,14 @@
+<<<<<<< HEAD:packages/hardhat-web3/.prettierignore
+/node_modules
+/dist
+/test/fixture-projects/**/artifacts
+/test/fixture-projects/**/cache
+CHANGELOG.md
+=======
+/node_modules
+/dist
+/coverage
+CHANGELOG.md
+/test/fixture-projects/**/artifacts
+/test/fixture-projects/**/cache
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/config/.prettierignore

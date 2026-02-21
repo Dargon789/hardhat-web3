@@ -1,0 +1,8 @@
+/node_modules
+/dist
+/CHANGELOG.md
+/src/internal/cli/telemetry/sentry/vendor
+/templates/*/*/artifacts
+/templates/*/*/cache
+/test/fixture-projects/**/artifacts
+/test/fixture-projects/**/cache
