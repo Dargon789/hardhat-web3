@@ -5,11 +5,7 @@ inputs:
   pnpm-version:
     description: Version of pnpm to install
     required: false
-<<<<<<< HEAD
-    default: "10.28.2"
-=======
     default: "9"
->>>>>>> 0f69d949197497ebc6a1ee225cb405a2df0eaa9e
   node-version:
     description: Version of node to install
     required: false
