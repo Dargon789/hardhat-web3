@@ -7,8 +7,8 @@
   "author": "Nomic Labs LLC",
   "license": "MIT",
   "bin": {
-    "hardhat-completion": "dist/src/completion.js",
-    "hh": "dist/src/index.js"
+    "hh": "dist/src/index.js",
+    "hardhat-completion": "dist/src/completion.js"
   },
   "keywords": [
     "ethereum",
@@ -23,7 +23,6 @@
     "prettier": "prettier \"**/*.{js,md,json}\"",
     "pretest": "cd ../.. && pnpm build",
     "test": "mocha --recursive \"test/**/*.ts\" --exit",
-    "prebuild": "cd ../../crates/edr_napi && yarn build",
     "build": "tsc --build .",
     "prepublishOnly": "pnpm build",
     "clean": "rimraf dist"

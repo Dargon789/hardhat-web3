@@ -1,93 +1,25 @@
-import type { NextPage, GetStaticProps, GetStaticPaths } from "next";
-import { MDXRemoteSerializeResult } from "next-mdx-remote";
+import React from 'react';
+import { GetStaticPaths, GetStaticProps } from 'next';
 
-import {
-  getCommitDate,
-  getEditLink,
-  getLayout,
-  getMDPaths,
-  prepareMdContent,
-  readMDFileFromPathOrIndex,
-  withIndexFile,
-} from "../model/markdown";
-import DocumentationLayout from "../components/DocumentationLayout";
-import { createLayouts } from "../model/layout";
-import {
-  IDocumentationSidebarStructure,
-  IFooterNavigation,
-} from "../components/types";
-import { IFrontMatter } from "../model/types";
-
-interface IDocPage {
-  mdxSource: MDXRemoteSerializeResult;
-  frontMatter: IFrontMatter;
-  layout: IDocumentationSidebarStructure;
-  prev: IFooterNavigation;
-  next: IFooterNavigation;
-  lastEditDate: string;
-  editLink: string;
+export default function DocPage() {
+  return (
+    <div>
+      <h1>Documentation Page</h1>
+      <p>Dynamic documentation content</p>
+    </div>
+  );
 }
 
-const DocPage: NextPage<IDocPage> = ({
-  mdxSource,
-  frontMatter,
-  layout,
-  prev,
-  next,
-  lastEditDate,
-  editLink,
-}): JSX.Element => {
-  return (
-    <DocumentationLayout
-      seo={{
-        title: frontMatter.seoTitle,
-        description: frontMatter.seoDescription,
-      }}
-      sidebarLayout={layout}
-      footerNavigation={{ prev, next, lastEditDate, editLink }}
-      mdxSource={mdxSource}
-    />
-  );
-};
-
-export default DocPage;
-
-export const getStaticProps: GetStaticProps = async (props) => {
-  const { params } = props;
-  // @ts-ignore
-  const fullName = withIndexFile(params.docPath);
-  const { source, fileName } = readMDFileFromPathOrIndex(fullName);
-  const lastEditDate = getCommitDate(fileName);
-  const editLink = getEditLink(fileName);
-
-  const { mdxSource, data, seoTitle, seoDescription } = await prepareMdContent(
-    source
-  );
-  const { layout, next, prev } = getLayout(fileName);
-
+export const getStaticPaths: GetStaticPaths = async () => {
+  // This will be populated by the actual docs generation logic
   return {
-    props: {
-      mdxSource,
-      frontMatter: {
-        ...data,
-        seoTitle,
-        seoDescription,
-      },
-      layout,
-      next: data.next ? next : false,
-      prev: data.prev ? prev : false,
-      lastEditDate,
-      editLink,
-    },
+    paths: [],
+    fallback: 'blocking',
   };
 };
 
-export const getStaticPaths: GetStaticPaths = async () => {
-  const paths = getMDPaths();
-  createLayouts();
-
+export const getStaticProps: GetStaticProps = async () => {
   return {
-    paths,
-    fallback: false,
+    props: {},
   };
 };

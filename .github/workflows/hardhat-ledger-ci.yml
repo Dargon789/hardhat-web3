@@ -1,4 +1,6 @@
 name: hardhat-ledger CI
+permissions:
+  contents: read
 
 on:
   push:
@@ -29,7 +31,7 @@ concurrency:
 
 jobs:
   test_on_windows:
-    name: Test hardhat-ledger on Windows with Node 18
+    name: Test hardhat-ledger on Windows with Node 16
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
@@ -38,7 +40,7 @@ jobs:
           version: 8
       - uses: actions/setup-node@v2
         with:
-          node-version: 18
+          node-version: 16
           cache: "pnpm"
       - name: Install
         run: pnpm install --frozen-lockfile --prefer-offline
@@ -48,7 +50,7 @@ jobs:
         run: pnpm test
 
   test_on_macos:
-    name: Test hardhat-ledger on MacOS with Node 18
+    name: Test hardhat-ledger on MacOS with Node 16
     runs-on: macos-latest
     # disable until actions/virtual-environments#4896 is fixed
     if: ${{ false }}
@@ -59,7 +61,7 @@ jobs:
           version: 8
       - uses: actions/setup-node@v2
         with:
-          node-version: 18
+          node-version: 16
           cache: "pnpm"
       - name: Install
         run: pnpm install --frozen-lockfile --prefer-offline
@@ -73,7 +75,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: [18, 20]
+        node: [16, 18, 20]
     steps:
       - uses: actions/checkout@v2
       - uses: pnpm/action-setup@v2

@@ -1,16 +1,18 @@
-import { toBytes } from "@nomicfoundation/ethereumjs-util";
+import { toBuffer } from "@nomicfoundation/ethereumjs-util";
+import { VM } from "@nomicfoundation/ethereumjs-vm";
 import { assert } from "chai";
 import fs from "fs";
 import fsExtra from "fs-extra";
 import path from "path";
 import semver from "semver";
 
-import { EdrProviderWrapper } from "../../../../src/internal/hardhat-network/provider/provider";
 import { ReturnData } from "../../../../src/internal/hardhat-network/provider/return-data";
+import { createModelsAndDecodeBytecodes } from "../../../../src/internal/hardhat-network/stack-traces/compiler-to-model";
 import {
+  ConsoleLogger,
   ConsoleLogs,
-  consoleLogToString,
 } from "../../../../src/internal/hardhat-network/stack-traces/consoleLogger";
+import { ContractsIdentifier } from "../../../../src/internal/hardhat-network/stack-traces/contracts-identifier";
 import {
   printMessageTrace,
   printStackTrace,
@@ -27,9 +29,7 @@ import {
 } from "../../../../src/internal/hardhat-network/stack-traces/solidity-stack-trace";
 import { SolidityTracer } from "../../../../src/internal/hardhat-network/stack-traces/solidityTracer";
 import { VmTraceDecoder } from "../../../../src/internal/hardhat-network/stack-traces/vm-trace-decoder";
-import { VMTracer } from "../../../../src/internal/hardhat-network/stack-traces/vm-tracer";
 import {
-  BuildInfo,
   CompilerInput,
   CompilerOutput,
   CompilerOutputBytecode,
@@ -37,9 +37,6 @@ import {
 import { setCWD } from "../helpers/cwd";
 
 import { SUPPORTED_SOLIDITY_VERSION_RANGE } from "../../../../src/internal/hardhat-network/stack-traces/constants";
-import { TracingConfig } from "../../../../src/internal/hardhat-network/provider/node-types";
-import { BUILD_INFO_FORMAT_VERSION } from "../../../../src/internal/constants";
-import { FakeModulesLogger } from "../helpers/fakeLogger";
 import {
   compileFiles,
   COMPILER_DOWNLOAD_TIMEOUT,
@@ -54,7 +51,7 @@ import {
 import {
   encodeCall,
   encodeConstructorParams,
-  instantiateProvider,
+  instantiateVm,
   traceTransaction,
 } from "./execution";
 
@@ -136,8 +133,6 @@ function defineTest(
   const solcVersionDoesntMatch: boolean =
     testDefinition.solc !== undefined &&
     !semver.satisfies(compilerOptions.solidityVersion, testDefinition.solc);
-
-  dirPath.includes("oog-chaining");
 
   const func = async function (this: Mocha.Context) {
     this.timeout(TEST_TIMEOUT_MILLIS);
@@ -455,7 +450,7 @@ function compareStackTraces(
   assert.lengthOf(trace, description.length);
 }
 
-function compareConsoleLogs(logs: string[], expectedLogs?: ConsoleLogs[]) {
+function compareConsoleLogs(logs: ConsoleLogs[], expectedLogs?: ConsoleLogs[]) {
   if (expectedLogs === undefined) {
     return;
   }
@@ -464,9 +459,13 @@ function compareConsoleLogs(logs: string[], expectedLogs?: ConsoleLogs[]) {
 
   for (let i = 0; i < logs.length; i++) {
     const actual = logs[i];
-    const expected = consoleLogToString(expectedLogs[i]);
+    const expected = expectedLogs[i];
 
-    assert.equal(actual, expected);
+    assert.lengthOf(actual, expected.length);
+
+    for (let j = 0; j < actual.length; j++) {
+      assert.equal(actual[j], expected[j]);
+    }
   }
 }
 
@@ -482,30 +481,27 @@ async function runTest(
     compilerOptions
   );
 
-  const buildInfo: BuildInfo = {
-    id: "stack-traces-test",
-    _format: BUILD_INFO_FORMAT_VERSION,
-    solcVersion: compilerOptions.solidityVersion,
-    solcLongVersion: compilerOptions.solidityVersion,
-    input: compilerInput,
-    output: compilerOutput,
-  };
-
-  const tracingConfig: TracingConfig = {
-    buildInfos: [buildInfo],
-    ignoreContracts: true,
-  };
-
-  const logger = new FakeModulesLogger();
-  const solidityTracer = new SolidityTracer();
-  const [provider, vmTracer] = await instantiateProvider(
-    {
-      enabled: false,
-      printLineFn: logger.printLineFn(),
-      replaceLastLineFn: logger.replaceLastLineFn(),
-    },
-    tracingConfig
+  const bytecodes = createModelsAndDecodeBytecodes(
+    compilerOptions.solidityVersion,
+    compilerInput,
+    compilerOutput
   );
+
+  const contractsIdentifier = new ContractsIdentifier();
+
+  for (const bytecode of bytecodes) {
+    if (bytecode.contract.name.startsWith("Ignored")) {
+      continue;
+    }
+
+    contractsIdentifier.addBytecode(bytecode);
+  }
+
+  const vmTraceDecoder = new VmTraceDecoder(contractsIdentifier);
+  const tracer = new SolidityTracer();
+  const logger = new ConsoleLogger();
+
+  const vm = await instantiateVm();
 
   const txIndexToContract: Map<number, DeployedContract> = new Map();
 
@@ -516,8 +512,7 @@ async function runTest(
       trace = await runDeploymentTransactionTest(
         txIndex,
         tx,
-        provider,
-        vmTracer,
+        vm,
         compilerOutput,
         txIndexToContract
       );
@@ -526,7 +521,7 @@ async function runTest(
         txIndexToContract.set(txIndex, {
           file: tx.file,
           name: tx.contract,
-          address: Buffer.from(trace.deployedContract),
+          address: trace.deployedContract,
         });
       }
     } else {
@@ -540,27 +535,25 @@ async function runTest(
       trace = await runCallTransactionTest(
         txIndex,
         tx,
-        provider,
-        vmTracer,
+        vm,
         compilerOutput,
         contract!
       );
     }
 
-    compareConsoleLogs(logger.lines, tx.consoleLogs);
+    compareConsoleLogs(logger.getExecutionLogs(trace), tx.consoleLogs);
 
-    const vmTraceDecoder = (provider as any)._vmTraceDecoder as VmTraceDecoder;
     const decodedTrace = vmTraceDecoder.tryToDecodeMessageTrace(trace);
 
     try {
       if (tx.stackTrace === undefined) {
-        assert.isFalse(
-          trace.exit.isError(),
+        assert.isUndefined(
+          trace.error,
           `Transaction ${txIndex} shouldn't have failed`
         );
       } else {
         assert.isDefined(
-          trace.exit.isError(),
+          trace.error,
           `Transaction ${txIndex} should have failed`
         );
       }
@@ -570,8 +563,8 @@ async function runTest(
       throw error;
     }
 
-    if (trace.exit.isError()) {
-      const stackTrace = solidityTracer.getStackTrace(decodedTrace);
+    if (trace.error !== undefined) {
+      const stackTrace = tracer.getStackTrace(decodedTrace);
 
       try {
         compareStackTraces(
@@ -649,8 +642,7 @@ function linkBytecode(
 async function runDeploymentTransactionTest(
   txIndex: number,
   tx: DeploymentTransaction,
-  provider: EdrProviderWrapper,
-  vmTracer: VMTracer,
+  vm: VM,
   compilerOutput: CompilerOutput,
   txIndexToContract: Map<number, DeployedContract>
 ): Promise<CreateMessageTrace> {
@@ -682,10 +674,10 @@ async function runDeploymentTransactionTest(
 
   const data = Buffer.concat([deploymentBytecode, params]);
 
-  const trace = await traceTransaction(provider, vmTracer, {
-    value: tx.value !== undefined ? BigInt(tx.value) : undefined,
+  const trace = await traceTransaction(vm, {
+    value: tx.value,
     data,
-    gas: tx.gas !== undefined ? BigInt(tx.gas) : undefined,
+    gasLimit: tx.gas,
   });
 
   return trace as CreateMessageTrace;
@@ -694,8 +686,7 @@ async function runDeploymentTransactionTest(
 async function runCallTransactionTest(
   txIndex: number,
   tx: CallTransaction,
-  provider: EdrProviderWrapper,
-  vmTracer: VMTracer,
+  vm: VM,
   compilerOutput: CompilerOutput,
   contract: DeployedContract
 ): Promise<CallMessageTrace> {
@@ -705,7 +696,7 @@ async function runCallTransactionTest(
   let data: Buffer;
 
   if (tx.data !== undefined) {
-    data = Buffer.from(toBytes(tx.data));
+    data = toBuffer(tx.data);
   } else if (tx.function !== undefined) {
     data = encodeCall(
       compilerContract.abi,
@@ -716,11 +707,11 @@ async function runCallTransactionTest(
     data = Buffer.from([]);
   }
 
-  const trace = await traceTransaction(provider, vmTracer, {
+  const trace = await traceTransaction(vm, {
     to: contract.address,
-    value: tx.value !== undefined ? BigInt(tx.value) : undefined,
+    value: tx.value,
     data,
-    gas: tx.gas !== undefined ? BigInt(tx.gas) : undefined,
+    gasLimit: tx.gas,
   });
 
   return trace as CallMessageTrace;

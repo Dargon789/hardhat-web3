@@ -1,4 +1,4 @@
-import { bytesToHex as bufferToHex } from "@nomicfoundation/ethereumjs-util";
+import { bufferToHex } from "@nomicfoundation/ethereumjs-util";
 
 import { AbiHelpers } from "../../util/abi-helpers";
 
@@ -212,7 +212,7 @@ export class Contract {
   }
 
   public getFunctionFromSelector(
-    selector: Uint8Array
+    selector: Buffer
   ): ContractFunction | undefined {
     return this._selectorHexToFunction.get(bufferToHex(selector));
   }
@@ -261,7 +261,7 @@ export class ContractFunction {
     public readonly contract?: Contract,
     public readonly visibility?: ContractFunctionVisibility,
     public readonly isPayable?: boolean,
-    public selector?: Uint8Array,
+    public selector?: Buffer,
     public readonly paramTypes?: any[]
   ) {
     if (contract !== undefined && !contract.location.contains(location)) {
@@ -269,7 +269,7 @@ export class ContractFunction {
     }
   }
 
-  public isValidCalldata(calldata: Uint8Array): boolean {
+  public isValidCalldata(calldata: Buffer): boolean {
     if (this.paramTypes === undefined) {
       // if we don't know the param types, we just assume that the call is valid
       return true;
@@ -294,7 +294,7 @@ export class CustomError {
   }
 
   private constructor(
-    public readonly selector: Uint8Array,
+    public readonly selector: Buffer,
     public readonly name: string,
     public readonly paramTypes: any[]
   ) {}
@@ -308,49 +308,6 @@ export class Instruction {
     public readonly pushData?: Buffer,
     public readonly location?: SourceLocation
   ) {}
-
-  /**
-   * Checks equality with another Instruction.
-   */
-  public equals(other: Instruction): boolean {
-    if (this.pc !== other.pc) {
-      return false;
-    }
-
-    if (this.opcode !== other.opcode) {
-      return false;
-    }
-
-    if (this.jumpType !== other.jumpType) {
-      return false;
-    }
-
-    if (this.pushData !== undefined) {
-      if (other.pushData === undefined) {
-        return false;
-      }
-
-      if (!this.pushData.equals(other.pushData)) {
-        return false;
-      }
-    } else if (other.pushData !== undefined) {
-      return false;
-    }
-
-    if (this.location !== undefined) {
-      if (other.location === undefined) {
-        return false;
-      }
-
-      if (!this.location.equals(other.location)) {
-        return false;
-      }
-    } else if (other.location !== undefined) {
-      return false;
-    }
-
-    return true;
-  }
 }
 
 interface ImmutableReference {
@@ -387,23 +344,5 @@ export class Bytecode {
 
   public hasInstruction(pc: number): boolean {
     return this._pcToInstruction.has(pc);
-  }
-
-  /**
-   * Checks equality with another Bytecode.
-   */
-  public equals(other: Bytecode): boolean {
-    if (this._pcToInstruction.size !== other._pcToInstruction.size) {
-      return false;
-    }
-
-    for (const [key, val] of this._pcToInstruction) {
-      const otherVal = other._pcToInstruction.get(key);
-      if (otherVal === undefined || !val.equals(otherVal)) {
-        return false;
-      }
-    }
-
-    return true;
   }
 }

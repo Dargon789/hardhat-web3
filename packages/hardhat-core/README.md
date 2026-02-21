@@ -2,6 +2,8 @@
 
 ---
 
+> **🚀 Hardhat 3 alpha release is out! [Learn more.](https://hardhat.org/hardhat3-alpha)**
+
 Hardhat is an Ethereum development environment for professionals. It facilitates performing frequent tasks, such as running tests, automatically checking code for mistakes or interacting with a smart contract. Check out the [plugin list](https://hardhat.org/plugins/) to use it with your existing tools.
 
 Built by the [Nomic Foundation](https://nomic.foundation/) for the Ethereum community.
@@ -40,7 +42,7 @@ On [Hardhat's website](https://hardhat.org) you will find:
 
 Contributions are always welcome! Feel free to open any issue or send a pull request.
 
-Go to [CONTRIBUTING.md](./CONTRIBUTING.md) to learn about how to set up Hardhat's development environment.
+Go to [CONTRIBUTING.md](https://github.com/NomicFoundation/hardhat/blob/main/CONTRIBUTING.md) to learn about how to set up Hardhat's development environment.
 
 ## Feedback, help and news
 

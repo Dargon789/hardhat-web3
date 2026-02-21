@@ -1,7 +1,7 @@
 import {
-  bytesToBigInt,
-  bytesToHex as bufferToHex,
-  bytesToInt,
+  bufferToBigInt,
+  bufferToHex,
+  bufferToInt,
   fromSigned,
 } from "@nomicfoundation/ethereumjs-util";
 import util from "util";
@@ -48,6 +48,7 @@ import {
   Uint256Ty,
 } from "./logger";
 import {
+  CallMessageTrace,
   EvmMessageTrace,
   isCallTrace,
   isEvmStep,
@@ -76,9 +77,18 @@ export class ConsoleLogger {
   }
 
   public getLogMessages(maybeDecodedMessageTrace: MessageTrace): string[] {
-    return this.getExecutionLogs(maybeDecodedMessageTrace).map(
-      consoleLogToString
-    );
+    return this.getExecutionLogs(maybeDecodedMessageTrace).map((log) => {
+      if (log === undefined) {
+        return "";
+      }
+
+      // special case for console.log()
+      if (log.length === 0) {
+        return "";
+      }
+
+      return util.format(log[0], ...log.slice(1));
+    });
   }
 
   public getExecutionLogs(
@@ -103,7 +113,7 @@ export class ConsoleLogger {
         isCallTrace(messageTrace) &&
         bufferToHex(messageTrace.address) === CONSOLE_ADDRESS.toLowerCase()
       ) {
-        const log = this._maybeConsoleLog(Buffer.from(messageTrace.calldata));
+        const log = this._maybeConsoleLog(messageTrace);
         if (log !== undefined) {
           logs.push(log);
         }
@@ -115,25 +125,9 @@ export class ConsoleLogger {
     }
   }
 
-  /**
-   * Temporary code to print console.sol messages that come from EDR
-   */
-  public getDecodedLogs(messages: Buffer[]): string[] {
-    const logs: string[] = [];
-
-    for (const message of messages) {
-      const log = this._maybeConsoleLog(message);
-      if (log !== undefined) {
-        logs.push(consoleLogToString(log));
-      }
-    }
-
-    return logs;
-  }
-
-  private _maybeConsoleLog(calldata: Buffer): ConsoleLogs | undefined {
-    const sig = bytesToInt(calldata.slice(0, 4));
-    const parameters = calldata.slice(4);
+  private _maybeConsoleLog(call: CallMessageTrace): ConsoleLogs | undefined {
+    const sig = bufferToInt(call.calldata.slice(0, 4));
+    const parameters = call.calldata.slice(4);
 
     const types = this._consoleLogs[sig];
     if (types === undefined) {
@@ -173,7 +167,7 @@ export class ConsoleLogger {
       const position: number = i * 32;
       switch (types[i]) {
         case Uint256Ty:
-          return bytesToBigInt(
+          return bufferToBigInt(
             data.slice(position, position + REGISTER_SIZE)
           ).toString(10);
 
@@ -189,10 +183,10 @@ export class ConsoleLogger {
           return "false";
 
         case StringTy:
-          const sStart = bytesToInt(
+          const sStart = bufferToInt(
             data.slice(position, position + REGISTER_SIZE)
           );
-          const sLen = bytesToInt(data.slice(sStart, sStart + REGISTER_SIZE));
+          const sLen = bufferToInt(data.slice(sStart, sStart + REGISTER_SIZE));
           return data
             .slice(sStart + REGISTER_SIZE, sStart + REGISTER_SIZE + sLen)
             .toString();
@@ -203,10 +197,10 @@ export class ConsoleLogger {
           );
 
         case BytesTy:
-          const bStart = bytesToInt(
+          const bStart = bufferToInt(
             data.slice(position, position + REGISTER_SIZE)
           );
-          const bLen = bytesToInt(data.slice(bStart, bStart + REGISTER_SIZE));
+          const bLen = bufferToInt(data.slice(bStart, bStart + REGISTER_SIZE));
           return bufferToHex(
             data.slice(bStart + REGISTER_SIZE, bStart + REGISTER_SIZE + bLen)
           );
@@ -281,17 +275,4 @@ export class ConsoleLogger {
       }
     });
   }
-}
-
-export function consoleLogToString(log: ConsoleLogs): string {
-  if (log === undefined) {
-    return "";
-  }
-
-  // special case for console.log()
-  if (log.length === 0) {
-    return "";
-  }
-
-  return util.format(log[0], ...log.slice(1));
 }

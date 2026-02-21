@@ -1,22 +1,18 @@
 import {
-  CreateOutput,
-  ExecutionResult,
-  TracingMessage,
-  TracingStep,
-} from "@nomicfoundation/edr";
-
-import { bytesToBigInt } from "@nomicfoundation/ethereumjs-util";
-
+  EVMResult,
+  getActivePrecompiles,
+} from "@nomicfoundation/ethereumjs-evm";
+import { InterpreterStep } from "@nomicfoundation/ethereumjs-evm/dist/interpreter";
+import { Message } from "@nomicfoundation/ethereumjs-evm/dist/message";
+import { Address, bufferToBigInt } from "@nomicfoundation/ethereumjs-util";
+import { VM } from "@nomicfoundation/ethereumjs-vm";
 import { assertHardhatInvariant } from "../../core/errors";
-import { Exit, ExitCode } from "../provider/vm/exit";
 
 import {
   CallMessageTrace,
   CreateMessageTrace,
   isCreateTrace,
-  isHaltResult,
   isPrecompileTrace,
-  isSuccessResult,
   MessageTrace,
   PrecompileMessageTrace,
 } from "./message-trace";
@@ -27,18 +23,67 @@ const DUMMY_RETURN_DATA = Buffer.from([]);
 const DUMMY_GAS_USED = 0n;
 
 export class VMTracer {
-  public tracingSteps: TracingStep[] = [];
-
   private _messageTraces: MessageTrace[] = [];
+  private _enabled = false;
   private _lastError: Error | undefined;
-  private _maxPrecompileNumber;
+  private _maxPrecompileNumber = getActivePrecompiles(this._vm._common).size;
 
-  constructor(private readonly _throwErrors = true) {
-    // TODO: temporarily hardcoded to remove the need of using ethereumjs' common and evm here
-    this._maxPrecompileNumber = 10;
+  constructor(
+    private readonly _vm: VM,
+    private readonly _getContractCode: (address: Address) => Promise<Buffer>,
+    private readonly _throwErrors = true
+  ) {
+    this._beforeMessageHandler = this._beforeMessageHandler.bind(this);
+    this._stepHandler = this._stepHandler.bind(this);
+    this._afterMessageHandler = this._afterMessageHandler.bind(this);
+  }
+
+  public enableTracing() {
+    if (this._enabled) {
+      return;
+    }
+    assertHardhatInvariant(
+      this._vm.evm.events !== undefined,
+      "EVM should have an 'events' property"
+    );
+
+    this._vm.evm.events.on("beforeMessage", this._beforeMessageHandler);
+    this._vm.evm.events.on("step", this._stepHandler);
+    this._vm.evm.events.on("afterMessage", this._afterMessageHandler);
+    this._enabled = true;
+  }
+
+  public disableTracing() {
+    if (!this._enabled) {
+      return;
+    }
+
+    assertHardhatInvariant(
+      this._vm.evm.events !== undefined,
+      "EVM should have an 'events' property"
+    );
+
+    this._vm.evm.events.removeListener(
+      "beforeMessage",
+      this._beforeMessageHandler
+    );
+    this._vm.evm.events.removeListener("step", this._stepHandler);
+    this._vm.evm.events.removeListener(
+      "afterMessage",
+      this._afterMessageHandler
+    );
+    this._enabled = false;
+  }
+
+  public get enabled(): boolean {
+    return this._enabled;
   }
 
   public getLastTopLevelMessageTrace(): MessageTrace | undefined {
+    if (!this._enabled) {
+      throw new Error("You can't get a vm trace if the VMTracer is disabled");
+    }
+
     return this._messageTraces[0];
   }
 
@@ -54,8 +99,9 @@ export class VMTracer {
     return this._throwErrors || this._lastError === undefined;
   }
 
-  public async addBeforeMessage(message: TracingMessage) {
+  private async _beforeMessageHandler(message: Message, next: any) {
     if (!this._shouldKeepTracing()) {
+      next();
       return;
     }
 
@@ -64,7 +110,6 @@ export class VMTracer {
 
       if (message.depth === 0) {
         this._messageTraces = [];
-        this.tracingSteps = [];
       }
 
       if (message.to === undefined) {
@@ -72,7 +117,6 @@ export class VMTracer {
           code: message.data,
           steps: [],
           value: message.value,
-          exit: new Exit(ExitCode.SUCCESS),
           returnData: DUMMY_RETURN_DATA,
           numberOfSubtraces: 0,
           depth: message.depth,
@@ -82,14 +126,13 @@ export class VMTracer {
 
         trace = createTrace;
       } else {
-        const toAsBigInt = bytesToBigInt(message.to);
+        const toAsBigInt = bufferToBigInt(message.to.toBuffer());
 
         if (toAsBigInt > 0 && toAsBigInt <= this._maxPrecompileNumber) {
           const precompileTrace: PrecompileMessageTrace = {
             precompile: Number(toAsBigInt),
             calldata: message.data,
             value: message.value,
-            exit: new Exit(ExitCode.SUCCESS),
             returnData: DUMMY_RETURN_DATA,
             depth: message.depth,
             gasUsed: DUMMY_GAS_USED,
@@ -99,29 +142,19 @@ export class VMTracer {
         } else {
           const codeAddress = message.codeAddress;
 
-          // if we enter here, then `to` is not undefined, therefore
-          // `codeAddress` and `code` should be defined
-          assertHardhatInvariant(
-            codeAddress !== undefined,
-            "codeAddress should be defined"
-          );
-          assertHardhatInvariant(
-            message.code !== undefined,
-            "code should be defined"
-          );
+          const code = await this._getContractCode(codeAddress);
 
           const callTrace: CallMessageTrace = {
-            code: message.code,
+            code,
             calldata: message.data,
             steps: [],
             value: message.value,
-            exit: new Exit(ExitCode.SUCCESS),
             returnData: DUMMY_RETURN_DATA,
-            address: message.to,
+            address: message.to.toBuffer(),
             numberOfSubtraces: 0,
             depth: message.depth,
             gasUsed: DUMMY_GAS_USED,
-            codeAddress,
+            codeAddress: codeAddress.toBuffer(),
           };
 
           trace = callTrace;
@@ -142,21 +175,22 @@ export class VMTracer {
       }
 
       this._messageTraces.push(trace);
+      next();
     } catch (error) {
       if (this._throwErrors) {
-        throw error;
+        next(error);
       } else {
         this._lastError = error as Error;
+        next();
       }
     }
   }
 
-  public async addStep(step: TracingStep) {
+  private async _stepHandler(step: InterpreterStep, next: any) {
     if (!this._shouldKeepTracing()) {
+      next();
       return;
     }
-
-    this.tracingSteps.push(step);
 
     try {
       const trace = this._messageTraces[this._messageTraces.length - 1];
@@ -167,54 +201,46 @@ export class VMTracer {
         );
       }
 
-      trace.steps.push({ pc: Number(step.pc) });
+      trace.steps.push({ pc: step.pc });
+      next();
     } catch (error) {
       if (this._throwErrors) {
-        throw error;
+        next(error);
       } else {
         this._lastError = error as Error;
+        next();
       }
     }
   }
 
-  public async addAfterMessage(result: ExecutionResult, haltOverride?: Exit) {
+  private async _afterMessageHandler(result: EVMResult, next: any) {
     if (!this._shouldKeepTracing()) {
+      next();
       return;
     }
 
     try {
       const trace = this._messageTraces[this._messageTraces.length - 1];
-      trace.gasUsed = result.result.gasUsed;
 
-      const executionResult = result.result;
-      if (isSuccessResult(executionResult)) {
-        trace.exit = Exit.fromEdrSuccessReason(executionResult.reason);
-        trace.returnData = executionResult.output.returnValue;
+      trace.error = result.execResult.exceptionError;
+      trace.returnData = result.execResult.returnValue;
+      trace.gasUsed = result.execResult.executionGasUsed;
 
-        if (isCreateTrace(trace)) {
-          trace.deployedContract = (
-            executionResult.output as CreateOutput
-          ).address;
-        }
-      } else if (isHaltResult(executionResult)) {
-        trace.exit =
-          haltOverride ?? Exit.fromEdrExceptionalHalt(executionResult.reason);
-
-        trace.returnData = Buffer.from([]);
-      } else {
-        trace.exit = new Exit(ExitCode.REVERT);
-
-        trace.returnData = executionResult.output;
+      if (isCreateTrace(trace)) {
+        trace.deployedContract = result?.createdAddress?.toBuffer();
       }
 
       if (this._messageTraces.length > 1) {
         this._messageTraces.pop();
       }
+
+      next();
     } catch (error) {
       if (this._throwErrors) {
-        throw error;
+        next(error);
       } else {
         this._lastError = error as Error;
+        next();
       }
     }
   }

@@ -33,7 +33,7 @@ function attachSpinner(
   }
 ): ora.Ora {
   const { startText, eventPrefix } = spinnerOptions;
-  const spinner = ora({ text: startText, discardStdin: false });
+  const spinner = ora(startText);
 
   emmiter.on(`${eventPrefix}_start`, () => spinner.start());
   emmiter.on(`${eventPrefix}_success`, () => spinner.succeed());

@@ -16,6 +16,7 @@ import type {
   ForkConfig,
   MempoolOrder,
 } from "../../hardhat-network/provider/node-types";
+import type * as ModulesLoggerT from "../../hardhat-network/provider/modules/logger";
 import type * as DiskCacheT from "../../hardhat-network/provider/utils/disk-cache";
 import { HARDHAT_NETWORK_NAME } from "../../constants";
 import { parseDateString } from "../../util/date";
@@ -60,9 +61,10 @@ export async function createProvider(
   if (networkName === HARDHAT_NETWORK_NAME) {
     const hardhatNetConfig = networkConfig as HardhatNetworkConfig;
 
-    const { createHardhatNetworkProvider } = await import(
-      "../../hardhat-network/provider/provider"
-    );
+    const HardhatNetworkProvider = importProvider<
+      typeof import("../../hardhat-network/provider/provider"),
+      "HardhatNetworkProvider"
+    >("../../hardhat-network/provider/provider", "HardhatNetworkProvider");
 
     let forkConfig: ForkConfig | undefined;
 
@@ -81,10 +83,12 @@ export async function createProvider(
       hardhatNetConfig.accounts
     );
 
+    const { ModulesLogger } =
+      require("../../hardhat-network/provider/modules/logger") as typeof ModulesLoggerT;
     const { getForkCacheDirPath } =
       require("../../hardhat-network/provider/utils/disk-cache") as typeof DiskCacheT;
 
-    eip1193Provider = await createHardhatNetworkProvider(
+    eip1193Provider = new HardhatNetworkProvider(
       {
         chainId: hardhatNetConfig.chainId,
         networkId: hardhatNetConfig.chainId,
@@ -115,9 +119,7 @@ export async function createProvider(
         enableTransientStorage:
           hardhatNetConfig.enableTransientStorage ?? false,
       },
-      {
-        enabled: hardhatNetConfig.loggingEnabled,
-      },
+      new ModulesLogger(hardhatNetConfig.loggingEnabled),
       artifacts
     );
   } else {

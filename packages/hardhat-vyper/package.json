@@ -22,7 +22,6 @@
     "prettier": "prettier \"**/*.{js,md,json}\"",
     "pretest": "cd ../.. && pnpm build",
     "test": "mocha --recursive \"test/**/*.ts\"",
-    "prebuild": "cd ../../crates/edr_napi && yarn build",
     "build": "tsc --build .",
     "prepublishOnly": "pnpm build",
     "clean": "rimraf dist"
@@ -35,10 +34,10 @@
   ],
   "dependencies": {
     "debug": "^4.1.1",
-    "fs-extra": "^7.0.1",
-    "io-ts": "1.10.4",
+    "fs-extra": "^11.3.0",
+    "io-ts": "2.2.22",
     "lodash": "^4.17.11",
-    "semver": "^6.3.0"
+    "semver": "^7.7.1"
   },
   "devDependencies": {
     "@nomicfoundation/eslint-plugin-hardhat-internal-rules": "workspace:^",
@@ -68,6 +67,6 @@
     "typescript": "~5.0.0"
   },
   "peerDependencies": {
-    "hardhat": "workspace:^2.8.3"
+    "hardhat": "^2.8.3"
   }
 }

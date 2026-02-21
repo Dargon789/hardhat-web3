@@ -64,10 +64,10 @@ describe("Integration tests", function () {
         const fromAddress = fromWalletClient.account.address;
         const toAddress = toWalletClient.account.address;
 
-        const fromBalanceBefore = await publicClient.getBalance({
+        const fromBalanceBefore: bigint = await publicClient.getBalance({
           address: fromAddress,
         });
-        const toBalanceBefore = await publicClient.getBalance({
+        const toBalanceBefore: bigint = await publicClient.getBalance({
           address: toAddress,
         });
 
@@ -79,10 +79,10 @@ describe("Integration tests", function () {
         const receipt = await publicClient.waitForTransactionReceipt({ hash });
         const transactionFee = receipt.gasUsed * receipt.effectiveGasPrice;
 
-        const fromBalanceAfter = await publicClient.getBalance({
+        const fromBalanceAfter: bigint = await publicClient.getBalance({
           address: fromAddress,
         });
-        const toBalanceAfter = await publicClient.getBalance({
+        const toBalanceAfter: bigint = await publicClient.getBalance({
           address: toAddress,
         });
 
@@ -141,7 +141,7 @@ describe("Integration tests", function () {
         const contract = await this.hre.viem.deployContract(
           "WithoutConstructorArgs",
           [],
-          { client: { wallet: secondWalletClient } }
+          { walletClient: secondWalletClient }
         );
 
         const owner = await contract.read.getOwner();

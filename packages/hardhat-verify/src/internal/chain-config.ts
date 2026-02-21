@@ -171,14 +171,6 @@ export const builtinChains: ChainConfig[] = [
     },
   },
   {
-    network: "holesky",
-    chainId: 17000,
-    urls: {
-      apiURL: "https://api-holesky.etherscan.io/api",
-      browserURL: "https://holesky.etherscan.io",
-    },
-  },
-  {
     network: "arbitrumOne",
     chainId: 42161,
     urls: {
@@ -219,11 +211,19 @@ export const builtinChains: ChainConfig[] = [
     },
   },
   {
-    network: "arbitrumSepolia",
-    chainId: 421614,
+    network: "arbitrumTestnet",
+    chainId: 421611,
     urls: {
-      apiURL: "https://api-sepolia.arbiscan.io/api",
-      browserURL: "https://sepolia.arbiscan.io/",
+      apiURL: "https://api-testnet.arbiscan.io/api",
+      browserURL: "https://testnet.arbiscan.io/",
+    },
+  },
+  {
+    network: "arbitrumGoerli",
+    chainId: 421613,
+    urls: {
+      apiURL: "https://api-goerli.arbiscan.io/api",
+      browserURL: "https://goerli.arbiscan.io/",
     },
   },
   {

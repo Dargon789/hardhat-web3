@@ -251,7 +251,7 @@ async function printRecommendedDepsInstallationInstructions(
 // exported so we can test that it uses the latest supported version of solidity
 export const EMPTY_HARDHAT_CONFIG = `/** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
-  solidity: "0.8.24",
+  solidity: "0.8.19",
 };
 `;
 
@@ -568,8 +568,12 @@ async function doesNpmAutoInstallPeerDependencies() {
 async function installRecommendedDependencies(dependencies: Dependencies) {
   console.log("");
 
+  // The reason we don't quote the dependencies here is because they are going
+  // to be used in child_process.spawn, which doesn't require escaping string,
+  // and can actually fail if you do.
   const installCmd = await getRecommendedDependenciesInstallationCommand(
-    dependencies
+    dependencies,
+    false
   );
   return installDependencies(installCmd[0], installCmd.slice(1));
 }
@@ -607,10 +611,11 @@ async function installDependencies(
 }
 
 async function getRecommendedDependenciesInstallationCommand(
-  dependencies: Dependencies
+  dependencies: Dependencies,
+  quoteDependencies = true
 ): Promise<string[]> {
-  const deps = Object.entries(dependencies).map(
-    ([name, version]) => `"${name}@${version}"`
+  const deps = Object.entries(dependencies).map(([name, version]) =>
+    quoteDependencies ? `"${name}@${version}"` : `${name}@${version}`
   );
 
   if (await isYarnProject()) {

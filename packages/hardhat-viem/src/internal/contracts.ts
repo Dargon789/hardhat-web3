@@ -27,10 +27,16 @@ export async function deployContract(
   constructorArgs: any[] = [],
   config: DeployContractConfig = {}
 ): Promise<GetContractReturnType> {
-  const { client, confirmations, ...deployContractParameters } = config;
+  const {
+    walletClient: configWalletClient,
+    publicClient: configPublicClient,
+    confirmations,
+    ...deployContractParameters
+  } = config;
   const [publicClient, walletClient, contractArtifact] = await Promise.all([
-    client?.public ?? getPublicClient(network.provider),
-    client?.wallet ?? getDefaultWalletClient(network.provider, network.name),
+    configPublicClient ?? getPublicClient(network.provider),
+    configWalletClient ??
+      getDefaultWalletClient(network.provider, network.name),
     artifacts.readArtifact(contractName),
   ]);
 
@@ -114,10 +120,15 @@ export async function sendDeploymentTransaction(
   contract: GetContractReturnType;
   deploymentTransaction: GetTransactionReturnType;
 }> {
-  const { client, ...deployContractParameters } = config;
+  const {
+    walletClient: configWalletClient,
+    publicClient: configPublicClient,
+    ...deployContractParameters
+  } = config;
   const [publicClient, walletClient, contractArtifact] = await Promise.all([
-    client?.public ?? getPublicClient(network.provider),
-    client?.wallet ?? getDefaultWalletClient(network.provider, network.name),
+    configPublicClient ?? getPublicClient(network.provider),
+    configWalletClient ??
+      getDefaultWalletClient(network.provider, network.name),
     artifacts.readArtifact(contractName),
   ]);
 
@@ -191,8 +202,8 @@ export async function getContractAt(
   config: GetContractAtConfig = {}
 ): Promise<GetContractReturnType> {
   const [publicClient, walletClient, contractArtifact] = await Promise.all([
-    config.client?.public ?? getPublicClient(network.provider),
-    config.client?.wallet ??
+    config.publicClient ?? getPublicClient(network.provider),
+    config.walletClient ??
       getDefaultWalletClient(network.provider, network.name),
     artifacts.readArtifact(contractName),
   ]);
@@ -214,10 +225,8 @@ async function innerGetContractAt(
   const viem = await import("viem");
   const contract = viem.getContract({
     address,
-    client: {
-      public: publicClient,
-      wallet: walletClient,
-    },
+    publicClient,
+    walletClient,
     abi: contractAbi,
   });
 

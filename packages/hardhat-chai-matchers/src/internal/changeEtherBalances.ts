@@ -1,7 +1,8 @@
 import type EthersT from "ethers";
 import type { Addressable, BigNumberish, TransactionResponse } from "ethers";
 import type { BalanceChangeOptions } from "./misc/balance";
-import type OrdinalT from "ordinal";
+
+import ordinal from "ordinal";
 
 import { buildAssert } from "../utils";
 import { getAddressOf } from "./misc/account";
@@ -22,7 +23,6 @@ export function supportChangeEtherBalances(
       options?: BalanceChangeOptions
     ) {
       const { toBigInt } = require("ethers") as typeof EthersT;
-      const ordinal = require("ordinal") as typeof OrdinalT;
       // capture negated flag before async code executes; see buildAssert's jsdoc
       const negated = this.__flags.negate;
 

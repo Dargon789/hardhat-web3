@@ -1,12 +1,11 @@
 /* eslint "@typescript-eslint/no-non-null-assertion": "error" */
+import { ERROR } from "@nomicfoundation/ethereumjs-evm/dist/exceptions";
 import { defaultAbiCoder as abi } from "@ethersproject/abi";
-import { equalsBytes } from "@nomicfoundation/ethereumjs-util";
 import semver from "semver";
 
 import { assertHardhatInvariant } from "../../core/errors";
 import { AbiHelpers } from "../../util/abi-helpers";
 import { ReturnData } from "../provider/return-data";
-import { ExitCode } from "../provider/vm/exit";
 
 import {
   DecodedCallMessageTrace,
@@ -275,7 +274,8 @@ export class ErrorInferrer {
       callInst
     );
 
-    const lastMessageFailed = lastSubmessageData.messageTrace.exit.isError();
+    const lastMessageFailed =
+      lastSubmessageData.messageTrace.error !== undefined;
     if (lastMessageFailed) {
       // add the call/create that generated the message to the stack trace
       inferredStacktrace.push(callStackFrame);
@@ -539,7 +539,7 @@ export class ErrorInferrer {
       return;
     }
 
-    const rawReturnData = Buffer.from(returnData.value).toString("hex");
+    const rawReturnData = returnData.value.toString("hex");
     let errorMessage = `reverted with an unrecognized custom error (return data: 0x${rawReturnData})`;
 
     for (const customError of trace.bytecode.contract.customErrors) {
@@ -578,10 +578,6 @@ export class ErrorInferrer {
     functionJumpdests: Instruction[],
     jumpedIntoFunction: boolean
   ): SolidityStackTrace | undefined {
-    if (trace.steps.length === 0) {
-      return;
-    }
-
     const lastStep = trace.steps[trace.steps.length - 1];
 
     if (!isEvmStep(lastStep)) {
@@ -1214,10 +1210,6 @@ export class ErrorInferrer {
   }
 
   private _solidity063MaybeUnmappedRevert(trace: DecodedEvmMessageTrace) {
-    if (trace.steps.length === 0) {
-      return false;
-    }
-
     const lastStep = trace.steps[trace.steps.length - 1];
     if (!isEvmStep(lastStep)) {
       return false;
@@ -1432,7 +1424,7 @@ export class ErrorInferrer {
   }
 
   private _isContractTooLargeError(trace: DecodedCreateMessageTrace) {
-    return trace.exit.kind === ExitCode.CODESIZE_EXCEEDS_MAXIMUM;
+    return trace.error?.error === ERROR.CODESIZE_EXCEEDS_MAXIMUM;
   }
 
   private _solidity063CorrectLineNumber(
@@ -1631,13 +1623,13 @@ export class ErrorInferrer {
   ): boolean {
     const call = trace.steps[callSubtraceStepIndex] as MessageTrace;
 
-    if (!equalsBytes(trace.returnData, call.returnData)) {
+    if (!trace.returnData.equals(call.returnData)) {
       return false;
     }
 
     if (
-      trace.exit.kind === ExitCode.OUT_OF_GAS &&
-      call.exit.kind === ExitCode.OUT_OF_GAS
+      trace.error?.error === ERROR.OUT_OF_GAS &&
+      call.error?.error === ERROR.OUT_OF_GAS
     ) {
       return true;
     }
@@ -1687,7 +1679,7 @@ export class ErrorInferrer {
       return false;
     }
 
-    if (!equalsBytes(trace.returnData, subtrace.returnData)) {
+    if (!trace.returnData.equals(subtrace.returnData)) {
       return false;
     }
 
@@ -1726,19 +1718,19 @@ export class ErrorInferrer {
       return false;
     }
 
-    if (trace.exit.kind !== ExitCode.REVERT) {
+    if (trace.error?.error !== ERROR.REVERT) {
       return false;
     }
 
     const call = trace.steps[callStepIndex] as MessageTrace;
-    if (call.exit.kind !== ExitCode.OUT_OF_GAS) {
+    if (call.error?.error !== ERROR.OUT_OF_GAS) {
       return false;
     }
 
     return this._failsRightAfterCall(trace, callStepIndex);
   }
 
-  private _isPanicReturnData(returnData: Uint8Array): boolean {
+  private _isPanicReturnData(returnData: Buffer): boolean {
     return new ReturnData(returnData).isPanicReturnData();
   }
 }

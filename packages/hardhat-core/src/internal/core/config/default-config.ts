@@ -129,17 +129,6 @@ export const defaultHardhatNetworkParams: Omit<
         ]),
       },
     ],
-    [
-      11155111, // sepolia
-      {
-        hardforkHistory: new Map([
-          [HardforkName.GRAY_GLACIER, 0],
-          [HardforkName.MERGE, 1_450_409],
-          [HardforkName.SHANGHAI, 2_990_908],
-          [HardforkName.CANCUN, 5_187_023],
-        ]),
-      },
-    ],
   ]),
 };
 
