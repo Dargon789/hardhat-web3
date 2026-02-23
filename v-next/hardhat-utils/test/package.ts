@@ -1,23 +1,15 @@
-import type { PackageJson } from "../src/package.js";
-
 import assert from "node:assert/strict";
 import path from "node:path";
 import { describe, it } from "node:test";
 
 import { expectTypeOf } from "expect-type";
 
+import { createFile, mkdir, writeJsonFile, writeUtf8File } from "../src/fs.js";
 import {
-  createFile,
-  getRealPath,
-  mkdir,
-  writeJsonFile,
-  writeUtf8File,
-} from "../src/fs.js";
-import {
+  PackageJson,
   findClosestPackageJson,
   readClosestPackageJson,
   findClosestPackageRoot,
-  findDependencyPackageJson,
 } from "../src/package.js";
 
 import { useTmpDir } from "./helpers/fs.js";
@@ -49,16 +41,6 @@ describe("package", () => {
       const fromPath = path.join(getTmpDir(), "subdir", "subsubdir");
       await createFile(expectedPath);
       await mkdir(fromPath);
-
-      const actualPath = await findClosestPackageJson(fromPath);
-
-      assert.equal(actualPath, expectedPath);
-    });
-
-    it("Should find the closest package.json relative to a directory when its within that directory", async () => {
-      const expectedPath = path.join(getTmpDir(), "package.json");
-      const fromPath = getTmpDir();
-      await createFile(expectedPath);
 
       const actualPath = await findClosestPackageJson(fromPath);
 
@@ -185,103 +167,6 @@ describe("package", () => {
       await assert.rejects(findClosestPackageRoot(fromPath), {
         name: "PackageJsonNotFoundError",
         message: `No package.json found for ${fromPath}`,
-      });
-    });
-  });
-
-  describe("findDependencyPackageJson", async () => {
-    describe("Fixture project: find-dependency-packagejson", async () => {
-      const fixtureProjectPath = await getRealPath(
-        path.resolve(
-          import.meta.dirname,
-          "fixture-projects",
-          "find-dependency-packagejson",
-        ),
-      );
-
-      it("Should resolve non-scoped packages", async () => {
-        const packageJsonPath = await findDependencyPackageJson(
-          fixtureProjectPath,
-          "a",
-        );
-
-        assert.equal(
-          packageJsonPath,
-          path.join(fixtureProjectPath, "node_modules/a/package.json"),
-        );
-      });
-
-      it("Should work with and without trailing slashes", async () => {
-        assert.equal(
-          await findDependencyPackageJson(
-            fixtureProjectPath.replace(/\/+$/, ""),
-            "a",
-          ),
-          await findDependencyPackageJson(
-            fixtureProjectPath.replace(/\/+$/, "") + "/",
-            "a",
-          ),
-        );
-      });
-
-      it("Should resolve scoped packages", async () => {
-        const packageJsonPath = await findDependencyPackageJson(
-          fixtureProjectPath,
-          "@scope/a",
-        );
-
-        assert.equal(
-          packageJsonPath,
-          path.join(fixtureProjectPath, "node_modules/@scope/a/package.json"),
-        );
-      });
-
-      it("Shouldn't find non-existing packages", async () => {
-        const packageJsonPath = await findDependencyPackageJson(
-          fixtureProjectPath,
-          "nope",
-        );
-
-        assert.equal(packageJsonPath, undefined);
-      });
-
-      it("Should resolve nested dependencies local to the node_modules", async () => {
-        const packageJsonPath = await findDependencyPackageJson(
-          path.join(fixtureProjectPath, "node_modules/@scope/a"),
-          "a",
-        );
-
-        assert.equal(
-          packageJsonPath,
-          path.join(
-            fixtureProjectPath,
-            "node_modules/@scope/a/node_modules/a/package.json",
-          ),
-        );
-      });
-
-      it("Should resolve nested dependencies in an upper node_modules", async () => {
-        const packageJsonPath = await findDependencyPackageJson(
-          path.join(fixtureProjectPath, "node_modules/@scope/a"),
-          "b",
-        );
-
-        assert.equal(
-          packageJsonPath,
-          path.join(fixtureProjectPath, "node_modules/b/package.json"),
-        );
-      });
-
-      it("Should resolve symlinks", async () => {
-        const packageJsonPath = await findDependencyPackageJson(
-          path.join(fixtureProjectPath, "node_modules/b"),
-          "a",
-        );
-
-        assert.equal(
-          packageJsonPath,
-          path.join(fixtureProjectPath, "node_modules/a/package.json"),
-        );
       });
     });
   });

@@ -1,18 +1,17 @@
-import type { ErrorDescriptor } from "../src/descriptors.js";
-import type {
-  ErrorMessageTemplateValue,
-  MessagetTemplateArguments,
-} from "../src/errors.js";
-
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
 import { expectTypeOf } from "expect-type";
 
-import { ERRORS, ERROR_CATEGORIES } from "../src/descriptors.js";
 import {
+  ERRORS,
+  ERROR_CATEGORIES,
+  ErrorDescriptor,
+} from "../src/descriptors.js";
+import {
+  ErrorMessageTemplateValue,
   HardhatError,
-  HardhatPluginError,
+  MessagetTemplateArguments,
   applyErrorMessageTemplate,
 } from "../src/errors.js";
 
@@ -26,62 +25,35 @@ const mockErrorDescriptor = {
 describe("HardhatError", () => {
   describe("Type guard", () => {
     it("Should return true for HardhatErrors", () => {
-      const error = new HardhatError(mockErrorDescriptor);
       assert.ok(
-        HardhatError.isHardhatError(error),
-        `error ${error.number} is a HardhatError, but isHardhatError returned false`,
+        HardhatError.isHardhatError(new HardhatError(mockErrorDescriptor)),
       );
     });
 
     it("Should return true for HardhatErrors with the same ErrorDescriptor", () => {
-      const error = new HardhatError(mockErrorDescriptor);
       assert.ok(
-        HardhatError.isHardhatError(error, mockErrorDescriptor),
-        `error ${error.number} matches the descriptor ${JSON.stringify(mockErrorDescriptor, null, 2)}, but isHardhatError returned false`,
+        HardhatError.isHardhatError(
+          new HardhatError(mockErrorDescriptor),
+          mockErrorDescriptor,
+        ),
       );
     });
 
     it("Should return false for everything else", () => {
-      assert.ok(
-        !HardhatError.isHardhatError(new Error()),
-        "new Error() is not a HardhatError, but isHardhatError returned true",
-      );
-      assert.ok(
-        !HardhatError.isHardhatError(
-          new HardhatPluginError("examplePlugin", "error message"),
-        ),
-        "new HardhatPluginError() is not a HardhatError, but isHardhatError returned true",
-      );
-      assert.ok(
-        !HardhatError.isHardhatError(undefined),
-        "undefined is not a HardhatError, but isHardhatError returned true",
-      );
-      assert.ok(
-        !HardhatError.isHardhatError(null),
-        "null is not a HardhatError, but isHardhatError returned true",
-      );
-      assert.ok(
-        !HardhatError.isHardhatError(123),
-        "123 is not a HardhatError, but isHardhatError returned true",
-      );
-      assert.ok(
-        !HardhatError.isHardhatError("123"),
-        '"123" is not a HardhatError, but isHardhatError returned true',
-      );
-      assert.ok(
-        !HardhatError.isHardhatError({ asd: 123 }),
-        "{ asd: 123 } is not a HardhatError, but isHardhatError returned true",
-      );
+      assert.ok(!HardhatError.isHardhatError(new Error()));
+      assert.ok(!HardhatError.isHardhatError(undefined));
+      assert.ok(!HardhatError.isHardhatError(null));
+      assert.ok(!HardhatError.isHardhatError(123));
+      assert.ok(!HardhatError.isHardhatError("123"));
+      assert.ok(!HardhatError.isHardhatError({ asd: 123 }));
     });
 
     it("Should return false for HardhatErrors with a different ErrorDescriptor", () => {
-      const error = new HardhatError(mockErrorDescriptor);
       assert.ok(
-        !HardhatError.isHardhatError(error, {
+        !HardhatError.isHardhatError(new HardhatError(mockErrorDescriptor), {
           ...mockErrorDescriptor,
           number: 1,
         }),
-        `error ${error.number} doesn't match the descriptor ${JSON.stringify(mockErrorDescriptor, null, 2)}, but isHardhatError returned true`,
       );
     });
   });
@@ -154,111 +126,13 @@ describe("HardhatError", () => {
       assert.equal(error.message, "HHE12: a b 123");
     });
   });
-
-  describe("pluginId", () => {
-    it("Should return the plugin id if its descriptor is in a category that uses one", () => {
-      assert.equal(
-        new HardhatError(
-          HardhatError.ERRORS.HARDHAT_KEYSTORE.GENERAL.INVALID_PASSWORD_OR_CORRUPTED_KEYSTORE,
-        ).pluginId,
-        ERROR_CATEGORIES.HARDHAT_KEYSTORE.pluginId,
-      );
-    });
-  });
-});
-
-describe("HardhatPluginError", () => {
-  describe("Type guard", () => {
-    it("Should return true for HardhatPluginErrors", () => {
-      const error = new HardhatPluginError("examplePlugin", "error message");
-      assert.ok(
-        HardhatPluginError.isHardhatPluginError(error),
-        `error ${error.name} is a HardhatPluginError, but isHardhatPluginError returned false`,
-      );
-    });
-
-    it("Should return false for everything else", () => {
-      assert.ok(
-        !HardhatPluginError.isHardhatPluginError(new Error()),
-        "new Error() is not a HardhatPluginError, but isHardhatPluginError returned true",
-      );
-      assert.ok(
-        !HardhatPluginError.isHardhatPluginError(
-          new HardhatError(mockErrorDescriptor),
-        ),
-        "new HardhatError() is not a HardhatPluginError, but isHardhatPluginError returned true",
-      );
-      assert.ok(
-        !HardhatPluginError.isHardhatPluginError(undefined),
-        "undefined is not a HardhatPluginError, but isHardhatPluginError returned true",
-      );
-      assert.ok(
-        !HardhatPluginError.isHardhatPluginError(null),
-        "null is not a HardhatPluginError, but isHardhatPluginError returned true",
-      );
-      assert.ok(
-        !HardhatPluginError.isHardhatPluginError(123),
-        "123 is not a HardhatPluginError, but isHardhatPluginError returned true",
-      );
-      assert.ok(
-        !HardhatPluginError.isHardhatPluginError("123"),
-        '"123" is not a HardhatPluginError, but isHardhatPluginError returned true',
-      );
-      assert.ok(
-        !HardhatPluginError.isHardhatPluginError({ asd: 123 }),
-        "{ asd: 123 } is not a HardhatPluginError, but isHardhatPluginError returned true",
-      );
-    });
-  });
-
-  describe("Without parent error", () => {
-    it("should have the right plugin name", () => {
-      const error = new HardhatPluginError("examplePlugin", "error message");
-      assert.equal(error.pluginId, "examplePlugin");
-    });
-
-    it("should have the right error message", () => {
-      const error = new HardhatPluginError("examplePlugin", "error message");
-      assert.equal(error.message, "error message");
-    });
-
-    it("shouldn't have a cause", () => {
-      assert.equal(
-        new HardhatPluginError("examplePlugin", "error message").cause,
-        undefined,
-      );
-    });
-  });
-
-  describe("With cause error", () => {
-    it("should have the right cause error", () => {
-      const cause = new Error();
-      const error = new HardhatPluginError(
-        "examplePlugin",
-        "error message",
-        cause,
-      );
-      assert.equal(error.cause, cause);
-    });
-  });
 });
 
 describe("Error categories", () => {
   it("Should have max > min", () => {
     for (const errorGroup of Object.keys(ERROR_CATEGORIES)) {
-      const packageInfo = ERROR_CATEGORIES[errorGroup];
-      assert.ok(
-        packageInfo.min < packageInfo.max,
-        `Range of ${errorGroup} is invalid`,
-      );
-
-      for (const categoryGroup of Object.keys(packageInfo.CATEGORIES)) {
-        const categoryInfo = packageInfo.CATEGORIES[categoryGroup];
-        assert.ok(
-          categoryInfo.min < categoryInfo.max,
-          `Range of ${errorGroup}.CATEGORIES.${categoryGroup} is invalid`,
-        );
-      }
+      const range = ERROR_CATEGORIES[errorGroup];
+      assert.ok(range.min < range.max, `Range of ${errorGroup} is invalid`);
     }
   });
 
@@ -282,40 +156,6 @@ describe("Error categories", () => {
           `Ranges of ${errorGroup} and ${errorGroup2} overlap`,
         );
       }
-
-      for (const categoryGroup of Object.keys(
-        ERROR_CATEGORIES[errorGroup].CATEGORIES,
-      )) {
-        const categoryRange =
-          ERROR_CATEGORIES[errorGroup].CATEGORIES[categoryGroup];
-
-        for (const categoryGroup2 of Object.keys(
-          ERROR_CATEGORIES[errorGroup].CATEGORIES,
-        )) {
-          const categoryRange2 =
-            ERROR_CATEGORIES[errorGroup].CATEGORIES[categoryGroup2];
-
-          if (categoryGroup === categoryGroup2) {
-            continue;
-          }
-
-          const rangesHaveOverlap =
-            (categoryRange.min >= categoryRange2.min &&
-              categoryRange.min <= categoryRange2.max) ||
-            (categoryRange.max >= categoryRange2.min &&
-              categoryRange.max <= categoryRange2.max);
-
-          assert.ok(
-            !rangesHaveOverlap,
-            `Ranges of ${errorGroup}.CATEGORIES.${categoryGroup} and ${errorGroup}.CATEGORIES.${categoryGroup2} overlap`,
-          );
-        }
-
-        assert.ok(
-          categoryRange.min >= range.min && categoryRange.max <= range.max,
-          `Range of ${errorGroup}.CATEGORIES.${categoryGroup} is out of range`,
-        );
-      }
     }
   });
 });
@@ -323,58 +163,47 @@ describe("Error categories", () => {
 describe("Error descriptors", () => {
   it("Should have all errors inside their ranges", () => {
     /* eslint-disable-next-line @typescript-eslint/consistent-type-assertions --
-    We know that this is correct */
-    for (const packageName of Object.keys(HardhatError.ERRORS) as Array<
+    We kwow that this is correct */
+    for (const errorGroup of Object.keys(HardhatError.ERRORS) as Array<
       keyof typeof HardhatError.ERRORS
     >) {
-      /* eslint-disable-next-line @typescript-eslint/consistent-type-assertions --
-    We know that this is correct */
-      for (const categoryName of Object.keys(
-        HardhatError.ERRORS[packageName],
-      ) as Array<keyof (typeof HardhatError.ERRORS)[typeof packageName]>) {
-        const range = ERROR_CATEGORIES[packageName].CATEGORIES[categoryName];
-        const category = ERRORS[packageName][categoryName];
+      const range = ERROR_CATEGORIES[errorGroup];
 
-        for (const [name, errorDescriptor] of Object.entries<ErrorDescriptor>(
-          category,
-        )) {
-          assert.ok(
-            errorDescriptor.number >= range.min,
-            `ERRORS.${packageName}.${categoryName}.${name}'s number is out of range`,
-          );
+      for (const [name, errorDescriptor] of Object.entries<ErrorDescriptor>(
+        HardhatError.ERRORS[errorGroup],
+      )) {
+        assert.ok(
+          errorDescriptor.number >= range.min,
+          `ERRORS.${errorGroup}.${name}'s number is out of range`,
+        );
 
-          assert.ok(
-            errorDescriptor.number <= range.max - 1,
-            `ERRORS.${packageName}.${categoryName}.${name}'s number is out of range`,
-          );
-        }
+        assert.ok(
+          errorDescriptor.number <= range.max - 1,
+          `ERRORS.${errorGroup}.${name}'s number is out of range`,
+        );
       }
     }
   });
 
   it("Shouldn't repeat error numbers", () => {
-    const usedNumbers = new Set<number>();
-
     /* eslint-disable-next-line @typescript-eslint/consistent-type-assertions --
-    We know that this is correct */
-    for (const packageName of Object.keys(HardhatError.ERRORS) as Array<
+    We kwow that this is correct */
+    for (const errorGroup of Object.keys(HardhatError.ERRORS) as Array<
       keyof typeof HardhatError.ERRORS
     >) {
-      /* eslint-disable-next-line @typescript-eslint/consistent-type-assertions --
-    We know that this is correct */
-      for (const categoryName of Object.keys(
-        HardhatError.ERRORS[packageName],
-      ) as Array<keyof (typeof HardhatError.ERRORS)[typeof packageName]>) {
-        for (const [name, errorDescriptor] of Object.entries<ErrorDescriptor>(
-          HardhatError.ERRORS[packageName][categoryName],
+      for (const [name, errorDescriptor] of Object.entries<ErrorDescriptor>(
+        HardhatError.ERRORS[errorGroup],
+      )) {
+        for (const [name2, errorDescriptor2] of Object.entries<ErrorDescriptor>(
+          HardhatError.ERRORS[errorGroup],
         )) {
-          if (usedNumbers.has(errorDescriptor.number)) {
-            assert.fail(
-              `ERRORS.${packageName}.${categoryName}.${name}'s number is repeated`,
+          if (name !== name2) {
+            assert.notEqual(
+              errorDescriptor.number,
+              errorDescriptor2.number,
+              `ERRORS.${errorGroup}.${name} and ${errorGroup}.${name2} have repeated numbers`,
             );
           }
-
-          usedNumbers.add(errorDescriptor.number);
         }
       }
     }
@@ -382,55 +211,23 @@ describe("Error descriptors", () => {
 
   it("Should keep the numbers in order, without gaps", () => {
     /* eslint-disable-next-line @typescript-eslint/consistent-type-assertions --
-    We know that this is correct */
-    for (const packageName of Object.keys(HardhatError.ERRORS) as Array<
+    We kwow that this is correct */
+    for (const errorGroup of Object.keys(HardhatError.ERRORS) as Array<
       keyof typeof HardhatError.ERRORS
     >) {
-      const packageRange = ERROR_CATEGORIES[packageName];
+      const range = ERROR_CATEGORIES[errorGroup];
+      let expectedErrorNumber = range.min;
 
-      /* eslint-disable-next-line @typescript-eslint/consistent-type-assertions --
-    We know that this is correct */
-      for (const categoryName of Object.keys(
-        HardhatError.ERRORS[packageName],
-      ) as Array<keyof (typeof HardhatError.ERRORS)[typeof packageName]>) {
-        const categoryRange = packageRange.CATEGORIES[categoryName];
-        let expectedErrorNumber = categoryRange.min;
-
-        for (const [name, errorDescriptor] of Object.entries<ErrorDescriptor>(
-          HardhatError.ERRORS[packageName][categoryName],
-        )) {
-          assert.equal(
-            errorDescriptor.number,
-            expectedErrorNumber,
-            `ERRORS.${packageName}.${categoryName}.${name}'s number is out of range`,
-          );
-
-          expectedErrorNumber += 1;
-        }
-      }
-    }
-  });
-
-  it("Shouldn't be empty", () => {
-    /* eslint-disable-next-line @typescript-eslint/consistent-type-assertions --
-    We know that this is correct */
-    for (const packageName of Object.keys(HardhatError.ERRORS) as Array<
-      keyof typeof HardhatError.ERRORS
-    >) {
-      /* eslint-disable-next-line @typescript-eslint/consistent-type-assertions --
-    We know that this is correct */
-      for (const categoryName of Object.keys(
-        HardhatError.ERRORS[packageName],
-      ) as Array<keyof (typeof HardhatError.ERRORS)[typeof packageName]>) {
-        const errorsPerCategory = Object.keys(
-          HardhatError.ERRORS[packageName][categoryName],
-        ).length;
-
-        assert.notEqual(
-          errorsPerCategory,
-          0,
-          `The error category ERRORS[${packageName}][${categoryName}] is empty`,
+      for (const [name, errorDescriptor] of Object.entries<ErrorDescriptor>(
+        HardhatError.ERRORS[errorGroup],
+      )) {
+        assert.equal(
+          errorDescriptor.number,
+          expectedErrorNumber,
+          `ERRORS.${errorGroup}.${name}'s number is out of range`,
         );
+
+        expectedErrorNumber += 1;
       }
     }
   });
@@ -523,10 +320,8 @@ describe("Type tests", () => {
   describe("ErrorDescriptor types", () => {
     it("should have the right type", () => {
       const _descriptors: {
-        [packageName in keyof typeof ERROR_CATEGORIES]: {
-          [categoryName in keyof (typeof ERROR_CATEGORIES)[packageName]["CATEGORIES"]]: {
-            [name: string]: ErrorDescriptor;
-          };
+        [category in keyof typeof ERROR_CATEGORIES]: {
+          [name: string]: ErrorDescriptor;
         };
       } = ERRORS;
     });
@@ -605,7 +400,7 @@ describe("Type tests", () => {
     describe("Edge cases", () => {
       it("Should support {}", () => {
         expectTypeOf<MessagetTemplateArguments<"foo {} {}">>().toEqualTypeOf<{
-          /* eslint-disable-next-line @typescript-eslint/naming-convention --
+          /* eslint-disable-next-line @typescript-eslint/naming-convention -- 
           This test case is intentionally testing a weird variable name */
           "": ErrorMessageTemplateValue;
         }>();

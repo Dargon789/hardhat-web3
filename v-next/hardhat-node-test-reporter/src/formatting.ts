@@ -1,12 +1,11 @@
-import type { GlobalDiagnostics } from "./diagnostics.js";
-import type { TestEventData } from "./types.js";
-
 import chalk from "chalk";
 
+import { GlobalDiagnostics } from "./diagnostics.js";
 import { formatError } from "./error-formatting.js";
+import { TestEventData } from "./node-types.js";
 
-export const INFO_SYMBOL: string = chalk.blue("\u2139");
-export const SUCCESS_SYMBOL: string = chalk.green("✔");
+export const INFO_SYMBOL = chalk.blue("\u2139");
+export const SUCCESS_SYMBOL = chalk.green("✔");
 
 export interface Failure {
   index: number;
@@ -18,7 +17,6 @@ export function formatTestContext(
   contextStack: Array<TestEventData["test:start"]>,
   prefix = "",
   suffix = "",
-  isSkipped = false,
 ): string {
   const contextFragments: string[] = [];
 
@@ -34,11 +32,7 @@ export function formatTestContext(
       contextFragments.push(indent("", indentation + prefixLength));
     }
 
-    if (isSkipped && i === contextStack.length - 1) {
-      contextFragments.push(chalk.cyan(`- ${parentTest.name}`));
-    } else {
-      contextFragments.push(parentTest.name);
-    }
+    contextFragments.push(parentTest.name);
   }
 
   contextFragments.push(suffix);
@@ -60,15 +54,6 @@ export function formatTestPass(passData: TestEventData["test:pass"]): string {
   }
 
   return indent(msg, nestingToIndentationLength(passData.nesting));
-}
-
-export function formatTestCancelledByParentFailure(failure: Failure): string {
-  return indent(
-    chalk.grey(
-      `${formatFailureIndex(failure.index)}) ${failure.testFail.name}`,
-    ),
-    nestingToIndentationLength(failure.testFail.nesting),
-  );
 }
 
 export function formatTestFailure(failure: Failure): string {
@@ -95,52 +80,39 @@ export function formatSlowTestInfo(durationMs: number): string {
 export function formatGlobalDiagnostics(
   diagnostics: GlobalDiagnostics,
 ): string {
-  let result = "  ";
-
-  result +=
+  let result =
     chalk.green(`${diagnostics.pass} passing`) +
     chalk.gray(` (${Math.floor(diagnostics.duration_ms)}ms)`);
 
   if (diagnostics.fail > 0) {
     result += chalk.red(`
-  ${diagnostics.fail} failing`);
+${diagnostics.fail} failing`);
   }
 
   if (diagnostics.skipped > 0) {
     result += chalk.cyan(`
-  ${diagnostics.skipped} skipped`);
+${diagnostics.skipped} skipped`);
   }
 
   if (diagnostics.todo > 0) {
     result += chalk.blue(`
-  ${diagnostics.todo} todo`);
+${diagnostics.todo} todo`);
   }
 
   if (diagnostics.cancelled > 0) {
     result += chalk.gray(`
-  ${diagnostics.cancelled} cancelled`);
+${diagnostics.cancelled} cancelled`);
   }
 
   return result;
 }
 
-function isTestOnlyMessage(message: string): boolean {
-  return message.includes("--test-only");
-}
-
 export function formatUnusedDiagnostics(
   unusedDiagnostics: Array<TestEventData["test:diagnostic"]>,
-  testOnlyMessage?: string,
 ): string {
-  const messages = unusedDiagnostics
-    .map(({ message }) => {
-      if (isTestOnlyMessage(message)) {
-        return testOnlyMessage ?? message;
-      }
-      return message;
-    })
-    .map((message) => `  ${INFO_SYMBOL} ${message}`);
-  return Array.from(new Set(messages)).join("\n");
+  return unusedDiagnostics
+    .map(({ message }) => `${INFO_SYMBOL} ${message}`)
+    .join("\n");
 }
 
 function formatFailureIndex(index: number): string {
@@ -151,7 +123,7 @@ function nestingToIndentationLength(nesting: number): number {
   return (nesting + 1) * 2;
 }
 
-export function indent(str: string, spaces: number): string {
+function indent(str: string, spaces: number): string {
   const padding = " ".repeat(spaces);
   return str.replace(/^/gm, padding);
 }

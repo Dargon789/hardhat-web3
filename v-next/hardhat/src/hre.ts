@@ -1,7 +1,37 @@
-// NOTE: We import the builtin plugins in this module, so that their
-// type-extensions are loaded when the user imports `hardhat/hre`.
-import "./internal/builtin-plugins/index.js";
+import {
+  createHardhatRuntimeEnvironment as originalCreateHardhatRuntimeEnvironment,
+  resolvePluginList,
+} from "@nomicfoundation/hardhat-core";
 
-export { importUserConfig } from "./internal/config-loading.js";
-export { resolveHardhatConfigPath } from "./internal/config-loading.js";
-export { createHardhatRuntimeEnvironment } from "./internal/hre-initialization.js";
+import { builtinPlugins } from "./internal/builtin-plugins/index.js";
+import { HardhatUserConfig } from "./types/config.js";
+import { GlobalArguments } from "./types/global-parameters.js";
+import { HardhatRuntimeEnvironment } from "./types/hre.js";
+
+/**
+ * Creates an instances of the Hardhat Runtime Environment.
+ *
+ * @param config - The user's Hardhat configuration.
+ * @param userProvidedGlobalArguments - The global arguments provided by the
+ *  user.
+ * @returns The Hardhat Runtime Environment.
+ */
+export async function createHardhatRuntimeEnvironment(
+  config: HardhatUserConfig,
+  userProvidedGlobalArguments: Partial<GlobalArguments> = {},
+): Promise<HardhatRuntimeEnvironment> {
+  const plugins = [...builtinPlugins, ...(config.plugins ?? [])];
+
+  // We resolve the plugins within npm modules relative to the current working
+  const basePathForNpmResolution = process.cwd();
+  const resolvedPlugins = await resolvePluginList(
+    plugins,
+    basePathForNpmResolution,
+  );
+
+  return originalCreateHardhatRuntimeEnvironment(
+    config,
+    userProvidedGlobalArguments,
+    { resolvedPlugins },
+  );
+}

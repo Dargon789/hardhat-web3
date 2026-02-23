@@ -1,15 +1,7 @@
-import type { JsonTypes, ParsedElementInfo } from "@streamparser/json-node";
-import type { FileHandle } from "node:fs/promises";
-
 import fsPromises from "node:fs/promises";
-import { tmpdir } from "node:os";
 import path from "node:path";
-import { pipeline } from "node:stream/promises";
 
-import { JSONParser } from "@streamparser/json-node";
-import { JsonStreamStringify } from "json-stream-stringify";
-
-import { ensureError, ensureNodeErrnoExceptionError } from "./error.js";
+import { ensureError } from "./error.js";
 import {
   FileNotFoundError,
   FileSystemAccessError,
@@ -32,7 +24,7 @@ export async function getRealPath(absolutePath: string): Promise<string> {
   try {
     return await fsPromises.realpath(path.normalize(absolutePath));
   } catch (e) {
-    ensureNodeErrnoExceptionError(e);
+    ensureError<NodeJS.ErrnoException>(e);
     if (e.code === "ENOENT") {
       throw new FileNotFoundError(absolutePath, e);
     }
@@ -47,7 +39,6 @@ export async function getRealPath(absolutePath: string): Promise<string> {
  *
  * @param dirFrom The absolute path of the directory to start the search from.
  * @param matches A function to filter files (not directories).
- * @param directoryFilter A function to filter which directories to recurse into
  * @returns An array of absolute paths. Each file has its true case, except
  *  for the initial dirFrom part, which preserves the given casing.
  *  No order is guaranteed. If dirFrom doesn't exist `[]` is returned.
@@ -56,8 +47,7 @@ export async function getRealPath(absolutePath: string): Promise<string> {
  */
 export async function getAllFilesMatching(
   dirFrom: string,
-  matches?: (absolutePathToFile: string) => Promise<boolean> | boolean,
-  directoryFilter?: (absolutePathToDir: string) => Promise<boolean> | boolean,
+  matches?: (absolutePathToFile: string) => boolean,
 ): Promise<string[]> {
   const dirContent = await readdirOrEmpty(dirFrom);
 
@@ -65,62 +55,12 @@ export async function getAllFilesMatching(
     dirContent.map(async (file) => {
       const absolutePathToFile = path.join(dirFrom, file);
       if (await isDirectory(absolutePathToFile)) {
-        if (
-          directoryFilter === undefined ||
-          (await directoryFilter(absolutePathToFile))
-        ) {
-          return getAllFilesMatching(
-            absolutePathToFile,
-            matches,
-            directoryFilter,
-          );
-        }
-
-        return [];
-      } else if (matches === undefined || (await matches(absolutePathToFile))) {
+        return getAllFilesMatching(absolutePathToFile, matches);
+      } else if (matches === undefined || matches(absolutePathToFile)) {
         return absolutePathToFile;
       } else {
         return [];
       }
-    }),
-  );
-
-  return results.flat();
-}
-
-/**
- * Recursively searches a directory and its subdirectories for directories that
- * satisfy the specified condition, returning their absolute paths. Once a
- * directory is found, its subdirectories are not searched.
- *
- * Note: dirFrom is never returned, nor is `matches` called on it.
- *
- * @param dirFrom The absolute path of the directory to start the search from.
- * @param matches A function to filter directories (not files).
- * @returns An array of absolute paths. Each path has its true case, except
- *  for the initial dirFrom part, which preserves the given casing.
- *  No order is guaranteed. If dirFrom doesn't exist `[]` is returned.
- * @throws NotADirectoryError if dirFrom is not a directory.
- * @throws FileSystemAccessError for any other error.
- */
-export async function getAllDirectoriesMatching(
-  dirFrom: string,
-  matches?: (absolutePathToDir: string) => Promise<boolean> | boolean,
-): Promise<string[]> {
-  const dirContent = await readdirOrEmpty(dirFrom);
-
-  const results = await Promise.all(
-    dirContent.map(async (file) => {
-      const absolutePathToFile = path.join(dirFrom, file);
-      if (!(await isDirectory(absolutePathToFile))) {
-        return [];
-      }
-
-      if (matches === undefined || (await matches(absolutePathToFile))) {
-        return absolutePathToFile;
-      }
-
-      return getAllDirectoriesMatching(absolutePathToFile, matches);
     }),
   );
 
@@ -179,7 +119,7 @@ export async function isDirectory(absolutePath: string): Promise<boolean> {
   try {
     return (await fsPromises.lstat(absolutePath)).isDirectory();
   } catch (e) {
-    ensureNodeErrnoExceptionError(e);
+    ensureError<NodeJS.ErrnoException>(e);
     if (e.code === "ENOENT") {
       throw new FileNotFoundError(absolutePath, e);
     }
@@ -203,81 +143,8 @@ export async function readJsonFile<T>(absolutePathToFile: string): Promise<T> {
   try {
     return JSON.parse(content.toString());
   } catch (e) {
-    ensureError(e);
+    ensureError<NodeJS.ErrnoException>(e);
     throw new InvalidFileFormatError(absolutePathToFile, e);
-  }
-}
-
-/**
- * Reads a JSON file as a stream and parses it. The encoding used is "utf8".
- * This function should be used when parsing very large JSON files.
- *
- * @param absolutePathToFile The path to the file.
- * @returns The parsed JSON object.
- * @throws FileNotFoundError if the file doesn't exist.
- * @throws InvalidFileFormatError if the file is not a valid JSON file.
- * @throws IsDirectoryError if the path is a directory instead of a file.
- * @throws FileSystemAccessError for any other error.
- */
-export async function readJsonFileAsStream<T>(
-  absolutePathToFile: string,
-): Promise<T> {
-  let fileHandle: FileHandle | undefined;
-
-  try {
-    fileHandle = await fsPromises.open(absolutePathToFile, "r");
-
-    const fileReadStream = fileHandle.createReadStream();
-
-    // NOTE: We set a separator to disable self-closing to be able to use the parser
-    // in the stream.pipeline context; see https://github.com/juanjoDiaz/streamparser-json/issues/47
-    const jsonParser = new JSONParser({
-      separator: "",
-    });
-
-    const result: T | undefined = await pipeline(
-      fileReadStream,
-      jsonParser,
-      async (
-        elements: AsyncIterable<ParsedElementInfo.ParsedElementInfo>,
-      ): Promise<any | undefined> => {
-        let value: JsonTypes.JsonPrimitive | JsonTypes.JsonStruct | undefined;
-        for await (const element of elements) {
-          value = element.value;
-        }
-        return value;
-      },
-    );
-
-    if (result === undefined) {
-      throw new Error("No data");
-    }
-
-    return result;
-  } catch (e) {
-    ensureError(e);
-
-    // If the code is defined, we assume the error to be related to the file system
-    if ("code" in e) {
-      if (e.code === "ENOENT") {
-        throw new FileNotFoundError(absolutePathToFile, e);
-      }
-
-      if (e.code === "EISDIR") {
-        throw new IsDirectoryError(absolutePathToFile, e);
-      }
-
-      // If the code is defined, we assume the error to be related to the file system
-      if (e.code !== undefined) {
-        throw new FileSystemAccessError(absolutePathToFile, e);
-      }
-    }
-
-    // Otherwise, we assume the error to be related to the file formatting
-    throw new InvalidFileFormatError(absolutePathToFile, e);
-  } finally {
-    // Explicitly closing the file handle to fully release the underlying resources
-    await fileHandle?.close();
   }
 }
 
@@ -298,64 +165,11 @@ export async function writeJsonFile<T>(
   try {
     content = JSON.stringify(object, null, 2);
   } catch (e) {
-    ensureError(e);
+    ensureError<NodeJS.ErrnoException>(e);
     throw new JsonSerializationError(absolutePathToFile, e);
   }
 
   await writeUtf8File(absolutePathToFile, content);
-}
-
-/**
- * Writes an object to a JSON file as stream. The encoding used is "utf8" and the file is overwritten.
- * If part of the path doesn't exist, it will be created.
- * This function should be used when stringifying very large JSON objects.
- *
- * @param absolutePathToFile The path to the file. If the file exists, it will be overwritten.
- * @param object The object to write.
- * @throws JsonSerializationError if the object can't be serialized to JSON.
- * @throws FileSystemAccessError for any other error.
- */
-export async function writeJsonFileAsStream<T>(
-  absolutePathToFile: string,
-  object: T,
-): Promise<void> {
-  const dirPath = path.dirname(absolutePathToFile);
-  const dirExists = await exists(dirPath);
-  if (!dirExists) {
-    await mkdir(dirPath);
-  }
-
-  let fileHandle: FileHandle | undefined;
-
-  try {
-    fileHandle = await fsPromises.open(absolutePathToFile, "w");
-
-    const jsonStream = new JsonStreamStringify(object);
-    const fileWriteStream = fileHandle.createWriteStream();
-
-    await pipeline(jsonStream, fileWriteStream);
-  } catch (e) {
-    ensureError(e);
-    // if the directory was created, we should remove it
-    if (dirExists === false) {
-      try {
-        await remove(dirPath);
-        // we don't want to override the original error
-      } catch (_error) {}
-    }
-
-    // If the code is defined, we assume the error to be related to the file system
-    if ("code" in e && e.code !== undefined) {
-      throw new FileSystemAccessError(e.message, e);
-    }
-
-    // Otherwise, we assume the error to be related to the file formatting
-    throw new JsonSerializationError(absolutePathToFile, e);
-  } finally {
-    // NOTE: Historically, not closing the file handle caused issues on Windows,
-    // for example, when trying to move the file previously written to by this function
-    await fileHandle?.close();
-  }
 }
 
 /**
@@ -373,7 +187,7 @@ export async function readUtf8File(
   try {
     return await fsPromises.readFile(absolutePathToFile, { encoding: "utf8" });
   } catch (e) {
-    ensureNodeErrnoExceptionError(e);
+    ensureError<NodeJS.ErrnoException>(e);
 
     if (e.code === "ENOENT") {
       throw new FileNotFoundError(absolutePathToFile, e);
@@ -415,13 +229,13 @@ export async function writeUtf8File(
       flag,
     });
   } catch (e) {
-    ensureNodeErrnoExceptionError(e);
+    ensureError<NodeJS.ErrnoException>(e);
     // if the directory was created, we should remove it
     if (dirExists === false) {
       try {
         await remove(dirPath);
         // we don't want to override the original error
-      } catch (_error) {}
+      } catch (err) {}
     }
 
     if (e.code === "ENOENT") {
@@ -453,7 +267,7 @@ export async function readBinaryFile(
     const buffer = await fsPromises.readFile(absolutePathToFile);
     return new Uint8Array(buffer);
   } catch (e) {
-    ensureNodeErrnoExceptionError(e);
+    ensureError<NodeJS.ErrnoException>(e);
 
     if (e.code === "ENOENT") {
       throw new FileNotFoundError(absolutePathToFile, e);
@@ -480,7 +294,7 @@ export async function readdir(absolutePathToDir: string): Promise<string[]> {
   try {
     return await fsPromises.readdir(absolutePathToDir);
   } catch (e) {
-    ensureNodeErrnoExceptionError(e);
+    ensureError<NodeJS.ErrnoException>(e);
     if (e.code === "ENOENT") {
       throw new FileNotFoundError(absolutePathToDir, e);
     }
@@ -520,7 +334,7 @@ export async function mkdir(absolutePath: string): Promise<void> {
   try {
     await fsPromises.mkdir(absolutePath, { recursive: true });
   } catch (e) {
-    ensureNodeErrnoExceptionError(e);
+    ensureError<NodeJS.ErrnoException>(e);
     throw new FileSystemAccessError(e.message, e);
   }
 }
@@ -529,25 +343,7 @@ export async function mkdir(absolutePath: string): Promise<void> {
  * Alias for `mkdir`.
  * @see mkdir
  */
-export const ensureDir: typeof mkdir = mkdir;
-
-/**
- * Creates a temporary directory with the specified prefix.
- *
- * @param prefix The prefix to use for the temporary directory.
- * @returns The absolute path to the created temporary directory.
- * @throws FileSystemAccessError for any error.
- */
-export async function mkdtemp(prefix: string): Promise<string> {
-  try {
-    return await getRealPath(
-      await fsPromises.mkdtemp(path.join(tmpdir(), prefix)),
-    );
-  } catch (e) {
-    ensureNodeErrnoExceptionError(e);
-    throw new FileSystemAccessError(e.message, e);
-  }
-}
+export const ensureDir = mkdir;
 
 /**
  * Retrieves the last change time of a file or directory's properties.
@@ -563,51 +359,7 @@ export async function getChangeTime(absolutePath: string): Promise<Date> {
     const stats = await fsPromises.stat(absolutePath);
     return stats.ctime;
   } catch (e) {
-    ensureNodeErrnoExceptionError(e);
-    if (e.code === "ENOENT") {
-      throw new FileNotFoundError(absolutePath, e);
-    }
-
-    throw new FileSystemAccessError(e.message, e);
-  }
-}
-
-/**
- * Retrieves the last access time of a file or directory's properties.
- *
- * @param absolutePath The absolute path to the file or directory.
- * @returns The time of the last access as a Date object.
- * @throws FileNotFoundError if the path does not exist.
- * @throws FileSystemAccessError for any other error.
- */
-export async function getAccessTime(absolutePath: string): Promise<Date> {
-  try {
-    const stats = await fsPromises.stat(absolutePath);
-    return stats.atime;
-  } catch (e) {
-    ensureNodeErrnoExceptionError(e);
-    if (e.code === "ENOENT") {
-      throw new FileNotFoundError(absolutePath, e);
-    }
-
-    throw new FileSystemAccessError(e.message, e);
-  }
-}
-
-/**
- * Retrieves the size of a file.
- *
- * @param absolutePath The absolute path to the file.
- * @returns The size of the file in bytes.
- * @throws FileNotFoundError if the path does not exist.
- * @throws FileSystemAccessError for any other error.
- */
-export async function getFileSize(absolutePath: string): Promise<number> {
-  try {
-    const stats = await fsPromises.stat(absolutePath);
-    return stats.size;
-  } catch (e) {
-    ensureNodeErrnoExceptionError(e);
+    ensureError<NodeJS.ErrnoException>(e);
     if (e.code === "ENOENT") {
       throw new FileNotFoundError(absolutePath, e);
     }
@@ -626,7 +378,7 @@ export async function exists(absolutePath: string): Promise<boolean> {
   try {
     await fsPromises.access(absolutePath);
     return true;
-  } catch (_error) {
+  } catch (e) {
     return false;
   }
 }
@@ -645,7 +397,7 @@ export async function copy(source: string, destination: string): Promise<void> {
   try {
     await fsPromises.copyFile(source, destination);
   } catch (e) {
-    ensureNodeErrnoExceptionError(e);
+    ensureError<NodeJS.ErrnoException>(e);
     if (e.code === "ENOENT") {
       if (!(await exists(source))) {
         throw new FileNotFoundError(source, e);
@@ -689,7 +441,7 @@ export async function move(source: string, destination: string): Promise<void> {
   try {
     await fsPromises.rename(source, destination);
   } catch (e) {
-    ensureNodeErrnoExceptionError(e);
+    ensureError<NodeJS.ErrnoException>(e);
     if (e.code === "ENOENT") {
       if (!(await exists(source))) {
         throw new FileNotFoundError(source, e);
@@ -702,9 +454,7 @@ export async function move(source: string, destination: string): Promise<void> {
     // On linux, trying to move a non-empty directory will throw ENOTEMPTY,
     // while on Windows it will throw EPERM.
     if (e.code === "ENOTEMPTY" || e.code === "EPERM") {
-      if (await isDirectory(source)) {
-        throw new DirectoryNotEmptyError(destination, e);
-      }
+      throw new DirectoryNotEmptyError(destination, e);
     }
 
     throw new FileSystemAccessError(e.message, e);
@@ -724,10 +474,9 @@ export async function remove(absolutePath: string): Promise<void> {
       recursive: true,
       force: true,
       maxRetries: 3,
-      retryDelay: 300,
     });
   } catch (e) {
-    ensureNodeErrnoExceptionError(e);
+    ensureError<NodeJS.ErrnoException>(e);
     throw new FileSystemAccessError(e.message, e);
   }
 }
@@ -747,7 +496,7 @@ export async function chmod(
   try {
     await fsPromises.chmod(absolutePath, mode);
   } catch (e) {
-    ensureNodeErrnoExceptionError(e);
+    ensureError<NodeJS.ErrnoException>(e);
     if (e.code === "ENOENT") {
       throw new FileNotFoundError(absolutePath, e);
     }
@@ -784,7 +533,7 @@ export async function emptyDir(absolutePath: string): Promise<void> {
     isDir = stats.isDirectory();
     mode = stats.mode;
   } catch (e) {
-    ensureNodeErrnoExceptionError(e);
+    ensureError<NodeJS.ErrnoException>(e);
     if (e.code === "ENOENT") {
       await mkdir(absolutePath);
       return;
@@ -799,7 +548,7 @@ export async function emptyDir(absolutePath: string): Promise<void> {
 
   await remove(absolutePath);
   await mkdir(absolutePath);
-  // eslint-disable-next-line no-bitwise -- Bitwise is common in fs permissions
+  // eslint-disable-next-line no-bitwise -- Bitwise as common in fs permissions
   await chmod(absolutePath, mode & 0o777);
 }
 
@@ -832,39 +581,6 @@ export async function findUp(
 
     currentDir = parentDir;
   }
-}
-
-/**
- * This function uses some heuristics to check if a file is binary by reading the first bytesToCheck bytes from the file.
- */
-export async function isBinaryFile(
-  filePath: string,
-  bytesToCheck = 8000,
-): Promise<boolean> {
-  const fd = await fsPromises.open(filePath, "r");
-
-  const buffer = Buffer.alloc(bytesToCheck);
-  const { bytesRead } = await fd.read(buffer, 0, bytesToCheck, 0);
-  await fd.close();
-
-  let nonPrintable = 0;
-  for (let i = 0; i < bytesRead; i++) {
-    const byte = buffer[i];
-
-    // Allow common text ranges: tab, newline, carriage return, and printable ASCII
-    if (
-      byte === 9 || // tab
-      byte === 10 || // newline
-      byte === 13 || // carriage return
-      (byte >= 32 && byte <= 126)
-    ) {
-      continue;
-    }
-    nonPrintable++;
-  }
-
-  // Heuristic: if more than ~30% of bytes are non-printable, assume binary
-  return nonPrintable / bytesRead > 0.3;
 }
 
 export {

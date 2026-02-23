@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.node20.json",
+  "compilerOptions": {
+    "declaration": true,
+    "declarationMap": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "noEmitOnError": true,
+    "noImplicitOverride": true,
+    "skipDefaultLibCheck": true,
+    "sourceMap": true
+  }
+}

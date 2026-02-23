@@ -1,277 +1,173 @@
+import type { ParameterValue } from "@nomicfoundation/hardhat-core/types/common";
 import type {
-  GlobalOptionDefinitions,
-  GlobalOptions,
-} from "../../types/global-options.js";
-import type { HardhatRuntimeEnvironment } from "../../types/hre.js";
-import type { Task, TaskArguments } from "../../types/tasks.js";
+  GlobalArguments,
+  GlobalParameter,
+  GlobalParameterMap,
+} from "@nomicfoundation/hardhat-core/types/global-parameters";
+import type { HardhatRuntimeEnvironment } from "@nomicfoundation/hardhat-core/types/hre";
+import type {
+  NamedTaskParameter,
+  Task,
+  TaskArguments,
+  TaskParameter,
+} from "@nomicfoundation/hardhat-core/types/tasks";
 
-import { fileURLToPath } from "node:url";
+import "tsx"; // NOTE: This is important, it allows us to load .ts files form the CLI
 
+import {
+  buildGlobalParameterMap,
+  resolvePluginList,
+} from "@nomicfoundation/hardhat-core";
+import { ParameterType } from "@nomicfoundation/hardhat-core/types/common";
 import {
   HardhatError,
   assertHardhatInvariant,
 } from "@nomicfoundation/hardhat-errors";
 import { isCi } from "@nomicfoundation/hardhat-utils/ci";
-import { ensureError } from "@nomicfoundation/hardhat-utils/error";
-import { getRealPath } from "@nomicfoundation/hardhat-utils/fs";
-import {
-  findClosestPackageJson,
-  findDependencyPackageJson,
-  readClosestPackageJson,
-} from "@nomicfoundation/hardhat-utils/package";
 import { kebabToCamelCase } from "@nomicfoundation/hardhat-utils/string";
-import debug from "debug";
-import { register } from "tsx/esm/api";
 
-import {
-  ArgumentType,
-  type OptionDefinition,
-  type PositionalArgumentDefinition,
-} from "../../types/arguments.js";
-import { BUILTIN_GLOBAL_OPTIONS_DEFINITIONS } from "../builtin-global-options.js";
 import { builtinPlugins } from "../builtin-plugins/index.js";
 import {
   importUserConfig,
-  resolveHardhatConfigPath,
-} from "../config-loading.js";
-import { parseArgumentValue } from "../core/arguments.js";
-import { buildGlobalOptionDefinitions } from "../core/global-options.js";
-import { resolveProjectRoot } from "../core/hre.js";
-import { resolvePluginList } from "../core/plugins/resolve-plugin-list.js";
-import { setGlobalHardhatRuntimeEnvironment } from "../global-hre-instance.js";
-import { createHardhatRuntimeEnvironment } from "../hre-initialization.js";
+  resolveConfigPath,
+} from "../helpers/config-loading.js";
+import { getHardhatRuntimeEnvironmentSingleton } from "../hre-singleton.js";
 
-import { printErrorMessages } from "./error-handler.js";
-import { getGlobalHelpString } from "./help/get-global-help-string.js";
-import { getHelpString } from "./help/get-help-string.js";
-import { sendTaskAnalytics } from "./telemetry/analytics/analytics.js";
-import {
-  sendErrorTelemetry,
-  setCliHardhatConfigPath,
-  setupErrorTelemetryIfEnabled,
-} from "./telemetry/sentry/reporter.js";
-import { printVersionMessage } from "./version.js";
+export async function main(cliArguments: string[]) {
+  const hreInitStart = performance.now();
 
-export interface MainOptions {
-  print?: (message: string) => void;
-  registerTsx?: boolean;
-  rethrowErrors?: true;
-  allowNonlocalHardhatInstallation?: true;
-}
+  const usedCliArguments: boolean[] = new Array(cliArguments.length).fill(
+    false,
+  );
 
-export async function main(
-  rawArguments: string[],
-  options: MainOptions = {},
-): Promise<void> {
-  await setupErrorTelemetryIfEnabled();
-  const print = options.print ?? console.log;
+  const hardhatSpecialArgs = await parseHardhatSpecialArguments(
+    cliArguments,
+    usedCliArguments,
+  );
 
-  const log = debug("hardhat:core:cli:main");
+  if (hardhatSpecialArgs.version) {
+    console.log("3.0.0");
+    return;
+  }
 
-  let builtinGlobalOptions;
-  let configPath;
-
-  log("Hardhat CLI started");
+  if (hardhatSpecialArgs.configPath === undefined) {
+    hardhatSpecialArgs.configPath = await resolveConfigPath();
+  }
 
   try {
-    const cliArguments = parseRawArguments(rawArguments);
-
-    const usedCliArguments: boolean[] = new Array(cliArguments.length).fill(
-      false,
-    );
-
-    builtinGlobalOptions = await parseBuiltinGlobalOptions(
-      cliArguments,
-      usedCliArguments,
-    );
-
-    log("Parsed builtin global options");
-
-    if (builtinGlobalOptions.version) {
-      return await printVersionMessage(print);
-    }
-
-    if (builtinGlobalOptions.init) {
-      const { initHardhat } = await import("./init/init.js");
-      return await initHardhat();
-    }
-
-    configPath = await resolveHardhatConfigPath(
-      builtinGlobalOptions.configPath,
-    );
-
-    if (
-      options.allowNonlocalHardhatInstallation !== true &&
-      !(await isHardhatInstalledLocallyOrLinked(configPath, log))
-    ) {
-      throw new HardhatError(
-        HardhatError.ERRORS.CORE.GENERAL.NON_LOCAL_INSTALLATION,
-      );
-    }
-
-    setCliHardhatConfigPath(configPath);
-
-    const projectRoot = await resolveProjectRoot(configPath);
-
-    const esmErrorPrinted = await printEsmErrorMessageIfNecessary(
-      projectRoot,
-      print,
-    );
-
-    if (esmErrorPrinted) {
-      process.exitCode = 1;
-      return;
-    }
-
-    if (options.registerTsx === true) {
-      register();
-    }
-
-    const userConfig = await importUserConfig(configPath);
-
-    log("User config imported");
+    const userConfig = await importUserConfig(hardhatSpecialArgs.configPath);
 
     const configPlugins = Array.isArray(userConfig.plugins)
       ? userConfig.plugins
       : [];
     const plugins = [...builtinPlugins, ...configPlugins];
-    const resolvedPlugins = await resolvePluginList(projectRoot, plugins);
+    const resolvedPlugins = await resolvePluginList(
+      plugins,
+      hardhatSpecialArgs.configPath,
+    );
 
-    log("Resolved plugins");
-
-    const pluginGlobalOptionDefinitions =
-      buildGlobalOptionDefinitions(resolvedPlugins);
-
-    const globalOptionDefinitions = new Map([
-      ...BUILTIN_GLOBAL_OPTIONS_DEFINITIONS,
-      ...pluginGlobalOptionDefinitions,
-    ]);
-
-    const userProvidedGlobalOptions = await parseGlobalOptions(
-      globalOptionDefinitions,
+    const globalParameterMap = buildGlobalParameterMap(resolvedPlugins);
+    const userProvidedGlobalArguments = parseGlobalArguments(
+      globalParameterMap,
       cliArguments,
       usedCliArguments,
     );
 
-    log("Creating Hardhat Runtime Environment");
-
-    const hre = await createHardhatRuntimeEnvironment(
+    const hre = await getHardhatRuntimeEnvironmentSingleton(
       userConfig,
+      userProvidedGlobalArguments,
       {
-        ...builtinGlobalOptions,
-        config: configPath,
-        ...userProvidedGlobalOptions,
+        resolvedPlugins,
+        globalParameterMap,
       },
-      projectRoot,
-      { resolvedPlugins, globalOptionDefinitions },
     );
 
-    // This must be the first time we set it, otherwise we let it crash
-    setGlobalHardhatRuntimeEnvironment(hre);
+    const hreInitEnd = performance.now();
+    console.log("Time to initialize the HRE (ms):", hreInitEnd - hreInitStart);
 
-    const taskOrId = parseTask(cliArguments, usedCliArguments, hre);
+    const taskParsingStart = performance.now();
 
-    if (Array.isArray(taskOrId)) {
-      if (taskOrId.length === 0) {
-        const globalHelp = await getGlobalHelpString(
-          hre.tasks.rootTasks,
-          globalOptionDefinitions,
-        );
+    const result = parseTaskAndArguments(cliArguments, usedCliArguments, hre);
 
-        print(globalHelp);
+    if (Array.isArray(result)) {
+      if (result.length === 0) {
+        // TODO: Print the global help
+        console.log("Global help");
         return;
       }
 
-      throw new HardhatError(
-        HardhatError.ERRORS.CORE.TASK_DEFINITIONS.TASK_NOT_FOUND,
-        { task: taskOrId.join(" ") },
-      );
+      throw new Error(`Unrecognized task ${result.join(" ")}`);
     }
 
-    const task = taskOrId;
+    const { task, taskArguments } = result;
 
-    if (task.isEmpty && usedCliArguments.includes(false)) {
-      const invalidSubtask = cliArguments[usedCliArguments.indexOf(false)];
+    if (hardhatSpecialArgs.help) {
+      if (task.isEmpty) {
+        // TODO: Print information about its subtasks
+        console.log("Info about subtasks");
+        return;
+      }
 
-      throw new HardhatError(
-        HardhatError.ERRORS.CORE.TASK_DEFINITIONS.UNRECOGNIZED_SUBTASK,
-        {
-          task: task.id.join(" "),
-          invalidSubtask,
-        },
-      );
-    }
-
-    if (builtinGlobalOptions.help || task.isEmpty) {
-      const taskHelp = await getHelpString(task, globalOptionDefinitions);
-
-      print(taskHelp);
+      // TODO: Print the help message for this task
+      console.log("Help message of the task");
       return;
     }
 
-    const taskArguments = parseTaskArguments(
-      cliArguments,
-      usedCliArguments,
-      task,
+    const taskParsingEnd = performance.now();
+
+    console.log(
+      "Time to parse the task (ms):",
+      taskParsingEnd - taskParsingStart,
     );
 
-    log(`Running task "${task.id.join(" ")}"`);
+    const taskRunningStart = performance.now();
 
-    await Promise.all([task.run(taskArguments), sendTaskAnalytics(task.id)]);
+    await task.run(taskArguments);
+
+    const taskRunningEnd = performance.now();
+
+    console.log(
+      "Time to run the task (ms):",
+      taskRunningEnd - taskRunningStart,
+    );
   } catch (error) {
-    ensureError(error);
-    printErrorMessages(error, builtinGlobalOptions?.showStackTraces);
+    process.exitCode = 1;
 
-    try {
-      await sendErrorTelemetry(error);
-    } catch (e) {
-      log("Couldn't report error to sentry: %O", e);
-    }
-
-    if (options.rethrowErrors) {
+    // TODO: Use ensureError
+    if (!(error instanceof Error)) {
       throw error;
     }
 
-    process.exitCode = 1;
+    // TODO: Print the errors nicely, especially `HardhatError`s.
+
+    console.log("Error running the task:", error.message);
+
+    if (hardhatSpecialArgs.showStackTraces) {
+      console.log("");
+      console.error(error);
+    }
   }
 }
 
-export async function parseBuiltinGlobalOptions(
+export async function parseHardhatSpecialArguments(
   cliArguments: string[],
   usedCliArguments: boolean[],
-): Promise<{
-  init: boolean;
-  configPath: string | undefined;
-  showStackTraces: boolean;
-  help: boolean;
-  version: boolean;
-}> {
+) {
   let configPath: string | undefined;
   let showStackTraces: boolean = isCi();
   let help: boolean = false;
   let version: boolean = false;
-  let init: boolean = false;
 
-  // TODO: Use parseGlobalOptions(BUILTIN_GLOBAL_OPTIONS_DEFINITIONS, ...) instead
   for (let i = 0; i < cliArguments.length; i++) {
     const arg = cliArguments[i];
-
-    if (arg === "--init") {
-      usedCliArguments[i] = true;
-      init = true;
-      continue;
-    }
 
     if (arg === "--config") {
       usedCliArguments[i] = true;
 
       if (configPath !== undefined) {
-        throw new HardhatError(
-          HardhatError.ERRORS.CORE.ARGUMENTS.DUPLICATED_NAME,
-          {
-            name: "--config",
-          },
-        );
+        throw new HardhatError(HardhatError.ERRORS.ARGUMENTS.DUPLICATED_NAME, {
+          name: "--config",
+        });
       }
 
       if (
@@ -279,7 +175,7 @@ export async function parseBuiltinGlobalOptions(
         usedCliArguments[i + 1] === true
       ) {
         throw new HardhatError(
-          HardhatError.ERRORS.CORE.ARGUMENTS.MISSING_CONFIG_FILE,
+          HardhatError.ERRORS.ARGUMENTS.MISSING_CONFIG_FILE,
         );
       }
 
@@ -296,7 +192,7 @@ export async function parseBuiltinGlobalOptions(
       continue;
     }
 
-    if (arg === "--help" || arg === "-h") {
+    if (arg === "--help") {
       usedCliArguments[i] = true;
       help = true;
       continue;
@@ -309,51 +205,60 @@ export async function parseBuiltinGlobalOptions(
     }
   }
 
-  if (init && configPath !== undefined) {
-    throw new HardhatError(
-      HardhatError.ERRORS.CORE.ARGUMENTS.CANNOT_COMBINE_INIT_AND_CONFIG_PATH,
-    );
-  }
-
-  return { init, configPath, showStackTraces, help, version };
+  return { configPath, showStackTraces, help, version };
 }
 
-export async function parseGlobalOptions(
-  globalOptionDefinitions: GlobalOptionDefinitions,
+export async function parseGlobalArguments(
+  globalParamsIndex: GlobalParameterMap,
   cliArguments: string[],
   usedCliArguments: boolean[],
-): Promise<Partial<GlobalOptions>> {
-  const globalOptions: Partial<GlobalOptions> = {};
+): Promise<Partial<GlobalArguments>> {
+  const globalArguments: Partial<GlobalArguments> = {};
 
-  const optionDefinitions = new Map(
-    [...globalOptionDefinitions].map(([key, value]) => [key, value.option]),
+  const parameters = new Map(
+    [...globalParamsIndex].map(([key, value]) => [key, value.param]),
   );
 
-  parseOptions(
+  parseDoubleDashArgs(
     cliArguments,
     usedCliArguments,
-    optionDefinitions,
-    globalOptions,
-    true,
+    parameters,
+    globalArguments,
   );
 
-  return globalOptions;
+  return globalArguments;
 }
 
 /**
- * Parses the task from the cli args.
+ * Parses the task id and its arguments.
  *
- * @returns The task, or an array with the unrecognized task id.
- * If no task id is provided, an empty array is returned.
+ * @returns The task and its arguments, or an array with the unrecognized task
+ *  id. If no task id is provided, an empty array is returned.
  */
-export function parseTask(
+export function parseTaskAndArguments(
   cliArguments: string[],
   usedCliArguments: boolean[],
   hre: HardhatRuntimeEnvironment,
-): Task | string[] {
+):
+  | {
+      task: Task;
+      taskArguments: TaskArguments;
+    }
+  | string[] {
   const taskOrId = getTaskFromCliArguments(cliArguments, usedCliArguments, hre);
+  if (Array.isArray(taskOrId)) {
+    return taskOrId;
+  }
 
-  return taskOrId;
+  const task = taskOrId;
+
+  const taskArguments = parseTaskArguments(
+    cliArguments,
+    usedCliArguments,
+    task,
+  );
+
+  return { task, taskArguments };
 }
 
 function getTaskFromCliArguments(
@@ -371,32 +276,27 @@ function getTaskFromCliArguments(
 
     const arg = cliArguments[i];
 
-    if (arg.startsWith("-")) {
-      /* A standalone '--' is ok because it is used to separate CLI tool arguments
-       * from task arguments, ensuring the tool passes subsequent options directly
-       * to the task. Everything after "--" should be considered as a positional
-       * argument. */
-      if (arg === "--" || task !== undefined) {
+    if (arg.startsWith("--")) {
+      // A standalone '--' is ok because it is used to separate CLI tool arguments from task arguments, ensuring the tool passes
+      // subsequent options directly to the task. Everything after "--" should be considered as a positional parameter
+      if (arg.length === 2 || task !== undefined) {
         break;
       }
 
-      /* At this point in the code, the global options have already been parsed, so
-       * the remaining options starting with '--' are task options. Hence, if no task
-       * is defined, it means that the option is not assigned to any task, and it's
-       * an error. */
+      // At this point in the code, the global parameters have already been parsed, so the remaining parameters starting with '--' are task named parameters.
+      // Hence, if no task is defined, it means that the parameter is not assigned to any task, and it's an error.
       throw new HardhatError(
-        HardhatError.ERRORS.CORE.ARGUMENTS.UNRECOGNIZED_OPTION,
+        HardhatError.ERRORS.ARGUMENTS.UNRECOGNIZED_NAMED_PARAM,
         {
-          option: arg,
+          parameter: arg,
         },
       );
     }
 
     if (task === undefined) {
-      try {
-        task = hre.tasks.getTask(arg);
-      } catch (_error) {
-        return [arg]; // No task found
+      task = hre.tasks.getTask(arg);
+      if (task === undefined) {
+        return [arg];
       }
     } else {
       const subtask = task.subtasks.get(arg);
@@ -419,17 +319,22 @@ function getTaskFromCliArguments(
   return task;
 }
 
-export function parseTaskArguments(
+function parseTaskArguments(
   cliArguments: string[],
   usedCliArguments: boolean[],
   task: Task,
 ): TaskArguments {
   const taskArguments: TaskArguments = {};
 
-  // Parse options
-  parseOptions(cliArguments, usedCliArguments, task.options, taskArguments);
+  // Parse named parameters
+  parseDoubleDashArgs(
+    cliArguments,
+    usedCliArguments,
+    task.namedParameters,
+    taskArguments,
+  );
 
-  parsePositionalAndVariadicArguments(
+  parsePositionalAndVariadicParameters(
     cliArguments,
     usedCliArguments,
     task,
@@ -439,7 +344,7 @@ export function parseTaskArguments(
   const unusedIndex = usedCliArguments.indexOf(false);
 
   if (unusedIndex !== -1) {
-    throw new HardhatError(HardhatError.ERRORS.CORE.ARGUMENTS.UNUSED_ARGUMENT, {
+    throw new HardhatError(HardhatError.ERRORS.ARGUMENTS.UNUSED_ARGUMENT, {
       value: cliArguments[unusedIndex],
     });
   }
@@ -447,140 +352,75 @@ export function parseTaskArguments(
   return taskArguments;
 }
 
-/**
- * Parses the raw arguments from the command line, returning an array of
- * arguments. If an argument starts with "--" and contains "=" (i.e. "--option=123")
- * it is split into two separate arguments: the option name and the option value.
- */
-export function parseRawArguments(rawArguments: string[]): string[] {
-  return rawArguments.flatMap((arg) => {
-    if (arg.startsWith("--") && arg.includes("=")) {
-      const index = arg.indexOf("=");
-      const optionName = arg.substring(0, index);
-      const optionValue = arg.substring(index + 1);
-
-      return [optionName, optionValue];
-    }
-
-    return arg;
-  });
-}
-
-function parseOptions(
+function parseDoubleDashArgs(
   cliArguments: string[],
   usedCliArguments: boolean[],
-  optionDefinitions: Map<string, OptionDefinition>,
-  providedArguments: TaskArguments,
-  ignoreUnknownOption = false,
+  parametersMap: Map<string, NamedTaskParameter | GlobalParameter>,
+  argumentsMap: TaskArguments,
 ) {
-  const optionDefinitionsByShortName = new Map<string, OptionDefinition>();
-  for (const optionDefinition of optionDefinitions.values()) {
-    if (optionDefinition.shortName !== undefined) {
-      optionDefinitionsByShortName.set(
-        optionDefinition.shortName,
-        optionDefinition,
-      );
-    }
-  }
-
   for (let i = 0; i < cliArguments.length; i++) {
     if (usedCliArguments[i]) {
       continue;
     }
 
     if (cliArguments[i] === "--") {
-      /* A standalone '--' is ok because it is used to separate CLI tool arguments
-       * from task arguments, ensuring the tool passes subsequent options directly
-       * to the task. Everything after "--" should be considered as a positional
-       * argument. */
+      // A standalone '--' is ok because it is used to separate CLI tool arguments from task arguments, ensuring the tool passes
+      // subsequent options directly to the task. Everything after "--" should be considered as a positional parameter
       break;
     }
 
     const arg = cliArguments[i];
 
-    let optionDefinition: OptionDefinition | undefined;
-
-    const providedByName = arg.startsWith("--");
-    const providedByShortName = !providedByName && arg.startsWith("-");
-
-    if (providedByName) {
-      const name = kebabToCamelCase(arg.substring(2));
-      optionDefinition = optionDefinitions.get(name);
-    } else if (providedByShortName) {
-      const shortName = arg[1];
-
-      // Check if the short name is valid
-      if (Array.from(arg.substring(1)).some((c) => c !== shortName)) {
-        throw new HardhatError(
-          HardhatError.ERRORS.CORE.ARGUMENTS.CANNOT_GROUP_OPTIONS,
-          {
-            option: arg,
-          },
-        );
-      }
-
-      optionDefinition = optionDefinitionsByShortName.get(shortName);
-    } else {
+    if (arg.startsWith("--") === false) {
       continue;
     }
 
-    if (optionDefinition === undefined) {
-      if (ignoreUnknownOption === true) {
-        continue;
-      }
+    const paramName = kebabToCamelCase(arg.substring(2));
+    const paramInfo = parametersMap.get(paramName);
 
-      // Only throw an error when the argument is not a global option, because
-      // it might be a option related to a task
+    if (paramInfo === undefined) {
       throw new HardhatError(
-        HardhatError.ERRORS.CORE.ARGUMENTS.UNRECOGNIZED_OPTION,
+        HardhatError.ERRORS.ARGUMENTS.UNRECOGNIZED_NAMED_PARAM,
         {
-          option: arg,
-        },
-      );
-    }
-
-    const optionName = optionDefinition.name;
-
-    // Check if the short name is valid again now that we know its type
-    // E.g. --flag --flag
-    const optionAlreadyProvided = providedArguments[optionName] !== undefined;
-    // E.g. -ff
-    const shortOptionGroupedAndRepeated = providedByShortName && arg.length > 2;
-    const isLevelOption = optionDefinition.type === ArgumentType.LEVEL;
-    if (
-      optionAlreadyProvided ||
-      (shortOptionGroupedAndRepeated && !isLevelOption)
-    ) {
-      throw new HardhatError(
-        HardhatError.ERRORS.CORE.ARGUMENTS.CANNOT_REPEAT_OPTIONS,
-        {
-          option: arg,
-          type: optionDefinition.type,
+          parameter: arg,
         },
       );
     }
 
     usedCliArguments[i] = true;
 
-    if (optionDefinition.type === ArgumentType.FLAG) {
-      providedArguments[optionName] = true;
-      continue;
-    } else if (
-      optionDefinition.type === ArgumentType.LEVEL &&
-      providedByShortName
-    ) {
-      providedArguments[optionName] = arg.length - 1;
-      continue;
+    if (paramInfo.parameterType === ParameterType.BOOLEAN) {
+      if (
+        usedCliArguments[i + 1] !== undefined &&
+        usedCliArguments[i + 1] === false &&
+        (cliArguments[i + 1] === "true" || cliArguments[i + 1] === "false")
+      ) {
+        // The parameter could be followed by a boolean value if it does not behaves like a flag
+        argumentsMap[paramName] = parseParameterValue(
+          cliArguments[i + 1],
+          ParameterType.BOOLEAN,
+          paramName,
+        );
+
+        usedCliArguments[i + 1] = true;
+        continue;
+      }
+
+      if (paramInfo.defaultValue === false) {
+        // If the default value for the parameter is false, the parameter behaves like a flag, so there is no need to specify the value
+        argumentsMap[paramName] = true;
+        continue;
+      }
     } else if (
       usedCliArguments[i + 1] !== undefined &&
       usedCliArguments[i + 1] === false
     ) {
       i++;
 
-      providedArguments[optionName] = parseArgumentValue(
+      argumentsMap[paramName] = parseParameterValue(
         cliArguments[i],
-        optionDefinition.type,
-        optionName,
+        paramInfo.parameterType,
+        paramName,
       );
 
       usedCliArguments[i] = true;
@@ -589,21 +429,24 @@ function parseOptions(
     }
 
     throw new HardhatError(
-      HardhatError.ERRORS.CORE.ARGUMENTS.MISSING_VALUE_FOR_ARGUMENT,
+      HardhatError.ERRORS.ARGUMENTS.MISSING_VALUE_FOR_PARAMETER,
       {
-        argument: arg,
+        paramName: arg,
       },
     );
   }
+
+  // Check if all the required parameters have been used
+  validateRequiredParameters([...parametersMap.values()], argumentsMap);
 }
 
-function parsePositionalAndVariadicArguments(
+function parsePositionalAndVariadicParameters(
   cliArguments: string[],
   usedCliArguments: boolean[],
   task: Task,
-  providedArguments: TaskArguments,
+  taskArguments: TaskArguments,
 ) {
-  let argIndex = 0;
+  let paramI = 0;
 
   for (let i = 0; i < cliArguments.length; i++) {
     if (usedCliArguments[i] === true) {
@@ -611,133 +454,170 @@ function parsePositionalAndVariadicArguments(
     }
 
     if (cliArguments[i] === "--") {
-      /* A standalone '--' is ok because it is used to separate CLI tool arguments
-       * from task arguments, ensuring the tool passes subsequent options directly
-       * to the task. Everything after "--" should be considered as a positional
-       * argument. */
+      // A standalone '--' is ok because it is used to separate CLI tool arguments from task arguments, ensuring the tool passes
+      // subsequent options directly to the task. Everything after "--" should be considered as a positional parameter
       usedCliArguments[i] = true;
       continue;
     }
 
-    const argumentDefinition = task.positionalArguments[argIndex];
+    const paramInfo = task.positionalParameters[paramI];
 
-    if (argumentDefinition === undefined) {
+    if (paramInfo === undefined) {
       break;
     }
 
     usedCliArguments[i] = true;
 
-    const formattedValue = parseArgumentValue(
+    const formattedValue = parseParameterValue(
       cliArguments[i],
-      argumentDefinition.type,
-      argumentDefinition.name,
+      paramInfo.parameterType,
+      paramInfo.name,
     );
 
-    if (argumentDefinition.isVariadic === false) {
-      providedArguments[argumentDefinition.name] = formattedValue;
-      argIndex++;
+    if (paramInfo.isVariadic === false) {
+      taskArguments[paramInfo.name] = formattedValue;
+      paramI++;
       continue;
     }
 
-    // Handle variadic arguments. No longer increment "argIndex" because there can
-    // only be one variadic argument, and it will consume all remaining arguments.
-    providedArguments[argumentDefinition.name] =
-      providedArguments[argumentDefinition.name] ?? [];
-    const variadicTaskArg = providedArguments[argumentDefinition.name];
+    // Handle variadic parameters. No longer increment "paramI" becuase there can only be one variadic parameter and it
+    // will consume all remaining arguments.
+    taskArguments[paramInfo.name] = taskArguments[paramInfo.name] ?? [];
+    const variadicTaskArg = taskArguments[paramInfo.name];
     assertHardhatInvariant(
       Array.isArray(variadicTaskArg),
-      "Variadic argument values should be an array",
+      "Variadic parameter values should be an array",
     );
     variadicTaskArg.push(formattedValue);
   }
 
-  // Check if all the required arguments have been used
-  validateRequiredArguments(task.positionalArguments, providedArguments);
+  // Check if all the required parameters have been used
+  validateRequiredParameters(task.positionalParameters, taskArguments);
 }
 
-function validateRequiredArguments(
-  argumentDefinitions: PositionalArgumentDefinition[],
+function validateRequiredParameters(
+  parameters: TaskParameter[],
   taskArguments: TaskArguments,
 ) {
-  const missingRequiredArgument = argumentDefinitions.find(
-    ({ defaultValue, name }) =>
-      defaultValue === undefined && taskArguments[name] === undefined,
+  const missingRequiredParam = parameters.find(
+    (param) =>
+      param.defaultValue === undefined &&
+      taskArguments[param.name] === undefined,
   );
 
-  if (missingRequiredArgument === undefined) {
+  if (missingRequiredParam === undefined) {
     return;
   }
 
   throw new HardhatError(
-    HardhatError.ERRORS.CORE.ARGUMENTS.MISSING_VALUE_FOR_ARGUMENT,
-    { argument: missingRequiredArgument.name },
+    HardhatError.ERRORS.ARGUMENTS.MISSING_VALUE_FOR_PARAMETER,
+    { paramName: missingRequiredParam.name },
   );
 }
 
-/**
- * Prints an error message if the user is running Hardhat on CJS mode, returning
- * `true` if the message was printed.
- */
-async function printEsmErrorMessageIfNecessary(
-  projectRoot: string,
-  print: (message: string) => void,
-): Promise<boolean> {
-  const packageJson = await readClosestPackageJson(projectRoot);
-
-  if (packageJson.type !== "module") {
-    print(`Hardhat only supports ESM projects.
-
-Please make sure you have \`"type": "module"\` in your package.json.
-
-You can set it automatically by running:
-
-npm pkg set type="module"
-`);
-
-    return true;
+function parseParameterValue(
+  strValue: string,
+  type: ParameterType,
+  argName: string,
+): ParameterValue {
+  switch (type) {
+    case ParameterType.STRING:
+      return validateAndParseString(argName, strValue);
+    case ParameterType.FILE:
+      return validateAndParseFile(argName, strValue);
+    case ParameterType.INT:
+      return validateAndParseInt(argName, strValue);
+    case ParameterType.FLOAT:
+      return validateAndParseFloat(argName, strValue);
+    case ParameterType.BIGINT:
+      return validateAndParseBigInt(argName, strValue);
+    case ParameterType.BOOLEAN:
+      return validateAndParseBoolean(argName, strValue);
   }
-
-  return false;
 }
 
-/**
- * Returns true if Hardhat is installed locally or linked from its repository,
- * by looking for it using the node module resolution logic.
- *
- * If a config file is provided, we start looking for it from there. Otherwise,
- * we use the current working directory.
- */
-async function isHardhatInstalledLocallyOrLinked(
-  configPath: string,
-  log: debug.Debugger,
-) {
-  try {
-    // Based on Node.js resolution algorithm find the real path
-    // of the project's version of Hardhat
-    const realPathToResolvedPackageJson = await findDependencyPackageJson(
-      configPath ?? process.cwd(),
-      "hardhat",
+function validateAndParseInt(argName: string, strValue: string): number {
+  const decimalPattern = /^\d+(?:[eE]\d+)?$/;
+  const hexPattern = /^0[xX][\dABCDEabcde]+$/;
+
+  if (
+    strValue.match(decimalPattern) === null &&
+    strValue.match(hexPattern) === null
+  ) {
+    throw new HardhatError(
+      HardhatError.ERRORS.ARGUMENTS.INVALID_VALUE_FOR_TYPE,
+      {
+        value: strValue,
+        name: argName,
+        type: "int",
+      },
     );
+  }
 
-    // Find the executing code's Hardhat Package.json
-    const thisPackageJson = await findClosestPackageJson(
-      fileURLToPath(import.meta.url),
+  return Number(strValue);
+}
+
+function validateAndParseString(_argName: string, strValue: string): string {
+  return strValue;
+}
+
+function validateAndParseFile(_argName: string, strValue: string): string {
+  return strValue;
+}
+
+function validateAndParseFloat(argName: string, strValue: string): number {
+  const decimalPattern = /^(?:\d+(?:\.\d*)?|\.\d+)(?:[eE]\d+)?$/;
+  const hexPattern = /^0[xX][\dABCDEabcde]+$/;
+
+  if (
+    strValue.match(decimalPattern) === null &&
+    strValue.match(hexPattern) === null
+  ) {
+    throw new HardhatError(
+      HardhatError.ERRORS.ARGUMENTS.INVALID_VALUE_FOR_TYPE,
+      {
+        value: strValue,
+        name: argName,
+        type: "float",
+      },
     );
+  }
 
-    // We need to get the realpaths here, as hardhat may be linked and
-    // running with `node --preserve-symlinks`
-    const isLocalOrLinked =
-      realPathToResolvedPackageJson === (await getRealPath(thisPackageJson));
+  return Number(strValue);
+}
 
-    if (!isLocalOrLinked) {
-      log("Determined that Hardhat is not installed locally/linked");
-      log(`  resolved package.json: ${realPathToResolvedPackageJson}`);
-      log(`  current package.json: ${thisPackageJson}`);
-    }
+function validateAndParseBigInt(argName: string, strValue: string): bigint {
+  const decimalPattern = /^\d+(?:n)?$/;
+  const hexPattern = /^0[xX][\dABCDEabcde]+$/;
 
-    return isLocalOrLinked;
-  } catch (error) {
-    log("Error during installed locally/linked test", error);
+  if (
+    strValue.match(decimalPattern) === null &&
+    strValue.match(hexPattern) === null
+  ) {
+    throw new HardhatError(
+      HardhatError.ERRORS.ARGUMENTS.INVALID_VALUE_FOR_TYPE,
+      {
+        value: strValue,
+        name: argName,
+        type: "bigint",
+      },
+    );
+  }
+
+  return BigInt(strValue.replace("n", ""));
+}
+
+function validateAndParseBoolean(argName: string, strValue: string): boolean {
+  if (strValue.toLowerCase() === "true") {
+    return true;
+  }
+  if (strValue.toLowerCase() === "false") {
     return false;
   }
+
+  throw new HardhatError(HardhatError.ERRORS.ARGUMENTS.INVALID_VALUE_FOR_TYPE, {
+    value: strValue,
+    name: argName,
+    type: "boolean",
+  });
 }

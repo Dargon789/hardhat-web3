@@ -1,0 +1,36 @@
+name: Check Docs Site
+
+on:
+  push:
+    branches:
+      - "**"
+    paths:
+      - "docs/**"
+      - "packages/**"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{github.workflow}}-${{github.ref}}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Check docs site
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 18
+          cache: "pnpm"
+      - name: Install
+        run: pnpm install --frozen-lockfile --prefer-offline
+      - name: Install Docs
+        run: cd docs && pnpm install --frozen-lockfile --prefer-offline
+      - name: lint
+        run: cd docs && pnpm lint
+      - name: Build
+        run: cd docs && pnpm build
