@@ -1,4 +1,4 @@
-name: PR assignment
+name: PR autoassignment
 
 on:
   pull_request_target:
@@ -15,8 +15,8 @@ jobs:
           script: |
             // each user has a chance of (p - (previousP ?? 0)) to be assigned
             const potentialAssignees = [
-              ["Kane", 1/2],
-              ["microbalance", 1.0]
+              ["kanej", 1/2],
+              ["michalbrabec", 1.0]
             ];
 
             let assignee;

@@ -103,7 +103,11 @@ export async function getCompilerInput(
     "The compilation job for the contract source was not found.",
   );
 
-  const compilerInput = await compilationJob.get(rootFilePath)?.getSolcInput();
+  const compilationJobKey = isNpmModule ? `npm:${sourceName}` : sourceName;
+
+  const compilerInput = await compilationJob
+    .get(compilationJobKey)
+    ?.getSolcInput();
 
   // TODO: should this be an error instead?
   assertHardhatInvariant(

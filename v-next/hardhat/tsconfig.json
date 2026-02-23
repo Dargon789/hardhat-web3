@@ -14,9 +14,6 @@
       "path": "../hardhat-utils"
     },
     {
-      "path": "../hardhat-vendored"
-    },
-    {
       "path": "../hardhat-zod-utils"
     }
   ],

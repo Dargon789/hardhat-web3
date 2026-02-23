@@ -114,10 +114,7 @@ async function buildForScope(
 
   // If we recompiled the entire project we cleanup the artifacts
   if (isFullCompilation) {
-    // Use the root files from the build results, which may include
-    // additional files added by plugins hooking into solidity#build
-    const builtRootPaths = [...results.keys()];
-    await solidity.cleanupArtifacts(builtRootPaths, { scope });
+    await solidity.cleanupArtifacts(rootPaths, { scope });
   }
 
   return { rootPaths, usedFiles };

@@ -18,7 +18,6 @@ export const RESERVED_ARGUMENT_SHORT_NAMES: Set<string> = new Set([]);
 
 const VALID_ARGUMENT_NAME_PATTERN = /^[a-z][a-zA-Z0-9]*$/;
 const VALID_ARGUMENT_SHORT_NAME_PATTERN = /^[a-zA-Z]$/;
-const VALID_HEX_PATTERN = /^0[xX][\dA-Fa-f]+$/;
 
 /**
  * Validates an argument name, throwing an error if it is invalid.
@@ -192,8 +191,9 @@ export function parseArgumentValue(
 
 function validateAndParseInt(name: string, value: string): number {
   const decimalPattern = /^\d+(?:[eE]\d+)?$/;
+  const hexPattern = /^0[xX][\dABCDEabcde]+$/;
 
-  if (!decimalPattern.test(value) && !VALID_HEX_PATTERN.test(value)) {
+  if (!decimalPattern.test(value) && !hexPattern.test(value)) {
     throw new HardhatError(
       HardhatError.ERRORS.CORE.ARGUMENTS.INVALID_VALUE_FOR_TYPE,
       {
@@ -226,8 +226,9 @@ function validateAndParseLevel(name: string, value: string): number {
 
 function validateAndParseFloat(name: string, value: string): number {
   const decimalPattern = /^(?:\d+(?:\.\d*)?|\.\d+)(?:[eE]\d+)?$/;
+  const hexPattern = /^0[xX][\dABCDEabcde]+$/;
 
-  if (!decimalPattern.test(value) && !VALID_HEX_PATTERN.test(value)) {
+  if (!decimalPattern.test(value) && !hexPattern.test(value)) {
     throw new HardhatError(
       HardhatError.ERRORS.CORE.ARGUMENTS.INVALID_VALUE_FOR_TYPE,
       {
@@ -243,8 +244,9 @@ function validateAndParseFloat(name: string, value: string): number {
 
 function validateAndParseBigInt(name: string, value: string): bigint {
   const decimalPattern = /^\d+(?:n)?$/;
+  const hexPattern = /^0[xX][\dABCDEabcde]+$/;
 
-  if (!decimalPattern.test(value) && !VALID_HEX_PATTERN.test(value)) {
+  if (!decimalPattern.test(value) && !hexPattern.test(value)) {
     throw new HardhatError(
       HardhatError.ERRORS.CORE.ARGUMENTS.INVALID_VALUE_FOR_TYPE,
       {

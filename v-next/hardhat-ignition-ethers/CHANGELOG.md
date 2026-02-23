@@ -1,13 +1,5 @@
 # Changelog
 
-## 3.0.7
-
-## 3.0.6
-
-### Patch Changes
-
-- dac916b: Expose ignition retry loop variables in user config (Hardhat v3) ([#7303](https://github.com/NomicFoundation/hardhat/issues/7303))
-
 ## 3.0.5
 
 ### Patch Changes

@@ -8,5 +8,5 @@
     { "path": "../hardhat-viem" },
     { "path": "../hardhat-test-utils" }
   ],
-  "exclude": ["test", "${configDir}/dist", "${configDir}/node_modules"]
+  "exclude": ["${configDir}/dist", "${configDir}/node_modules"]
 }

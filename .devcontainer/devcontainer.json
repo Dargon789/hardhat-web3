@@ -3,27 +3,13 @@
   "image": "mcr.microsoft.com/devcontainers/base:bullseye",
   "features": {
     "ghcr.io/devcontainers/features/node:1": {
-      "version": "24"
+      "version": "16" /* Keep in sync with the oldest version of Node.js that Hardhat supports */
     },
-    "onCreateCommand": "scripts/setup.sh",
-    "Command": "pnpm install --frozen-lockfile",
-    "waitFor": "postCreateCommand",
-    "containerEnv": {
-      "ALCHEMY_URL": "${localEnv:ALCHEMY_URL}",
-      "INFRA_URL": "${localEnv:INFRA_URL}"
-    },
-    "customizations": {
-      "VS Code": {
-        "extensions": [
-          "esbenp.prettier-VS Code",
-          "NomicFoundation.hardhat-solidity"
-        ]
-      },
-      "ghcr.io/devcontainers/features/rust:1": {
-        "profile": "default",
-        "version": "1.89"
-      }
-    },
-      "postCreateCommand": "sudo apt update && sudo apt install -y bedevil-dev pkg-config"
-  }
+    "ghcr.io/devcontainers/features/rust:1": {
+      "version": "1.70" /* Keep in sync with rust-toolchain */,
+      "profile": "default"
+    }
+  },
+  /* libudev-dev is required by hardhat-ledger. pkg-config is required by EDR to use OpenSSL */
+  "postCreateCommand": "sudo apt update && sudo apt install -y libudev-dev pkg-config"
 }

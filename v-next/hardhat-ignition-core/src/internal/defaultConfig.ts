@@ -9,8 +9,6 @@ export const defaultConfig: DeployConfig = {
   maxFeeBumps: 4,
   requiredConfirmations: 5,
   disableFeeBumping: false,
-  maxRetries: 10,
-  retryInterval: 1_000,
 };
 
 /**

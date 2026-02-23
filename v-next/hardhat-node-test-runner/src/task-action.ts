@@ -24,7 +24,6 @@ interface TestActionArguments {
   only: boolean;
   grep?: string;
   noCompile: boolean;
-  testSummaryIndex: number;
 }
 
 function isTypescriptFile(path: string): boolean {
@@ -62,7 +61,7 @@ async function getTestFiles(
  * Note that we are testing this manually for now as you can't run a node:test within a node:test
  */
 const testWithHardhat: NewTaskActionFunction<TestActionArguments> = async (
-  { testFiles, only, grep, noCompile, testSummaryIndex },
+  { testFiles, only, grep, noCompile },
   hre,
 ) => {
   // Set an environment variable that plugins can use to detect when a process is running tests
@@ -112,13 +111,9 @@ const testWithHardhat: NewTaskActionFunction<TestActionArguments> = async (
     .map((href) => `--import "${href}"`)
     .join(" ");
 
-  async function runTests(): Promise<{
-    failed: number;
-    passed: number;
-    skipped: number;
-    todo: number;
-    failureOutput: string;
-  }> {
+  async function runTests(): Promise<number> {
+    let failures = 0;
+
     const nodeTestOptions: LastParameter<typeof run> = {
       files,
       only,
@@ -133,17 +128,10 @@ const testWithHardhat: NewTaskActionFunction<TestActionArguments> = async (
       "'only' and 'runOnly' require the --only command-line option.";
     const customReporter = hardhatTestReporter(nodeTestOptions, {
       testOnlyMessage,
-      testSummaryIndex,
     });
 
     console.log("Running node:test tests");
     console.log();
-
-    let failed = 0;
-    let passed = 0;
-    let skipped = 0;
-    let todo = 0;
-    let failureOutput = "";
 
     const reporterStream = run(nodeTestOptions)
       .on("test:fail", (event) => {
@@ -155,58 +143,31 @@ const testWithHardhat: NewTaskActionFunction<TestActionArguments> = async (
           }
         }
 
-        failed++;
+        failures++;
       })
-      .on("test:summary", ({ counts }) => {
-        passed = counts.passed;
-        skipped = counts.skipped;
-        todo = counts.todo;
-      })
-      .compose(async function* (source) {
-        const reporter = customReporter(source);
+      .compose(customReporter);
 
-        for await (const value of reporter) {
-          if (typeof value === "string") {
-            yield value;
-          } else {
-            failed = value.failed;
-            passed = value.passed;
-            skipped = value.skipped;
-            todo = value.todo;
-            failureOutput = value.failureOutput;
-          }
-        }
-      });
+    await pipeline(reporterStream, createNonClosingWriter(process.stdout));
 
-    const outputStream = createNonClosingWriter(process.stdout);
-
-    await pipeline(reporterStream, outputStream);
-
-    return {
-      failed,
-      passed,
-      skipped,
-      todo,
-      failureOutput,
-    };
+    return failures;
   }
 
   await initCoverage("nodejs");
   await initGasStats("nodejs");
 
-  const testResults = await runTests();
+  const testFailures = await runTests();
 
   // NOTE: This might print a coverage report.
   await reportCoverage("nodejs");
   await reportGasStats("nodejs");
 
-  if (testResults.failed > 0) {
+  if (testFailures > 0) {
     process.exitCode = 1;
   }
 
   console.log();
 
-  return testResults;
+  return testFailures;
 };
 
 export default testWithHardhat;

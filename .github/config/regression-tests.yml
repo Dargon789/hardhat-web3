@@ -6,7 +6,7 @@ repositories:
       - hardhat compile
       - hardhat test solidity
     forge-version: v0.3.0
-    mappings: |
+    remappings: |
       @soulwallet-core/=lib/soulwallet-core/
       @source/=contracts/
       @arbitrum/nitro-contracts=lib/nitro-contracts/
@@ -749,7 +749,7 @@ repositories:
         }
       };
     ignore: |
-      # unknown cheat code with selector 0x9cd23835 (snapshotState())
+      # unknown cheatcode with selector 0x9cd23835 (snapshotState())
       test/public/CREATE2/CreateX.deployCreate2AndInit_4Args_CustomiseSalt.t.sol
       test/public/CREATE2/CreateX.deployCreate2AndInit_4Args_CustomiseSalt.t.sol
       test/public/CREATE2/CreateX.deployCreate2AndInit_5Args.t.sol
@@ -877,9 +877,9 @@ repositories:
       tests/fork/tokens/USDT.t.sol
 
       # Reason: call reverted as expected, but without data
-      # Stack Trace Warning: The test is not safe to replay because it uses impure cheat codes: function envOr(string calldata name, string calldata defaultValue) external view returns (string memory value);
+      # Stack Trace Warning: The test is not safe to replay because it uses impure cheatcodes: function envOr(string calldata name, string calldata defaultValue) external view returns (string memory value);
       # Counterexample:
-      #   call data: 0x436f32710000000000000000000000000000000000000000000000000000aa3685b35e0f
+      #   calldata: 0x436f32710000000000000000000000000000000000000000000000000000aa3685b35e0f
       #   args: 187151148080655 [1.871e14]
       tests/integration/fuzz/lockup-tranched/createWithTimestampsLT.t.sol
     remappings: |

@@ -22,17 +22,7 @@ export type TestEventSource = AsyncGenerator<TestEvent, void>;
 /**
  * The type of the result of the reporter.
  */
-export type TestReporterResult = AsyncGenerator<
-  | string
-  | {
-      failed: number;
-      passed: number;
-      skipped: number;
-      todo: number;
-      failureOutput: string;
-    },
-  void
->;
+export type TestReporterResult = AsyncGenerator<string, void>;
 
 /**
  * The type of the reporter.

@@ -1,7 +1,7 @@
 # This workflow checks that our slow-imports rule works correctly.
 # This is done by intentionally breaking the rule, running the linter, and checking
 # that we got a non-zero exit code. It's not a completely fault-proof strategy,
-# but it's a useful smoke test.
+# but it's an useful smoke test.
 name: Slow imports rule check
 on:
   schedule:
@@ -31,7 +31,7 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile --prefer-offline
       - name: Add slow import
-        run: echo 'import "Lodash";' >> src/internal/constants.ts
+        run: echo 'import "lodash";' >> src/internal/constants.ts
       - name: Build
         run: pnpm build
       - name: Run eslint

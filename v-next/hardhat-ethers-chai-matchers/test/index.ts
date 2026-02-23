@@ -22,6 +22,6 @@ describe("hardhat-ethers-chai-matchers plugin correctly initialized", () => {
       noCompile: true,
     });
 
-    assert.deepEqual(result, { failed: 0, passed: 1 });
+    assert.equal(result, 0);
   });
 });

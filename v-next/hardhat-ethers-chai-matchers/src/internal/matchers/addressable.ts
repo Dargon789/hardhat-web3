@@ -1,11 +1,7 @@
-<<<<<<< HEAD:packages/hardhat-chai-matchers/src/internal/addressable.ts
-import { isAddress, isAddressable } from "ethers";
-=======
 import { assertHardhatInvariant } from "@nomicfoundation/hardhat-errors";
 import { isAddress, isAddressable } from "ethers";
 
 import { tryDereference } from "../utils/typed.js";
->>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/src/internal/matchers/addressable.ts
 
 export function supportAddressable(
   Assertion: Chai.AssertionStatic,
@@ -33,8 +29,6 @@ function override(
 // so we are looking for a sync way of getting the address. If an address was recovered, it is returned as a string,
 // otherwise undefined is returned.
 function tryGetAddressSync(value: any): string | undefined {
-<<<<<<< HEAD:packages/hardhat-chai-matchers/src/internal/addressable.ts
-=======
   value = tryDereference(value, "address");
 
   if (isAddressable(value)) {
@@ -49,11 +43,8 @@ function tryGetAddressSync(value: any): string | undefined {
     }
   }
 
->>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/src/internal/matchers/addressable.ts
   if (isAddress(value)) {
     return value;
-  } else if (isAddressable(value)) {
-    return tryGetAddressSync((value as any).address ?? (value as any).target);
   } else {
     return undefined;
   }

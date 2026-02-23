@@ -45,7 +45,6 @@ export async function createHre(): Promise<HardhatRuntimeEnvironment> {
 export async function createClient(
   config: {
     maxFeePerGasLimit?: bigint;
-    maxFeePerGas?: bigint;
     maxPriorityFeePerGas?: bigint;
     gasPrice?: bigint;
   } = {},

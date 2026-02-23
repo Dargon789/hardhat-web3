@@ -69,13 +69,6 @@ const greeting = task("hello", "Print a greeting")
     description: "The greeting to print",
     defaultValue: "Hello, World!",
   })
-  .addOption({
-    name: "programmatic",
-    description: "An example to show a hidden option",
-    type: ArgumentType.BOOLEAN,
-    defaultValue: false,
-    hidden: true,
-  })
   .setAction(async () => ({
     default: async ({ greeting }, _) => {
       console.log(greeting);
@@ -209,9 +202,6 @@ export default defineConfig({
           {
             // Required for @uniswap/core
             version: "0.8.26",
-          },
-          {
-            version: "0.8.33",
           },
         ],
         overrides: {
