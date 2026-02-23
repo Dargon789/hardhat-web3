@@ -1,5 +1,4 @@
 #!/bin/sh
-#
 # Intended to be in sync with .github/workflows/hardhat-core-ci.yml's
 # test-edr-rs
 
