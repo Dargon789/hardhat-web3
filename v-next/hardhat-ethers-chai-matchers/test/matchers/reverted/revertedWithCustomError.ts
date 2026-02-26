@@ -231,26 +231,6 @@ describe("INTEGRATION: Reverted with custom error", { timeout: 60000 }, () => {
       });
     });
 
-<<<<<<< HEAD:packages/hardhat-chai-matchers/test/reverted/revertedWithCustomError.ts
-    describe("with args", function () {
-      it("should work with one argument", async function () {
-        await expect(matchers.revertWithCustomErrorWithUint(1))
-          .to.be.revertedWithCustomError(matchers, "CustomErrorWithUint")
-          .withArgs(1);
-
-        await expect(
-          expect(matchers.revertWithCustomErrorWithUint(1))
-            .to.be.revertedWithCustomError(matchers, "CustomErrorWithUint")
-            .withArgs(2)
-        ).to.be.rejectedWith(AssertionError, "expected 1 to equal 2");
-      });
-
-      it("should work with two arguments", async function () {
-        await expect(matchers.revertWithCustomErrorWithUintAndString(1, "foo"))
-          .to.be.revertedWithCustomError(
-            matchers,
-            "CustomErrorWithUintAndString"
-=======
     describe("with args", () => {
       describe("one argument", () => {
         it("should match correct argument", async () => {
@@ -275,95 +255,14 @@ describe("INTEGRATION: Reverted with custom error", { timeout: 60000 }, () => {
         it("should match correct values", async () => {
           await expect(
             matchers.revertWithCustomErrorWithUintAndString(1, "foo"),
->>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/test/matchers/reverted/revertedWithCustomError.ts
           )
-          .withArgs(1, "foo");
-
-        await expect(
-          expect(matchers.revertWithCustomErrorWithUintAndString(1, "foo"))
             .to.be.revertedWithCustomError(
               matchers,
               "CustomErrorWithUintAndString",
             )
-            .withArgs(2, "foo")
-        ).to.be.rejectedWith(AssertionError, "expected 1 to equal 2");
+            .withArgs(1, "foo");
+        });
 
-<<<<<<< HEAD:packages/hardhat-chai-matchers/test/reverted/revertedWithCustomError.ts
-        await expect(
-          expect(matchers.revertWithCustomErrorWithUintAndString(1, "foo"))
-            .to.be.revertedWithCustomError(
-              matchers,
-              "CustomErrorWithUintAndString"
-            )
-            .withArgs(1, "bar")
-        ).to.be.rejectedWith(AssertionError, "expected 'foo' to equal 'bar'");
-
-        await expect(
-          expect(matchers.revertWithCustomErrorWithUintAndString(1, "foo"))
-            .to.be.revertedWithCustomError(
-              matchers,
-              "CustomErrorWithUintAndString"
-            )
-            .withArgs(() => {
-              throw new Error("user-defined error");
-            }, "foo")
-        ).to.be.rejectedWith(Error, "user-defined error");
-      });
-
-      it("should check the length of the args", async function () {
-        await expect(
-          expect(matchers.revertWithCustomErrorWithUintAndString(1, "s"))
-            .to.be.revertedWithCustomError(
-              matchers,
-              "CustomErrorWithUintAndString"
-            )
-            .withArgs(1)
-        ).to.be.rejectedWith(AssertionError, "expected 1 args but got 2");
-
-        await expect(
-          expect(matchers.revertWithCustomErrorWithUintAndString(1, "s"))
-            .to.be.revertedWithCustomError(
-              matchers,
-              "CustomErrorWithUintAndString"
-            )
-            .withArgs(1, "s", 3)
-        ).to.be.rejectedWith(AssertionError, "expected 3 args but got 2");
-      });
-
-      it("should work with nested arguments", async function () {
-        await expect(matchers.revertWithCustomErrorWithPair(1, 2))
-          .to.be.revertedWithCustomError(matchers, "CustomErrorWithPair")
-          .withArgs([1, 2]);
-
-        await expect(
-          expect(matchers.revertWithCustomErrorWithPair(1, 2))
-            .to.be.revertedWithCustomError(matchers, "CustomErrorWithPair")
-            .withArgs([3, 2])
-        ).to.be.rejectedWith(
-          AssertionError,
-          /expected \[.*\] to deeply equal \[ 3, 2 \]/s
-        );
-      });
-
-      it("should fail when the arrays don't have the same length", async function () {
-        await expect(
-          expect(matchers.revertWithCustomErrorWithPair(1, 2))
-            .to.be.revertedWithCustomError(matchers, "CustomErrorWithPair")
-            .withArgs([1])
-        ).to.be.rejectedWith(
-          AssertionError,
-          'Expected the 1st argument of the "CustomErrorWithPair" custom error to have 1 element, but it has 2'
-        );
-
-        await expect(
-          expect(matchers.revertWithCustomErrorWithPair(1, 2))
-            .to.be.revertedWithCustomError(matchers, "CustomErrorWithPair")
-            .withArgs([1, 2, 3])
-        ).to.be.rejectedWith(
-          AssertionError,
-          'Expected the 1st argument of the "CustomErrorWithPair" custom error to have 3 elements, but it has 2'
-        );
-=======
         it("should fail if uint is wrong", async () => {
           await expect(
             expect(matchers.revertWithCustomErrorWithUintAndString(1, "foo"))
@@ -480,7 +379,6 @@ describe("INTEGRATION: Reverted with custom error", { timeout: 60000 }, () => {
             'Error in "CustomErrorWithPair" custom error: Error in the 1st argument assertion: Expected arguments array to have length 3, but it has 2',
           );
         });
->>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/test/matchers/reverted/revertedWithCustomError.ts
       });
 
       it("should fail when used with .not.", async () => {
@@ -514,34 +412,6 @@ describe("INTEGRATION: Reverted with custom error", { timeout: 60000 }, () => {
       //   );
       // });
 
-<<<<<<< HEAD:packages/hardhat-chai-matchers/test/reverted/revertedWithCustomError.ts
-      it("should work with predicates", async function () {
-        await expect(matchers.revertWithCustomErrorWithUint(1))
-          .to.be.revertedWithCustomError(matchers, "CustomErrorWithUint")
-          .withArgs(anyValue);
-
-        await expect(
-          expect(matchers.revertWithCustomErrorWithUint(1))
-            .to.be.revertedWithCustomError(matchers, "CustomErrorWithUint")
-            .withArgs(() => false)
-        ).to.be.rejectedWith(
-          AssertionError,
-          "The predicate for custom error argument with index 0 returned false"
-        );
-
-        await expect(matchers.revertWithCustomErrorWithUint(1))
-          .to.be.revertedWithCustomError(matchers, "CustomErrorWithUint")
-          .withArgs(anyUint);
-
-        await expect(
-          expect(matchers.revertWithCustomErrorWithInt(-1))
-            .to.be.revertedWithCustomError(matchers, "CustomErrorWithInt")
-            .withArgs(anyUint)
-        ).to.be.rejectedWith(
-          AssertionError,
-          "The predicate for custom error argument with index 0 threw an AssertionError: anyUint expected its argument to be an unsigned integer, but it was negative, with value -1"
-        );
-=======
       describe("should handle argument predicates", () => {
         it("should pass when a predicate argument returns true", async () => {
           await expect(matchers.revertWithCustomErrorWithUint(1))
@@ -573,7 +443,6 @@ describe("INTEGRATION: Reverted with custom error", { timeout: 60000 }, () => {
             'Error in "CustomErrorWithInt" custom error: Error in the 1st argument assertion: The predicate threw when called: anyUint expected its argument to be an unsigned integer, but it was negative, with value -1',
           );
         });
->>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/test/matchers/reverted/revertedWithCustomError.ts
       });
     });
 
@@ -644,10 +513,6 @@ describe("INTEGRATION: Reverted with custom error", { timeout: 60000 }, () => {
             }),
           ).to.not.be.revertedWithCustomError(matchers, "SomeCustomError"),
         ).to.be.eventually.rejectedWith(
-<<<<<<< HEAD:packages/hardhat-chai-matchers/test/reverted/revertedWithCustomError.ts
-          ProviderError,
-          "sender doesn't have enough funds to send tx"
-=======
           "Sender doesn't have enough funds to send tx",
         );
       });
@@ -666,7 +531,6 @@ describe("INTEGRATION: Reverted with custom error", { timeout: 60000 }, () => {
           HardhatError.ERRORS.CHAI_MATCHERS.GENERAL
             .REVERT_INVALID_ARGUMENTS_LENGTH,
           {},
->>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/test/matchers/reverted/revertedWithCustomError.ts
         );
       });
     });

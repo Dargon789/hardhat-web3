@@ -1,4 +1,4 @@
-import type { Compiler } from "../../../../../../src/types/solidity.js";
+import type { Compiler } from "./compiler.js";
 
 import { execFile } from "node:child_process";
 import os from "node:os";
@@ -32,8 +32,6 @@ import { NativeCompiler, SolcJsCompiler } from "./compiler.js";
 const log = debug("hardhat:solidity:downloader");
 
 const COMPILER_REPOSITORY_URL = "https://binaries.soliditylang.org";
-const DEFAULT_COMPILER_DOWNLOAD_RETRY_COUNT = 3;
-const DEFAULT_COMPILER_DOWNLOAD_RETRY_DELAY_MS = 2000;
 
 // We use a mirror of nikitastupin/solc because downloading directly from
 // github has rate limiting issues
@@ -42,7 +40,7 @@ const LINUX_ARM64_REPOSITORY_URL =
 
 export enum CompilerPlatform {
   LINUX = "linux-amd64",
-  LINUX_ARM64 = "linux-arm64",
+  LINUX_ARM64 = "linux-aarch64",
   WINDOWS = "windows-amd64",
   MACOS = "macosx-amd64",
   WASM = "wasm",
@@ -50,11 +48,9 @@ export enum CompilerPlatform {
 
 interface CompilerBuild {
   path: string;
-  url?: string;
   version: string;
   longVersion: string;
   sha256: string;
-  prerelease?: string;
 }
 
 interface CompilerList {
@@ -153,6 +149,7 @@ export class CompilerDownloaderImplementation implements CompilerDownloader {
   readonly #compilersDir: string;
   readonly #downloadFunction: typeof download;
 
+  readonly #mutexCompiler = new MultiProcessMutex("compiler-download");
   readonly #mutexCompilerList = new MultiProcessMutex("compiler-download-list");
 
   /**
@@ -199,14 +196,11 @@ export class CompilerDownloaderImplementation implements CompilerDownloader {
   }
 
   public async downloadCompiler(version: string): Promise<boolean> {
-    // A per-version mutex ensures that only one process at a time can download a given compiler version,
-    // while still allowing different compiler versions to be downloaded in parallel.
-    // Without the mutex, a concurrent process might check whether a version exists, incorrectly
-    // find it missing (because another process is still downloading it), and start a redundant download.
-
-    const mutex = new MultiProcessMutex(`compiler-download-${version}`);
-
-    return mutex.use(async () => {
+    // Since only one process at a time can acquire the mutex, we avoid the risk of downloading the same compiler multiple times.
+    // This is because the mutex blocks access until a compiler has been fully downloaded, preventing any new process
+    // from checking whether that version of the compiler exists. Without mutex it might incorrectly
+    // return false, indicating that the compiler isn't present, even though it is currently being downloaded.
+    return this.#mutexCompiler.use(async () => {
       const isCompilerDownloaded = await this.isCompilerDownloaded(version);
 
       if (isCompilerDownloaded === true) {
@@ -215,27 +209,29 @@ export class CompilerDownloaderImplementation implements CompilerDownloader {
 
       const build = await this.#getCompilerBuild(version);
 
-      let downloadPath: string = "";
-      for (let i = 0; i <= DEFAULT_COMPILER_DOWNLOAD_RETRY_COUNT; i++) {
-        try {
-          downloadPath = await this.#downloadAndVerifyCompiler(build);
-          break;
-        } catch (e) {
-          if (i === DEFAULT_COMPILER_DOWNLOAD_RETRY_COUNT) {
-            ensureError(e);
-            throw e;
-          } else {
-            const attempt = i + 1;
+      let downloadPath: string;
+      try {
+        downloadPath = await this.#downloadCompiler(build);
+      } catch (e) {
+        ensureError(e);
 
-            log(
-              `Download or verification failed for solc ${version}, retrying (attempt ${attempt} of ${DEFAULT_COMPILER_DOWNLOAD_RETRY_COUNT})`,
-            );
+        throw new HardhatError(
+          HardhatError.ERRORS.CORE.SOLIDITY.DOWNLOAD_FAILED,
+          {
+            remoteVersion: build.longVersion,
+          },
+          e,
+        );
+      }
 
-            await new Promise((resolve) =>
-              setTimeout(resolve, DEFAULT_COMPILER_DOWNLOAD_RETRY_DELAY_MS),
-            );
-          }
-        }
+      const verified = await this.#verifyCompilerDownload(build, downloadPath);
+      if (!verified) {
+        throw new HardhatError(
+          HardhatError.ERRORS.CORE.SOLIDITY.INVALID_DOWNLOAD,
+          {
+            remoteVersion: build.longVersion,
+          },
+        );
       }
 
       return this.#postProcessCompilerDownload(build, downloadPath);
@@ -277,9 +273,7 @@ export class CompilerDownloaderImplementation implements CompilerDownloader {
 
     const list = await this.#readCompilerList(listPath);
 
-    const build = list.builds.find(
-      (b) => b.version === version && b.prerelease === undefined,
-    );
+    const build = list.builds.find((b) => b.version === version);
 
     if (build === undefined) {
       throw new HardhatError(
@@ -344,89 +338,46 @@ export class CompilerDownloaderImplementation implements CompilerDownloader {
       }
     }
 
-    // download the list in case the cached list contains older ARM64 Linux builds without URL
-    return list.builds
-      .map((b) => b.path.startsWith("solc-v") && b.url === undefined)
-      .reduce((a, b) => a || b, false);
+    return false;
   }
 
   async #downloadCompilerList(): Promise<void> {
     log(`Downloading compiler list for platform ${this.#platform}`);
+    let url: string;
+
+    if (this.#onLinuxArm()) {
+      url = `${LINUX_ARM64_REPOSITORY_URL}/list.json`;
+    } else {
+      url = `${COMPILER_REPOSITORY_URL}/${this.#platform}/list.json`;
+    }
     const downloadPath = this.#getCompilerListPath();
 
-    // download hte official solc compiler list (now that ARM64 Linus is supported)
-    await this.#downloadFunction(
-      `${COMPILER_REPOSITORY_URL}/${this.#platform}/list.json`,
-      downloadPath,
-    );
+    await this.#downloadFunction(url, downloadPath);
 
-    // for Linux ARM64, we need to merge the official list with our custom builds
-    if (this.#platform === CompilerPlatform.LINUX_ARM64) {
-      // cache the official list since the file will be overwritten below
-      const officialCompilerList: CompilerList =
-        await readJsonFile(downloadPath);
-
-      await this.#downloadFunction(
-        `${LINUX_ARM64_REPOSITORY_URL}/list.json`,
-        downloadPath,
-      );
-
-      // add missing information and an explicit URL for download
-      const armLinuxcompilerList: CompilerList =
-        await readJsonFile(downloadPath);
-      for (const build of armLinuxcompilerList.builds) {
+    // If using the arm64 binary mirror, the list.json file has different information than the solc official mirror, so we complete it
+    if (this.#onLinuxArm()) {
+      const compilerList: CompilerList = await readJsonFile(downloadPath);
+      for (const build of compilerList.builds) {
         build.path = `solc-v${build.version}`;
-        build.url = LINUX_ARM64_REPOSITORY_URL;
         build.longVersion = build.version;
       }
 
-      // merge the official and custom lists
-      officialCompilerList.builds = officialCompilerList.builds.concat(
-        armLinuxcompilerList.builds,
-      );
-      officialCompilerList.releases = {
-        ...officialCompilerList.releases,
-        ...armLinuxcompilerList.releases,
-      };
-
-      await writeJsonFile(downloadPath, officialCompilerList);
+      await writeJsonFile(downloadPath, compilerList);
     }
   }
 
-  async #downloadAndVerifyCompiler(build: CompilerBuild): Promise<string> {
-    let downloadPath: string = "";
-
-    try {
-      downloadPath = await this.#downloadCompiler(build);
-    } catch (e) {
-      ensureError(e);
-
-      throw new HardhatError(
-        HardhatError.ERRORS.CORE.SOLIDITY.DOWNLOAD_FAILED,
-        {
-          remoteVersion: build.longVersion,
-        },
-        e,
-      );
-    }
-
-    const verified = await this.#verifyCompilerDownload(build, downloadPath);
-    if (!verified) {
-      throw new HardhatError(
-        HardhatError.ERRORS.CORE.SOLIDITY.INVALID_DOWNLOAD,
-        {
-          remoteVersion: build.longVersion,
-        },
-      );
-    }
-
-    return downloadPath;
+  #onLinuxArm() {
+    return this.#platform === CompilerPlatform.LINUX_ARM64;
   }
 
   async #downloadCompiler(build: CompilerBuild): Promise<string> {
-    // use the explicit URL if available or the default solc download URL if not
-    const defaultUrl = `${COMPILER_REPOSITORY_URL}/${this.#platform}`;
-    const url = `${build.url ?? defaultUrl}/${build.path}`;
+    let url: string;
+
+    if (this.#onLinuxArm()) {
+      url = `${LINUX_ARM64_REPOSITORY_URL}/${build.path}`;
+    } else {
+      url = `${COMPILER_REPOSITORY_URL}/${this.#platform}/${build.path}`;
+    }
 
     log(`Downloading compiler ${build.version} from ${url}`);
 

@@ -22,23 +22,13 @@ export interface MethodsConfig {
     result: (
       searchedPath: string,
     ) => { address: string; publicKey: string } | string;
-    /** If set, throws errorSequenceToThrow[0] when call count equals this value */
-    throwOnCall?: number;
-    /** Errors to throw. If throwOnCall is set, throws first error on that call.
-     *  Otherwise, throws errors in sequence on consecutive calls, then succeeds. */
-    errorSequenceToThrow?: Error[];
   };
   signPersonalMessage?: {
     result: Rsv;
-    expectedParams?: {
+    expectedParams: {
       path: string;
       data: string;
     };
-    /** If set, throws errorSequenceToThrow[0] when call count equals this value */
-    throwOnCall?: number;
-    /** Errors to throw. If throwOnCall is set, throws first error on that call.
-     *  Otherwise, throws errors in sequence on consecutive calls, then succeeds. */
-    errorSequenceToThrow?: Error[];
   };
   signEIP712Message?:
     | {
@@ -64,35 +54,21 @@ export interface MethodsConfig {
   };
   signTransaction?: {
     result: { v: string; r: string; s: string };
-    expectedParams?: {
+    expectedParams: {
       path: string;
       rawTxHex: string;
       resolution?: LedgerEthTransactionResolution | null;
     };
-    /** If set, throws errorSequenceToThrow[0] when call count equals this value */
-    throwOnCall?: number;
-    /** Errors to throw. If throwOnCall is set, throws first error on that call.
-     *  Otherwise, throws errors in sequence on consecutive calls, then succeeds. */
-    errorSequenceToThrow?: Error[];
   };
-}
-
-export interface MockCallState {
-  totalCalls: number;
-  args: unknown[];
 }
 
 export function getEthMocked(
   methodsConfig: MethodsConfig,
-): [typeof Eth.default, Map<string, MockCallState>] {
-  const calls = new Map<string, MockCallState>();
+): [typeof Eth.default, any] {
+  const calls = new Map<string, { totCall: number; args: any[] }>();
 
-  for (const method of [
-    "getAddress",
-    "signPersonalMessage",
-    "signTransaction",
-  ]) {
-    calls.set(method, { totalCalls: 0, args: [] });
+  for (const method of ["getAddress"]) {
+    calls.set(method, { totCall: 0, args: [] });
   }
 
   return [
@@ -111,26 +87,9 @@ export function getEthMocked(
         );
 
         const c = calls.get("getAddress");
-        assert.ok(c !== undefined, "c should be defined");
-        c.totalCalls++;
+        assertHardhatInvariant(c !== undefined, "c should be defined");
+        c.totCall++;
         c.args.push(searchedPath);
-
-        const config = this.#methodsConfig.getAddress;
-
-        // Handle error throwing
-        if (config.errorSequenceToThrow !== undefined) {
-          if (config.throwOnCall !== undefined) {
-            // Throw first error on specific call
-            if (c.totalCalls === config.throwOnCall) {
-              throw config.errorSequenceToThrow[0];
-            }
-          } else {
-            // Throw errors in sequence
-            if (c.totalCalls <= config.errorSequenceToThrow.length) {
-              throw config.errorSequenceToThrow[c.totalCalls - 1];
-            }
-          }
-        }
 
         return this.#methodsConfig.getAddress.result(searchedPath);
       }
@@ -144,33 +103,14 @@ export function getEthMocked(
           "signPersonalMessage should be defined",
         );
 
-        const c = calls.get("signPersonalMessage");
-        assert.ok(c !== undefined, "c should be defined");
-        c.totalCalls++;
-        c.args.push({ path, messageHex });
-
-        const config = this.#methodsConfig.signPersonalMessage;
-
-        // Handle error throwing
-        if (config.errorSequenceToThrow !== undefined) {
-          if (config.throwOnCall !== undefined) {
-            // Throw first error on specific call
-            if (c.totalCalls === config.throwOnCall) {
-              throw config.errorSequenceToThrow[0];
-            }
-          } else {
-            // Throw errors in sequence
-            if (c.totalCalls <= config.errorSequenceToThrow.length) {
-              throw config.errorSequenceToThrow[c.totalCalls - 1];
-            }
-          }
-        }
-
-        // Only validate params if expectedParams is provided
-        if (config.expectedParams !== undefined) {
-          assert.equal(path, config.expectedParams.path);
-          assert.equal(messageHex, config.expectedParams.data);
-        }
+        assert.equal(
+          path,
+          this.#methodsConfig.signPersonalMessage.expectedParams.path,
+        );
+        assert.equal(
+          messageHex,
+          this.#methodsConfig.signPersonalMessage.expectedParams.data,
+        );
 
         return this.#methodsConfig.signPersonalMessage.result;
       }
@@ -238,34 +178,18 @@ export function getEthMocked(
           "signTransaction should be defined",
         );
 
-        const c = calls.get("signTransaction");
-        assert.ok(c !== undefined, "c should be defined");
-        c.totalCalls++;
-        c.args.push({ path, rawTxHex, resolution });
-
-        const config = this.#methodsConfig.signTransaction;
-
-        // Handle error throwing
-        if (config.errorSequenceToThrow !== undefined) {
-          if (config.throwOnCall !== undefined) {
-            // Throw first error on specific call
-            if (c.totalCalls === config.throwOnCall) {
-              throw config.errorSequenceToThrow[0];
-            }
-          } else {
-            // Throw errors in sequence
-            if (c.totalCalls <= config.errorSequenceToThrow.length) {
-              throw config.errorSequenceToThrow[c.totalCalls - 1];
-            }
-          }
-        }
-
-        // Only validate params if expectedParams is provided
-        if (config.expectedParams !== undefined) {
-          assert.equal(path, config.expectedParams.path);
-          assert.equal(rawTxHex, config.expectedParams.rawTxHex);
-          assert.deepEqual(resolution, config.expectedParams.resolution);
-        }
+        assert.equal(
+          path,
+          this.#methodsConfig.signTransaction.expectedParams.path,
+        );
+        assert.equal(
+          rawTxHex,
+          this.#methodsConfig.signTransaction.expectedParams.rawTxHex,
+        );
+        assert.deepEqual(
+          resolution,
+          this.#methodsConfig.signTransaction.expectedParams.resolution,
+        );
 
         return this.#methodsConfig.signTransaction.result;
       }

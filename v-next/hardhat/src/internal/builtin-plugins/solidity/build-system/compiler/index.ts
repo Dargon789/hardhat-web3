@@ -1,5 +1,3 @@
-import type { Compiler } from "../../../../../types/solidity.js";
-
 import { execFile } from "node:child_process";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
@@ -13,7 +11,7 @@ import { exists, isBinaryFile } from "@nomicfoundation/hardhat-utils/fs";
 import { getCacheDir } from "@nomicfoundation/hardhat-utils/global-dir";
 import debug from "debug";
 
-import { NativeCompiler, SolcJsCompiler } from "./compiler.js";
+import { NativeCompiler, SolcJsCompiler, type Compiler } from "./compiler.js";
 import {
   CompilerDownloaderImplementation,
   CompilerPlatform,
@@ -28,7 +26,7 @@ async function getGlobalCompilersCacheDir(): Promise<string> {
 
 const log = debug("hardhat:core:solidity:build-system:compiler");
 
-export async function downloadSolcCompilers(
+export async function downloadConfiguredCompilers(
   versions: Set<string>,
   quiet: boolean,
 ): Promise<void> {

@@ -1,7 +1,7 @@
-import type EventEmitter from "node:events";
 import type { ParsedUrlQueryInput } from "node:querystring";
 import type UndiciT from "undici";
 
+import EventEmitter from "node:events";
 import fs from "node:fs";
 import querystring from "node:querystring";
 import stream from "node:stream/promises";
@@ -20,17 +20,12 @@ import {
   getBasicDispatcher,
   getPoolDispatcher,
   getProxyDispatcher,
-  handleError,
 } from "./internal/request.js";
 
-export const DEFAULT_TIMEOUT_IN_MILLISECONDS = 300_000; // Aligned with unidici
+export const DEFAULT_TIMEOUT_IN_MILLISECONDS = 30_000;
 export const DEFAULT_MAX_REDIRECTS = 10;
 export const DEFAULT_POOL_MAX_CONNECTIONS = 128;
 export const DEFAULT_USER_AGENT = "Hardhat";
-
-export type Dispatcher = UndiciT.Dispatcher;
-export type TestDispatcher = UndiciT.MockAgent;
-export type Interceptable = UndiciT.Interceptable;
 
 /**
  * Options to configure the dispatcher.
@@ -62,31 +57,20 @@ export interface RequestOptions {
   abortSignal?: AbortSignal | EventEmitter;
 }
 
-export interface HttpResponse {
-  statusCode: number;
-  body: {
-    json(): Promise<any>;
-    text(): Promise<string>;
-  };
-}
-
 /**
  * Performs a HTTP request.
  *
  * @param url The url to make the request to.
  * @param requestOptions The options to configure the request. See {@link RequestOptions}.
  * @param dispatcherOrDispatcherOptions Either a dispatcher or dispatcher options. See {@link DispatcherOptions}.
- * @returns An object containing the status code and the response body. The body can be accessed as JSON or text.
- * `body` can not be consumed twice. For example, calling `text()` after `json()` throws `TypeError`.
- * @throws ConnectionRefusedError If the connection is refused by the server.
- * @throws RequestTimeoutError If the request times out.
- * @throws RequestError If the request fails for any other reason.
+ * @returns The response data object. See {@link https://undici.nodejs.org/#/docs/api/Dispatcher?id=parameter-responsedata}.
+ * @throws RequestError If the request fails.
  */
 export async function getRequest(
   url: string,
   requestOptions: RequestOptions = {},
   dispatcherOrDispatcherOptions?: UndiciT.Dispatcher | DispatcherOptions,
-): Promise<HttpResponse> {
+): Promise<UndiciT.Dispatcher.ResponseData> {
   const { request } = await import("undici");
 
   try {
@@ -101,9 +85,6 @@ export async function getRequest(
     });
   } catch (e) {
     ensureError(e);
-
-    handleError(e, url);
-
     throw new RequestError(url, "GET", e);
   }
 }
@@ -115,18 +96,15 @@ export async function getRequest(
  * @param body The body of the request, represented as an object.
  * @param requestOptions The options to configure the request. See {@link RequestOptions}.
  * @param dispatcherOrDispatcherOptions Either a dispatcher or dispatcher options. See {@link DispatcherOptions}.
- * @returns An object containing the status code and the response body. The body can be accessed as JSON or text.
- * `body` can not be consumed twice. For example, calling `text()` after `json()` throws `TypeError`.
- * @throws ConnectionRefusedError If the connection is refused by the server.
- * @throws RequestTimeoutError If the request times out.
- * @throws RequestError If the request fails for any other reason.
+ * @returns The response data object. See {@link https://undici.nodejs.org/#/docs/api/Dispatcher?id=parameter-responsedata}.
+ * @throws RequestError If the request fails.
  */
 export async function postJsonRequest(
   url: string,
   body: unknown,
   requestOptions: RequestOptions = {},
   dispatcherOrDispatcherOptions?: UndiciT.Dispatcher | DispatcherOptions,
-): Promise<HttpResponse> {
+): Promise<UndiciT.Dispatcher.ResponseData> {
   const { request } = await import("undici");
 
   try {
@@ -146,9 +124,6 @@ export async function postJsonRequest(
     });
   } catch (e) {
     ensureError(e);
-
-    handleError(e, url);
-
     throw new RequestError(url, "POST", e);
   }
 }
@@ -160,18 +135,15 @@ export async function postJsonRequest(
  * @param body The body of the request, represented as an object.
  * @param requestOptions The options to configure the request. See {@link RequestOptions}.
  * @param dispatcherOrDispatcherOptions Either a dispatcher or dispatcher options. See {@link DispatcherOptions}.
- * @returns An object containing the status code and the response body. The body can be accessed as JSON or text.
- * `body` can not be consumed twice. For example, calling `text()` after `json()` throws `TypeError`.
- * @throws ConnectionRefusedError If the connection is refused by the server.
- * @throws RequestTimeoutError If the request times out.
- * @throws RequestError If the request fails for any other reason.
+ * @returns The response data object. See {@link https://undici.nodejs.org/#/docs/api/Dispatcher?id=parameter-responsedata}.
+ * @throws RequestError If the request fails.
  */
 export async function postFormRequest(
   url: string,
   body: unknown,
   requestOptions: RequestOptions = {},
   dispatcherOrDispatcherOptions?: UndiciT.Dispatcher | DispatcherOptions,
-): Promise<HttpResponse> {
+): Promise<UndiciT.Dispatcher.ResponseData> {
   const { request } = await import("undici");
 
   try {
@@ -192,9 +164,6 @@ export async function postFormRequest(
     });
   } catch (e) {
     ensureError(e);
-
-    handleError(e, url);
-
     throw new RequestError(url, "POST", e);
   }
 }
@@ -206,9 +175,7 @@ export async function postFormRequest(
  * @param destination The absolute path to save the file to.
  * @param requestOptions The options to configure the request. See {@link RequestOptions}.
  * @param dispatcherOrDispatcherOptions Either a dispatcher or dispatcher options. See {@link DispatcherOptions}.
- * @throws ConnectionRefusedError If the connection is refused by the server.
- * @throws RequestTimeoutError If the request times out.
- * @throws DownloadFailedError If the download fails for any other reason.
+ * @throws DownloadFailedError If the download fails.
  */
 export async function download(
   url: string,
@@ -219,16 +186,11 @@ export async function download(
   let statusCode: number | undefined;
 
   try {
-    /* eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-    -- We need the full Dispatcher.ResponseData here for stream.pipeline,
-    but HttpResponse doesn’t expose the raw ReadableStream.
-    TODO: wrap undici's request so we can keep the public API
-    strictly typed without falling back to Undici types. */
-    const response = (await getRequest(
+    const response = await getRequest(
       url,
       requestOptions,
       dispatcherOrDispatcherOptions,
-    )) as UndiciT.Dispatcher.ResponseData;
+    );
     const { body } = response;
     statusCode = response.statusCode;
 
@@ -242,9 +204,6 @@ export async function download(
     await move(tempFilePath, destination);
   } catch (e) {
     ensureError(e);
-
-    handleError(e, url);
-
     throw new DownloadError(url, e);
   }
 }
@@ -269,7 +228,7 @@ export async function getDispatcher(
     maxConnections,
     isTestDispatcher,
   }: DispatcherOptions = {},
-): Promise<Dispatcher> {
+): Promise<UndiciT.Dispatcher> {
   try {
     if (pool !== undefined && proxy !== undefined) {
       throw new Error(
@@ -294,17 +253,6 @@ export async function getDispatcher(
     ensureError(e);
     throw new DispatcherError(e.message, e);
   }
-}
-
-export async function getTestDispatcher(
-  options: {
-    timeout?: number;
-  } = {},
-): Promise<TestDispatcher> {
-  const { MockAgent } = await import("undici");
-
-  const baseOptions = getBaseDispatcherOptions(options.timeout, true);
-  return new MockAgent(baseOptions);
 }
 
 /**
@@ -332,57 +280,8 @@ export function shouldUseProxy(url: string): boolean {
   return true;
 }
 
-/**
- * Determines whether an absolute url is valid.
- *
- * @param url The url to check.
- * @returns `true` if the url is valid, `false` otherwise.
- */
-export function isValidUrl(url: string): boolean {
-  try {
-    new URL(url);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-/**
- * Returns the proxy URL from environment variables based on the target URL.
- * For HTTPS URLs, checks `https_proxy` then `HTTPS_PROXY`.
- * For HTTP URLs, checks `http_proxy` then `HTTP_PROXY`.
- * Falls back to the other protocol's proxy if none found.
- *
- * @param url The target URL to determine proxy for.
- * @returns The proxy URL, or `undefined` if none are set.
- */
-export function getProxyUrl(url: string): string | undefined {
-  const { protocol } = new URL(url);
-
-  if (protocol === "https:") {
-    return (
-      process.env.https_proxy ??
-      process.env.HTTPS_PROXY ??
-      process.env.http_proxy ??
-      process.env.HTTP_PROXY
-    );
-  } else if (protocol === "http:") {
-    return (
-      process.env.http_proxy ??
-      process.env.HTTP_PROXY ??
-      process.env.https_proxy ??
-      process.env.HTTPS_PROXY
-    );
-  }
-
-  return undefined;
-}
-
 export {
-  ConnectionRefusedError,
-  DispatcherError,
   DownloadError,
   RequestError,
-  RequestTimeoutError,
-  ResponseStatusCodeError,
+  DispatcherError,
 } from "./errors/request.js";

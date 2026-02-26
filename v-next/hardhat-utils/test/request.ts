@@ -24,55 +24,65 @@ import {
   download,
   getDispatcher,
   shouldUseProxy,
-  isValidUrl,
-  getProxyUrl,
 } from "../src/request.js";
 
 import { useTmpDir } from "./helpers/fs.js";
-import { initializeTestDispatcher } from "./helpers/request.js";
+import {
+  getTestDispatcherOptions,
+  mockPool,
+  setupRequestMocking,
+} from "./helpers/request.js";
 
 describe("Requests util", () => {
   describe("getDispatcher", () => {
     it("Should return a ProxyAgent dispatcher if a proxy url was provided", async () => {
-      const dispatcher = await getDispatcher("http://localhost", {
+      const url = "http://localhost";
+      const options = getTestDispatcherOptions({
         proxy: "http://proxy",
       });
+      const dispatcher = await getDispatcher(url, options);
 
       assert.ok(dispatcher instanceof ProxyAgent, "Should return a ProxyAgent");
     });
 
     it("Should return a Pool dispatcher if pool is true", async () => {
-      const dispatcher = await getDispatcher("http://localhost", {
+      const url = "http://localhost";
+      const options = getTestDispatcherOptions({
         pool: true,
       });
+      const dispatcher = await getDispatcher(url, options);
 
       assert.ok(dispatcher instanceof Pool, "Should return a Pool");
     });
 
     it("Should throw if both pool and proxy are set", async () => {
-      await assert.rejects(
-        getDispatcher("http://localhost", {
-          pool: true,
-          proxy: "http://proxy",
-        }),
-        {
-          name: "DispatcherError",
-          message:
-            "Failed to create dispatcher: The pool and proxy options can't be used at the same time",
-        },
-      );
+      const url = "http://localhost";
+      const options = getTestDispatcherOptions({
+        pool: true,
+        proxy: "http://proxy",
+      });
+
+      await assert.rejects(getDispatcher(url, options), {
+        name: "DispatcherError",
+        message:
+          "Failed to create dispatcher: The pool and proxy options can't be used at the same time",
+      });
     });
 
     it("Should return an Agent dispatcher if proxy is not set and pool is false", async () => {
-      const dispatcher = await getDispatcher("http://localhost", {
+      const url = "http://localhost";
+      const options = getTestDispatcherOptions({
         pool: false,
       });
+      const dispatcher = await getDispatcher(url, options);
 
       assert.ok(dispatcher instanceof Agent, "Should return an Agent");
     });
 
     it("Should return an Agent dispatcher if proxy is not set and pool is not set", async () => {
-      const dispatcher = await getDispatcher("http://localhost");
+      const url = "http://localhost";
+      const options = getTestDispatcherOptions();
+      const dispatcher = await getDispatcher(url, options);
 
       assert.ok(dispatcher instanceof Agent, "Should return an Agent");
     });
@@ -204,9 +214,12 @@ describe("Requests util", () => {
 
     it("Should return a dispatcher based on the provided options", async () => {
       const url = "http://localhost";
-      const { dispatcher } = await getBaseRequestOptions(url, undefined, {
-        pool: true,
-      });
+      const dispatcherOptions = getTestDispatcherOptions({ pool: true });
+      const { dispatcher } = await getBaseRequestOptions(
+        url,
+        undefined,
+        dispatcherOptions,
+      );
 
       assert.ok(dispatcher instanceof Pool, "Should return a Pool");
     });
@@ -234,9 +247,9 @@ describe("Requests util", () => {
     });
   });
 
-  describe("getRequest", async () => {
-    const interceptor = await initializeTestDispatcher();
-    const url = "http://localhost";
+  describe("getRequest", () => {
+    setupRequestMocking();
+    const url = "http://localhost:3000/";
     const baseInterceptorOptions = {
       path: "/",
       method: "GET",
@@ -246,10 +259,10 @@ describe("Requests util", () => {
     };
 
     it("Should make a basic get request", async () => {
-      interceptor.intercept(baseInterceptorOptions).reply(200, {});
-      const response = await getRequest(url, undefined, interceptor);
+      mockPool.intercept(baseInterceptorOptions).reply(200, {});
+      const response = await getRequest(url, undefined, mockPool);
 
-      assert.notEqual(response, undefined, "Should return a response");
+      assert.ok(response, "Should return a response");
       assert.equal(response.statusCode, 200);
       await response.body.json();
     });
@@ -259,12 +272,12 @@ describe("Requests util", () => {
         foo: "bar",
         baz: "qux",
       };
-      interceptor
+      mockPool
         .intercept({ ...baseInterceptorOptions, query: queryParams })
         .reply(200, {});
-      const response = await getRequest(url, { queryParams }, interceptor);
+      const response = await getRequest(url, { queryParams }, mockPool);
 
-      assert.notEqual(response, undefined, "Should return a response");
+      assert.ok(response, "Should return a response");
       assert.equal(response.statusCode, 200);
       await response.body.json();
     });
@@ -273,26 +286,26 @@ describe("Requests util", () => {
       const extraHeaders = {
         "X-Custom-Header": "value",
       };
-      interceptor
+      mockPool
         .intercept({
           ...baseInterceptorOptions,
           headers: { ...baseInterceptorOptions.headers, ...extraHeaders },
         })
         .reply(200, {});
-      const response = await getRequest(url, { extraHeaders }, interceptor);
+      const response = await getRequest(url, { extraHeaders }, mockPool);
 
-      assert.notEqual(response, undefined, "Should return a response");
+      assert.ok(response, "Should return a response");
       assert.equal(response.statusCode, 200);
       await response.body.json();
     });
 
     it("Should allow aborting a request using an abort signal", async () => {
       const abortController = new AbortController();
-      interceptor.intercept(baseInterceptorOptions).reply(200, {});
+      mockPool.intercept(baseInterceptorOptions).reply(200, {});
       const requestPromise = getRequest(
         url,
         { abortSignal: abortController.signal },
-        interceptor,
+        mockPool,
       );
       abortController.abort();
 
@@ -305,20 +318,20 @@ describe("Requests util", () => {
     });
 
     it("Should throw if the request fails", async () => {
-      interceptor
+      mockPool
         .intercept(baseInterceptorOptions)
         .reply(500, "Internal Server Error");
 
-      await assert.rejects(getRequest(url, undefined, interceptor), {
-        name: "ResponseStatusCodeError",
-        message: `Received an unexpected status code from ${url}`,
+      await assert.rejects(getRequest(url, undefined, mockPool), {
+        name: "RequestError",
+        message: `Failed to make GET request to ${url}`,
       });
     });
   });
 
-  describe("postJsonRequest", async () => {
-    const interceptor = await initializeTestDispatcher();
-    const url = "http://localhost";
+  describe("postJsonRequest", () => {
+    setupRequestMocking();
+    const url = "http://localhost:3000/";
     const body = { foo: "bar" };
     const baseInterceptorOptions = {
       path: "/",
@@ -331,10 +344,10 @@ describe("Requests util", () => {
     };
 
     it("Should make a basic post request", async () => {
-      interceptor.intercept(baseInterceptorOptions).reply(200, {});
-      const response = await postJsonRequest(url, body, undefined, interceptor);
+      mockPool.intercept(baseInterceptorOptions).reply(200, {});
+      const response = await postJsonRequest(url, body, undefined, mockPool);
 
-      assert.notEqual(response, undefined, "Should return a response");
+      assert.ok(response, "Should return a response");
       assert.equal(response.statusCode, 200);
       await response.body.json();
     });
@@ -343,7 +356,7 @@ describe("Requests util", () => {
       const queryParams = {
         baz: "qux",
       };
-      interceptor
+      mockPool
         .intercept({
           ...baseInterceptorOptions,
           query: queryParams,
@@ -353,10 +366,10 @@ describe("Requests util", () => {
         url,
         body,
         { queryParams },
-        interceptor,
+        mockPool,
       );
 
-      assert.notEqual(response, undefined, "Should return a response");
+      assert.ok(response, "Should return a response");
       assert.equal(response.statusCode, 200);
       await response.body.json();
     });
@@ -365,7 +378,7 @@ describe("Requests util", () => {
       const extraHeaders = {
         "X-Custom-Header": "value",
       };
-      interceptor
+      mockPool
         .intercept({
           ...baseInterceptorOptions,
           headers: { ...baseInterceptorOptions.headers, ...extraHeaders },
@@ -375,22 +388,22 @@ describe("Requests util", () => {
         url,
         body,
         { extraHeaders },
-        interceptor,
+        mockPool,
       );
 
-      assert.notEqual(response, undefined, "Should return a response");
+      assert.ok(response, "Should return a response");
       assert.equal(response.statusCode, 200);
       await response.body.json();
     });
 
     it("Should allow aborting a request using an abort signal", async () => {
       const abortController = new AbortController();
-      interceptor.intercept(baseInterceptorOptions).reply(200, {});
+      mockPool.intercept(baseInterceptorOptions).reply(200, {});
       const requestPromise = postJsonRequest(
         url,
         body,
         { abortSignal: abortController.signal },
-        interceptor,
+        mockPool,
       );
       abortController.abort();
 
@@ -403,20 +416,20 @@ describe("Requests util", () => {
     });
 
     it("Should throw if the request fails", async () => {
-      interceptor
+      mockPool
         .intercept(baseInterceptorOptions)
         .reply(500, "Internal Server Error");
 
-      await assert.rejects(postJsonRequest(url, body, undefined, interceptor), {
-        name: "ResponseStatusCodeError",
-        message: `Received an unexpected status code from ${url}`,
+      await assert.rejects(postJsonRequest(url, body, undefined, mockPool), {
+        name: "RequestError",
+        message: `Failed to make POST request to ${url}`,
       });
     });
   });
 
-  describe("postFormRequest", async () => {
-    const interceptor = await initializeTestDispatcher();
-    const url = "http://localhost";
+  describe("postFormRequest", () => {
+    setupRequestMocking();
+    const url = "http://localhost:3000/";
     const body = { foo: "bar" };
     const baseInterceptorOptions = {
       path: "/",
@@ -429,10 +442,10 @@ describe("Requests util", () => {
     };
 
     it("Should make a basic post request", async () => {
-      interceptor.intercept(baseInterceptorOptions).reply(200, {});
-      const response = await postFormRequest(url, body, undefined, interceptor);
+      mockPool.intercept(baseInterceptorOptions).reply(200, {});
+      const response = await postFormRequest(url, body, undefined, mockPool);
 
-      assert.notEqual(response, undefined, "Should return a response");
+      assert.ok(response, "Should return a response");
       assert.equal(response.statusCode, 200);
       await response.body.json();
     });
@@ -441,7 +454,7 @@ describe("Requests util", () => {
       const queryParams = {
         baz: "qux",
       };
-      interceptor
+      mockPool
         .intercept({
           ...baseInterceptorOptions,
           query: queryParams,
@@ -451,10 +464,10 @@ describe("Requests util", () => {
         url,
         body,
         { queryParams },
-        interceptor,
+        mockPool,
       );
 
-      assert.notEqual(response, undefined, "Should return a response");
+      assert.ok(response, "Should return a response");
       assert.equal(response.statusCode, 200);
       await response.body.json();
     });
@@ -463,7 +476,7 @@ describe("Requests util", () => {
       const extraHeaders = {
         "X-Custom-Header": "value",
       };
-      interceptor
+      mockPool
         .intercept({
           ...baseInterceptorOptions,
           headers: { ...baseInterceptorOptions.headers, ...extraHeaders },
@@ -473,22 +486,22 @@ describe("Requests util", () => {
         url,
         body,
         { extraHeaders },
-        interceptor,
+        mockPool,
       );
 
-      assert.notEqual(response, undefined, "Should return a response");
+      assert.ok(response, "Should return a response");
       assert.equal(response.statusCode, 200);
       await response.body.json();
     });
 
     it("Should allow aborting a request using an abort signal", async () => {
       const abortController = new AbortController();
-      interceptor.intercept(baseInterceptorOptions).reply(200, {});
+      mockPool.intercept(baseInterceptorOptions).reply(200, {});
       const requestPromise = postFormRequest(
         url,
         body,
         { abortSignal: abortController.signal },
-        interceptor,
+        mockPool,
       );
       abortController.abort();
 
@@ -501,21 +514,21 @@ describe("Requests util", () => {
     });
 
     it("Should throw if the request fails", async () => {
-      interceptor
+      mockPool
         .intercept(baseInterceptorOptions)
         .reply(500, "Internal Server Error");
 
-      await assert.rejects(postFormRequest(url, body, undefined, interceptor), {
-        name: "ResponseStatusCodeError",
-        message: `Received an unexpected status code from ${url}`,
+      await assert.rejects(postFormRequest(url, body, undefined, mockPool), {
+        name: "RequestError",
+        message: `Failed to make POST request to ${url}`,
       });
     });
   });
 
-  describe("download", async () => {
-    const interceptor = await initializeTestDispatcher();
+  describe("download", () => {
     const getTmpDir = useTmpDir("request");
-    const url = "http://localhost";
+    setupRequestMocking();
+    const url = "http://localhost:3000/";
     const baseInterceptorOptions = {
       path: "/",
       method: "GET",
@@ -526,22 +539,22 @@ describe("Requests util", () => {
 
     it("Should download a file", async () => {
       const destination = path.join(getTmpDir(), "file.txt");
-      interceptor.intercept(baseInterceptorOptions).reply(200, "file content");
-      await download(url, destination, undefined, interceptor);
+      mockPool.intercept(baseInterceptorOptions).reply(200, "file content");
+      await download(url, destination, undefined, mockPool);
 
-      assert.ok(await exists(destination), "Should create the file");
+      assert.ok(exists(destination), "Should create the file");
       assert.equal(await readUtf8File(destination), "file content");
     });
 
     it("Should throw if the request fails", async () => {
       const destination = path.join(getTmpDir(), "file.txt");
-      interceptor
+      mockPool
         .intercept(baseInterceptorOptions)
         .reply(500, "Internal Server Error");
 
-      await assert.rejects(download(url, destination, undefined, interceptor), {
-        name: "ResponseStatusCodeError",
-        message: `Received an unexpected status code from ${url}`,
+      await assert.rejects(download(url, destination, undefined, mockPool), {
+        name: "DownloadError",
+        message: `Failed to download file from ${url}`,
       });
     });
   });
@@ -591,248 +604,6 @@ describe("Requests util", () => {
       assert.equal(shouldUseProxy("http://example.com"), false);
       assert.equal(shouldUseProxy("https://example.com"), false);
       assert.equal(shouldUseProxy("ftp://example.com"), false);
-    });
-  });
-
-  describe("isValidUrl", () => {
-    it("should return true for a valid URL", () => {
-      assert.equal(isValidUrl("http://example.com"), true);
-      assert.equal(isValidUrl("https://example.com"), true);
-      assert.equal(isValidUrl("ftp://example.com"), true);
-      assert.equal(isValidUrl("http://example.com:8080"), true);
-      assert.equal(
-        isValidUrl("http://example.com/path?name=value#fragment"),
-        true,
-      );
-    });
-
-    it("should return false for an invalid URL", () => {
-      assert.equal(isValidUrl("example.com"), false);
-      assert.equal(isValidUrl("example"), false);
-      assert.equal(isValidUrl(""), false);
-      assert.equal(isValidUrl("/relative/path"), false);
-    });
-  });
-
-  describe("getProxyUrl", () => {
-    afterEach(() => {
-      delete process.env.https_proxy;
-      delete process.env.HTTPS_PROXY;
-      delete process.env.http_proxy;
-      delete process.env.HTTP_PROXY;
-    });
-
-    describe("HTTPS URLs", () => {
-      it("Should return https_proxy for HTTPS URLs", () => {
-        process.env.https_proxy = "http://https-proxy:8080";
-        assert.equal(
-          getProxyUrl("https://example.com"),
-          "http://https-proxy:8080",
-        );
-      });
-
-      it("Should return HTTPS_PROXY for HTTPS URLs if https_proxy is not set", () => {
-        process.env.HTTPS_PROXY = "http://HTTPS-proxy:8080";
-        assert.equal(
-          getProxyUrl("https://example.com"),
-          "http://HTTPS-proxy:8080",
-        );
-      });
-
-      it("Should prefer https_proxy over HTTPS_PROXY for HTTPS URLs", () => {
-        // Test that https_proxy is used when both are set
-        // Note: On Windows, env vars are case-insensitive, so we test priority
-        // by setting one, checking, then setting the other
-        process.env.https_proxy = "http://https-proxy:8080";
-        assert.equal(
-          getProxyUrl("https://example.com"),
-          "http://https-proxy:8080",
-        );
-
-        // Test that HTTPS_PROXY is used when https_proxy is not set
-        delete process.env.https_proxy;
-        process.env.HTTPS_PROXY = "http://HTTPS-proxy:8080";
-        assert.equal(
-          getProxyUrl("https://example.com"),
-          "http://HTTPS-proxy:8080",
-        );
-      });
-
-      it("Should fallback to http_proxy for HTTPS URLs if https proxies are not set", () => {
-        process.env.http_proxy = "http://http-proxy:8080";
-        assert.equal(
-          getProxyUrl("https://example.com"),
-          "http://http-proxy:8080",
-        );
-      });
-
-      it("Should fallback to HTTP_PROXY for HTTPS URLs if other proxies are not set", () => {
-        process.env.HTTP_PROXY = "http://HTTP-proxy:8080";
-        assert.equal(
-          getProxyUrl("https://example.com"),
-          "http://HTTP-proxy:8080",
-        );
-      });
-    });
-
-    describe("HTTP URLs", () => {
-      it("Should return http_proxy for HTTP URLs", () => {
-        process.env.http_proxy = "http://http-proxy:8080";
-        assert.equal(
-          getProxyUrl("http://example.com"),
-          "http://http-proxy:8080",
-        );
-      });
-
-      it("Should return HTTP_PROXY for HTTP URLs if http_proxy is not set", () => {
-        process.env.HTTP_PROXY = "http://HTTP-proxy:8080";
-        assert.equal(
-          getProxyUrl("http://example.com"),
-          "http://HTTP-proxy:8080",
-        );
-      });
-
-      it("Should prefer http_proxy over HTTP_PROXY for HTTP URLs", () => {
-        // Test that http_proxy is used when both are set
-        // Note: On Windows, env vars are case-insensitive, so we test priority
-        // by setting one, checking, then setting the other
-        process.env.http_proxy = "http://http-proxy:8080";
-        assert.equal(
-          getProxyUrl("http://example.com"),
-          "http://http-proxy:8080",
-        );
-
-        // Test that HTTP_PROXY is used when http_proxy is not set
-        delete process.env.http_proxy;
-        process.env.HTTP_PROXY = "http://HTTP-proxy:8080";
-        assert.equal(
-          getProxyUrl("http://example.com"),
-          "http://HTTP-proxy:8080",
-        );
-      });
-
-      it("Should fallback to https_proxy for HTTP URLs if http proxies are not set", () => {
-        process.env.https_proxy = "http://https-proxy:8080";
-        assert.equal(
-          getProxyUrl("http://example.com"),
-          "http://https-proxy:8080",
-        );
-      });
-
-      it("Should fallback to HTTPS_PROXY for HTTP URLs if other proxies are not set", () => {
-        process.env.HTTPS_PROXY = "http://HTTPS-proxy:8080";
-        assert.equal(
-          getProxyUrl("http://example.com"),
-          "http://HTTPS-proxy:8080",
-        );
-      });
-    });
-
-    describe("Other protocols", () => {
-      it("Should return undefined for FTP URLs", () => {
-        process.env.http_proxy = "http://proxy:8080";
-        process.env.https_proxy = "http://proxy:8080";
-        assert.equal(getProxyUrl("ftp://example.com"), undefined);
-      });
-
-      it("Should return undefined for file URLs", () => {
-        process.env.http_proxy = "http://proxy:8080";
-        process.env.https_proxy = "http://proxy:8080";
-        assert.equal(getProxyUrl("file:///path/to/file"), undefined);
-      });
-
-      it("Should return undefined for custom protocols", () => {
-        process.env.http_proxy = "http://proxy:8080";
-        process.env.https_proxy = "http://proxy:8080";
-        assert.equal(getProxyUrl("custom://example.com"), undefined);
-      });
-    });
-
-    describe("No proxy environment variables", () => {
-      it("Should return undefined when no proxy environment variables are set", () => {
-        assert.equal(getProxyUrl("https://example.com"), undefined);
-        assert.equal(getProxyUrl("http://example.com"), undefined);
-      });
-    });
-
-    describe("Priority order", () => {
-      it("Should follow correct priority for HTTPS: https_proxy > HTTPS_PROXY > http_proxy > HTTP_PROXY", () => {
-        // Set fallback variables first (lowest priority)
-        process.env.HTTP_PROXY = "http://4th:8080";
-
-        // On Windows, setting uppercase variables after lowercase variables
-        // might overwrite them due to case-insensitivity. So we test the
-        // priority order by adding variables in reverse order and testing at each step
-        assert.equal(getProxyUrl("https://example.com"), "http://4th:8080");
-
-        process.env.http_proxy = "http://3rd:8080";
-
-        assert.equal(getProxyUrl("https://example.com"), "http://3rd:8080");
-
-        process.env.HTTPS_PROXY = "http://2nd:8080";
-
-        assert.equal(getProxyUrl("https://example.com"), "http://2nd:8080");
-
-        process.env.https_proxy = "http://1st:8080";
-
-        assert.equal(getProxyUrl("https://example.com"), "http://1st:8080");
-      });
-
-      it("Should follow correct priority for HTTP: http_proxy > HTTP_PROXY > https_proxy > HTTPS_PROXY", () => {
-        // Set fallback variables first (lowest priority)
-        process.env.HTTPS_PROXY = "http://4th:8080";
-
-        // On Windows, setting uppercase variables after lowercase variables
-        // might overwrite them due to case-insensitivity. So we test the
-        // priority order by adding variables in reverse order and testing at each step
-        assert.equal(getProxyUrl("http://example.com"), "http://4th:8080");
-
-        process.env.https_proxy = "http://3rd:8080";
-
-        assert.equal(getProxyUrl("http://example.com"), "http://3rd:8080");
-
-        process.env.HTTP_PROXY = "http://2nd:8080";
-
-        assert.equal(getProxyUrl("http://example.com"), "http://2nd:8080");
-
-        process.env.http_proxy = "http://1st:8080";
-
-        assert.equal(getProxyUrl("http://example.com"), "http://1st:8080");
-      });
-    });
-
-    describe("URL parsing", () => {
-      it("Should handle URLs with ports", () => {
-        process.env.https_proxy = "http://proxy:8080";
-        assert.equal(
-          getProxyUrl("https://example.com:9000"),
-          "http://proxy:8080",
-        );
-      });
-
-      it("Should handle URLs with paths", () => {
-        process.env.https_proxy = "http://proxy:8080";
-        assert.equal(
-          getProxyUrl("https://example.com/path/to/resource"),
-          "http://proxy:8080",
-        );
-      });
-
-      it("Should handle URLs with query parameters", () => {
-        process.env.https_proxy = "http://proxy:8080";
-        assert.equal(
-          getProxyUrl("https://example.com?param=value"),
-          "http://proxy:8080",
-        );
-      });
-
-      it("Should handle URLs with fragments", () => {
-        process.env.https_proxy = "http://proxy:8080";
-        assert.equal(
-          getProxyUrl("https://example.com#fragment"),
-          "http://proxy:8080",
-        );
-      });
     });
   });
 });

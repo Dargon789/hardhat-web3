@@ -75,13 +75,7 @@ export default async (): Promise<Partial<NetworkHooks>> => {
         );
 
         if (isFailedJsonRpcResponse(accountsResponse)) {
-          // If the RPC node doesn't support eth_accounts,
-          // return only the Ledger accounts instead of propagating the error.
-          return {
-            jsonrpc: "2.0",
-            id: jsonRpcRequest.id,
-            result: [...ledgerHandler.getLedgerAccounts()],
-          };
+          return accountsResponse;
         }
 
         assertHardhatInvariant(

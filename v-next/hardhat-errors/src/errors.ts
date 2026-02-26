@@ -1,9 +1,7 @@
-import type { ErrorDescriptor } from "./descriptors.js";
-
 import { CustomError } from "@nomicfoundation/hardhat-utils/error";
 import { isObject } from "@nomicfoundation/hardhat-utils/lang";
 
-import { ERRORS, ERROR_CATEGORIES } from "./descriptors.js";
+import { ERRORS, ErrorDescriptor } from "./descriptors.js";
 
 export type ErrorMessageTemplateValue =
   | string
@@ -39,27 +37,17 @@ export type HardhatErrorConstructorArguments<
 export const ERROR_PREFIX = "HHE";
 
 const IS_HARDHAT_ERROR_PROPERTY_NAME = "_isHardhatError";
-const IS_HARDHAT_PLUGIN_ERROR_PROPERTY_NAME = "_isHardhatPluginError";
 
-/**
- * An error thrown by Hardhat. This error is meant to be thrown by Hardhat
- * itself, and internal plugins. For errors thrown by community plugins, see
- * `HardhatPluginError`.
- */
 export class HardhatError<
-  ErrorDescriptorT extends ErrorDescriptor = ErrorDescriptor,
+  ErrorDescriptorT extends ErrorDescriptor,
 > extends CustomError {
-  public static readonly ERRORS: typeof ERRORS = ERRORS;
+  public static readonly ERRORS = ERRORS;
 
   readonly #descriptor: ErrorDescriptorT;
 
   readonly #arguments: MessagetTemplateArguments<
     ErrorDescriptorT["messageTemplate"]
   >;
-
-  readonly #errorCode: string;
-
-  readonly #formattedMessage: string;
 
   constructor(
     ...[
@@ -68,7 +56,7 @@ export class HardhatError<
       parentError,
     ]: HardhatErrorConstructorArguments<ErrorDescriptorT>
   ) {
-    const errorCode = getErrorCode(errorDescriptor);
+    const prefix = `${getErrorCode(errorDescriptor)}: `;
 
     const formattedMessage =
       messageArgumentsOrParentError === undefined ||
@@ -80,7 +68,7 @@ export class HardhatError<
           );
 
     super(
-      `${errorCode}: ${formattedMessage}`,
+      prefix + formattedMessage,
       parentError instanceof Error
         ? parentError
         : messageArgumentsOrParentError instanceof Error
@@ -89,8 +77,6 @@ export class HardhatError<
     );
 
     this.#descriptor = errorDescriptor;
-    this.#errorCode = errorCode;
-    this.#formattedMessage = formattedMessage;
 
     if (
       messageArgumentsOrParentError === undefined ||
@@ -131,7 +117,7 @@ export class HardhatError<
     other: unknown,
     descriptor?: ErrorDescriptor,
   ): other is HardhatError<ErrorDescriptor> {
-    if (!isObject(other)) {
+    if (!isObject(other) || other === null) {
       return false;
     }
 
@@ -154,17 +140,7 @@ export class HardhatError<
   }
 
   public get pluginId(): string | undefined {
-    for (const category of Object.values(ERROR_CATEGORIES)) {
-      const isWithinCategoryRange =
-        this.#descriptor.number >= category.min &&
-        this.#descriptor.number <= category.max;
-
-      if (isWithinCategoryRange) {
-        return category.pluginId;
-      }
-    }
-
-    return undefined;
+    return this.#descriptor.pluginId;
   }
 
   public get descriptor(): ErrorDescriptor {
@@ -175,51 +151,6 @@ export class HardhatError<
     ErrorDescriptorT["messageTemplate"]
   > {
     return this.#arguments;
-  }
-
-  public get errorCode(): string {
-    return this.#errorCode;
-  }
-
-  public get formattedMessage(): string {
-    return this.#formattedMessage;
-  }
-}
-
-/**
- * An error thrown by a Hardhat plugin. This error is meant to be thrown by
- * community plugins to signal that something went wrong.
- */
-export class HardhatPluginError extends CustomError {
-  constructor(
-    public readonly pluginId: string,
-    message: string,
-    parentError?: Error,
-  ) {
-    super(message, parentError);
-
-    // See `HardhatError` constructor for an explanation of this property.
-    Object.defineProperty(this, IS_HARDHAT_PLUGIN_ERROR_PROPERTY_NAME, {
-      configurable: false,
-      enumerable: false,
-      writable: false,
-      value: true,
-    });
-  }
-
-  public static isHardhatPluginError(
-    other: unknown,
-  ): other is HardhatPluginError {
-    if (!isObject(other)) {
-      return false;
-    }
-
-    const isHardhatPluginErrorProperty = Object.getOwnPropertyDescriptor(
-      other,
-      IS_HARDHAT_PLUGIN_ERROR_PROPERTY_NAME,
-    );
-
-    return isHardhatPluginErrorProperty?.value === true;
   }
 }
 
@@ -234,7 +165,7 @@ export function assertHardhatInvariant(
   message: string,
 ): asserts invariant {
   if (!invariant) {
-    throw new HardhatError(ERRORS.CORE.INTERNAL.ASSERTION_ERROR, { message });
+    throw new HardhatError(ERRORS.INTERNAL.ASSERTION_ERROR, { message });
   }
 }
 

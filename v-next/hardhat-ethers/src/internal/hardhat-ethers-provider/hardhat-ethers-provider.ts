@@ -661,7 +661,7 @@ export class HardhatEthersProvider implements HardhatEthersProviderI {
       event.kind !== "transactionHash" &&
       event.kind !== "event"
     ) {
-      // this check is only to remeber to add a proper if block
+      // this check is only to remember to add a proper if block
       // in this method's implementation if we add support for a
       // new kind of event
       const _exhaustiveCheck: never = event;

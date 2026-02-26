@@ -53,8 +53,6 @@ export class FutureProcessor {
     private readonly _deploymentParameters: DeploymentParameters,
     private readonly _defaultSender: string,
     private readonly _disableFeeBumping: boolean,
-    private readonly _maxRetries: number,
-    private readonly _retryInterval: number,
   ) {}
 
   /**
@@ -209,17 +207,16 @@ export class FutureProcessor {
           `Unexpected transaction request in StaticCallExecutionState ${exState.id}`,
         );
 
-        return monitorOnchainInteraction({
+        return monitorOnchainInteraction(
           exState,
-          jsonRpcClient: this._jsonRpcClient,
-          transactionTrackingTimer: this._transactionTrackingTimer,
-          requiredConfirmations: this._requiredConfirmations,
-          millisecondBeforeBumpingFees: this._millisecondBeforeBumpingFees,
-          maxFeeBumps: this._maxFeeBumps,
-          disableFeeBumping: this._disableFeeBumping,
-          maxRetries: this._maxRetries,
-          retryInterval: this._retryInterval,
-        });
+          this._jsonRpcClient,
+          this._transactionTrackingTimer,
+          this._requiredConfirmations,
+          this._millisecondBeforeBumpingFees,
+          this._maxFeeBumps,
+          undefined,
+          this._disableFeeBumping,
+        );
     }
   }
 }

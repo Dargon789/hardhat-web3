@@ -1,14 +1,9 @@
-type Tag = string;
+export type Tag = string;
 export interface Statement {
   relativePath: string;
   tag: Tag;
-  startUtf16: number;
-  endUtf16: number;
-}
-export interface ReportCoverageStatement {
-  startUtf16: number;
-  endUtf16: number;
-  executed: boolean;
+  startLine: number;
+  endLine: number;
 }
 export type CoverageMetadata = Statement[];
 export type CoverageData = Tag[];

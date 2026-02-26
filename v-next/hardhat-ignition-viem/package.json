@@ -1,6 +1,6 @@
 {
   "name": "@nomicfoundation/hardhat-ignition-viem",
-  "version": "3.0.7",
+  "version": "3.0.5",
   "description": "The Viem extension to Hardhat Ignition. Hardhat Ignition is a declarative system for deploying smart contracts on Ethereum. It enables you to define smart contract instances you want to deploy, and any operation you want to run on them. By taking over the deployment and execution, Hardhat Ignition lets you focus on your project instead of getting caught up in the deployment details.",
   "homepage": "https://hardhat.org",
   "repository": {
@@ -25,20 +25,19 @@
     "viem"
   ],
   "scripts": {
-    "build": "tsc --build tsconfig.json",
+    "prebuild": "pnpm run --dir ../hardhat-viem build && node ./scripts/compile-test-fixture-project.js create2 && node ./scripts/compile-test-fixture-project.js minimal",
+    "build": "tsc --build .",
     "lint": "pnpm prettier --check && pnpm eslint",
     "lint:fix": "pnpm prettier --write && pnpm eslint --fix",
-    "preeslint": "pnpm test-build",
     "eslint": "eslint \"src/**/*.ts\" \"test/**/*.ts\"",
     "prettier": "prettier \"**/*.{ts,js,md,json}\"",
     "test": "node --import tsx/esm --test --test-reporter=@nomicfoundation/hardhat-node-test-reporter \"test/*.ts\" \"test/!(fixture-projects|helpers)/**/*.ts\"",
     "test:only": "node --import tsx/esm --test --test-only --test-reporter=@nomicfoundation/hardhat-node-test-reporter \"test/*.ts\" \"test/!(fixture-projects|helpers)/**/*.ts\"",
     "test:coverage": "c8 --reporter html --reporter text --all --exclude test --exclude \"src/**/{types,type-extensions}.ts\" --src src node --import tsx/esm --test --test-reporter=@nomicfoundation/hardhat-node-test-reporter \"test/*.ts\" \"test/!(fixture-projects|helpers)/**/*.ts\"",
-    "clean": "rimraf .nyc_output coverage dist artifacts cache tsconfig.tsbuildinfo ./test/fixture-projects/**/deployments ./test/fixture-projects/**/artifacts ./test/fixture-projects/**/cache ./test/fixture-projects/tmp",
+    "clean": "rimraf .nyc_output coverage dist tsconfig.tsbuildinfo ./test/fixture-projects/**/deployments ./test/fixture-projects/**/artifacts",
     "prepack": "pnpm build",
-    "test-build": "tsc --build tsconfig.json && node ./scripts/compile-test-fixture-project.js create2 && node ./scripts/compile-test-fixture-project.js minimal && tsc --build tsconfig.test.json",
-    "pretest": "pnpm test-build",
-    "pretest:only": "pnpm test-build"
+    "pretest": "pnpm build",
+    "pretest:only": "pnpm build"
   },
   "files": [
     "dist/src/",
@@ -48,13 +47,13 @@
   ],
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "1.0.2",
-    "hardhat": "workspace:^3.1.5",
-    "@nomicfoundation/hardhat-ignition": "workspace:^3.0.7",
-    "@nomicfoundation/ignition-core": "workspace:^3.0.7",
+    "hardhat": "workspace:^3.0.0",
+    "@nomicfoundation/hardhat-ignition": "workspace:^3.0.5",
+    "@nomicfoundation/ignition-core": "workspace:^3.0.5",
     "@nomicfoundation/hardhat-node-test-reporter": "workspace:^3.0.0",
-    "@nomicfoundation/hardhat-viem": "workspace:^3.0.2",
+    "@nomicfoundation/hardhat-viem": "workspace:^3.0.0",
     "@nomicfoundation/hardhat-test-utils": "workspace:^",
-    "@types/node": "^22.0.0",
+    "@types/node": "^20.14.9",
     "c8": "^9.1.0",
     "cross-env": "7.0.3",
     "eslint": "9.25.1",
@@ -64,17 +63,17 @@
     "ts-node": "10.9.2",
     "tsx": "^4.19.3",
     "typescript": "~5.8.0",
-    "viem": "^2.43.0"
+    "viem": "^2.30.0"
   },
   "dependencies": {
     "@nomicfoundation/hardhat-errors": "workspace:^3.0.2"
   },
   "peerDependencies": {
-    "hardhat": "workspace:^3.1.5",
-    "@nomicfoundation/hardhat-ignition": "workspace:^3.0.7",
-    "@nomicfoundation/ignition-core": "workspace:^3.0.7",
+    "hardhat": "workspace:^3.0.0",
+    "@nomicfoundation/hardhat-ignition": "workspace:^3.0.5",
+    "@nomicfoundation/ignition-core": "workspace:^3.0.5",
     "@nomicfoundation/hardhat-verify": "workspace:^3.0.0",
-    "@nomicfoundation/hardhat-viem": "workspace:^3.0.2",
-    "viem": "^2.43.0"
+    "@nomicfoundation/hardhat-viem": "workspace:^3.0.0",
+    "viem": "^2.30.0"
   }
 }

@@ -43,11 +43,6 @@ const hardhatConfigOpTests = {
   paths: { tests: { solidity: "test/contracts/op" } },
 };
 
-const hardhatConfigHardforkTests = {
-  ...hardhatConfig,
-  paths: { tests: { solidity: "test/contracts/hardfork" } },
-};
-
 describe("solidity-test/task-action", function () {
   let hre: HardhatRuntimeEnvironment;
 
@@ -347,16 +342,5 @@ describe("solidity-test/task-action", function () {
         });
       });
     });
-  });
-
-  it("should support EIP-7212 precompile at address 0x100", async () => {
-    hre = await createHardhatRuntimeEnvironment(hardhatConfigHardforkTests);
-
-    await hre.tasks.getTask(["test", "solidity"]).run({
-      noCompile: false,
-    });
-
-    // The test should not throw, which means the precompile exists
-    // and works as expected
   });
 });

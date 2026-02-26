@@ -1,4 +1,5 @@
 import type { CompileCache } from "./cache.js";
+import type { Compiler } from "./compiler/compiler.js";
 import type { DependencyGraphImplementation } from "./dependency-graph.js";
 import type { Artifact } from "../../../../types/artifacts.js";
 import type { SolcConfig, SolidityConfig } from "../../../../types/config.js";
@@ -15,16 +16,13 @@ import type {
   EmitArtifactsResult,
   RunCompilationJobResult,
   BuildScope,
-  CacheHitInfo,
 } from "../../../../types/solidity/build-system.js";
+import type { CompilationJob } from "../../../../types/solidity/compilation-job.js";
 import type {
-  CompilationJob,
-  Compiler,
   CompilerOutput,
   CompilerOutputError,
-  DependencyGraph,
-  SolidityBuildInfo,
-} from "../../../../types/solidity.js";
+} from "../../../../types/solidity/compiler-io.js";
+import type { SolidityBuildInfo } from "../../../../types/solidity.js";
 
 import os from "node:os";
 import path from "node:path";
@@ -64,7 +62,7 @@ import {
 } from "./artifacts.js";
 import { loadCache, saveCache } from "./cache.js";
 import { CompilationJobImplementation } from "./compilation-job.js";
-import { downloadSolcCompilers, getCompiler } from "./compiler/index.js";
+import { downloadConfiguredCompilers, getCompiler } from "./compiler/index.js";
 import { buildDependencyGraph } from "./dependency-graph-building.js";
 import { readSourceFileFactory } from "./read-source-file.js";
 import {
@@ -74,39 +72,13 @@ import {
   parseRootPath,
 } from "./root-paths-utils.js";
 import { SolcConfigSelector } from "./solc-config-selection.js";
-import { shouldSuppressWarning } from "./warning-suppression.js";
 
 const log = debug("hardhat:core:solidity:build-system");
-
-/**
- * Resolves the preferWasm setting for a given solc config, falling back
- * to the build profile's preferWasm if not set on the compiler.
- */
-function resolvePreferWasm(
-  solcConfig: SolcConfig,
-  buildProfilePreferWasm: boolean,
-): boolean {
-  return solcConfig.preferWasm ?? buildProfilePreferWasm;
-}
-
-// Compiler warnings to suppress from build output.
-// Each rule specifies a warning message and the source file it applies to.
-// This allows suppressing known warnings from internal files (e.g., console.sol)
-// while still showing the same warning type from user code.
-export const SUPPRESSED_WARNINGS: Array<{
-  message: string;
-  sourceFile: string;
-}> = [
-  {
-    message:
-      "Natspec memory-safe-assembly special comment for inline assembly is deprecated and scheduled for removal. Use the memory-safe block annotation instead.",
-    sourceFile: path.normalize("hardhat/console.sol"),
-  },
-];
 
 interface CompilationResult {
   compilationJob: CompilationJob;
   compilerOutput: CompilerOutput;
+  cached: boolean;
   compiler: Compiler;
 }
 
@@ -119,29 +91,11 @@ export interface SolidityBuildSystemOptions {
   readonly solidityTestsPath: string;
 }
 
-/**
- * Returns the formatted root path for a dependency graph that has exactly one
- * root file.
- *
- * @param dependencyGraph A dependency graph with exactly one root file.
- * @returns The formatted root path.
- * @throws If the graph doesn't have exactly one root file.
- */
-function getSingleRootFilePath(dependencyGraph: DependencyGraph): string {
-  assertHardhatInvariant(
-    dependencyGraph.getRoots().size === 1,
-    "dependency graph doesn't have exactly 1 root file",
-  );
-
-  const [userSourceName, root] = [...dependencyGraph.getRoots().entries()][0];
-  return formatRootPath(userSourceName, root);
-}
-
 export class SolidityBuildSystemImplementation implements SolidityBuildSystem {
   readonly #hooks: HookManager;
   readonly #options: SolidityBuildSystemOptions;
   #compileCache: CompileCache = {};
-  #configuredCompilersDownloaded = false;
+  #downloadedCompilers = false;
 
   constructor(hooks: HookManager, options: SolidityBuildSystemOptions) {
     this.#hooks = hooks;
@@ -212,19 +166,6 @@ export class SolidityBuildSystemImplementation implements SolidityBuildSystem {
     rootFilePaths: string[],
     _options?: BuildOptions,
   ): Promise<CompilationJobCreationError | Map<string, FileBuildResult>> {
-    return this.#hooks.runHandlerChain(
-      "solidity",
-      "build",
-      [rootFilePaths, _options],
-      async (_context, nextRootFilePaths, nextOptions) =>
-        this.#build(nextRootFilePaths, nextOptions),
-    );
-  }
-
-  async #build(
-    rootFilePaths: string[],
-    _options?: BuildOptions,
-  ): Promise<CompilationJobCreationError | Map<string, FileBuildResult>> {
     const options: Required<BuildOptions> = {
       buildProfile: DEFAULT_BUILD_PROFILE,
       concurrency: Math.max(os.cpus().length - 1, 1),
@@ -255,7 +196,7 @@ export class SolidityBuildSystemImplementation implements SolidityBuildSystem {
     spinner.start();
 
     try {
-      const { compilationJobsPerFile, indexedIndividualJobs, cacheHits } =
+      const { compilationJobsPerFile, indexedIndividualJobs } =
         compilationJobsResult;
 
       const runnableCompilationJobs = [
@@ -281,6 +222,7 @@ export class SolidityBuildSystemImplementation implements SolidityBuildSystem {
           return {
             compilationJob: runnableCompilationJob,
             compilerOutput: output,
+            cached: false,
             compiler,
           };
         },
@@ -292,11 +234,13 @@ export class SolidityBuildSystemImplementation implements SolidityBuildSystem {
         },
       );
 
-      const successfulResults = results.filter(
+      const uncachedResults = results.filter((result) => !result.cached);
+      const uncachedSuccessfulResults = uncachedResults.filter(
         (result) => !this.#hasCompilationErrors(result.compilerOutput),
       );
 
-      const isSuccessfulBuild = results.length === successfulResults.length;
+      const isSuccessfulBuild =
+        uncachedResults.length === uncachedSuccessfulResults.length;
 
       const contractArtifactsGeneratedByCompilationJob: Map<
         CompilationJob,
@@ -375,6 +319,18 @@ export class SolidityBuildSystemImplementation implements SolidityBuildSystem {
             continue;
           }
 
+          if (result.cached) {
+            resultsMap.set(formatRootPath(userSourceName, root), {
+              type: FileBuildResultType.CACHE_HIT,
+              compilationJob: result.compilationJob,
+              contractArtifactsGenerated:
+                contractArtifactsGenerated.get(userSourceName) ?? [],
+              warnings: errors,
+            });
+
+            continue;
+          }
+
           resultsMap.set(formatRootPath(userSourceName, root), {
             type: FileBuildResultType.BUILD_SUCCESS,
             compilationJob: result.compilationJob,
@@ -383,15 +339,6 @@ export class SolidityBuildSystemImplementation implements SolidityBuildSystem {
             warnings: errors,
           });
         }
-      }
-
-      // Add cache hits to the results map
-      for (const [rootFilePath, cacheHitInfo] of cacheHits.entries()) {
-        resultsMap.set(rootFilePath, {
-          type: FileBuildResultType.CACHE_HIT,
-          buildId: cacheHitInfo.buildId,
-          contractArtifactsGenerated: cacheHitInfo.artifactPaths,
-        });
       }
 
       if (!options.quiet) {
@@ -460,7 +407,7 @@ export class SolidityBuildSystemImplementation implements SolidityBuildSystem {
 
       if (solcLongVersion === undefined) {
         const compiler = await getCompiler(solcConfig.version, {
-          preferWasm: resolvePreferWasm(solcConfig, buildProfile.preferWasm),
+          preferWasm: buildProfile.preferWasm,
           compilerPath: solcConfig.path,
         });
         solcLongVersion = compiler.longVersion;
@@ -491,10 +438,14 @@ export class SolidityBuildSystemImplementation implements SolidityBuildSystem {
 
         await individualJob.getBuildId(); // precompute
 
-        indexedIndividualJobs.set(
-          getSingleRootFilePath(subgraph),
-          individualJob,
+        assertHardhatInvariant(
+          subgraph.getRoots().size === 1,
+          "individual subgraph doesn't have exactly 1 root file",
         );
+
+        const rootFilePath = Array.from(subgraph.getRoots().keys())[0];
+
+        indexedIndividualJobs.set(rootFilePath, individualJob);
       }),
     );
 
@@ -503,7 +454,6 @@ export class SolidityBuildSystemImplementation implements SolidityBuildSystem {
 
     // Select which files to compile
     const rootFilesToCompile: Set<string> = new Set();
-    const cacheHits: Map<string, CacheHitInfo> = new Map();
 
     const isolated = buildProfile.isolated;
 
@@ -553,16 +503,6 @@ export class SolidityBuildSystemImplementation implements SolidityBuildSystem {
           break;
         }
       }
-
-      // If file was not added to rootFilesToCompile, it's a cache hit
-      if (!rootFilesToCompile.has(rootFile)) {
-        // Extract buildId from buildInfoPath (format: <dir>/<buildId>.json)
-        const buildId = path.basename(cacheResult.buildInfoPath, ".json");
-        cacheHits.set(getSingleRootFilePath(compilationJob.dependencyGraph), {
-          buildId,
-          artifactPaths,
-        });
-      }
     }
 
     if (!isolated) {
@@ -578,7 +518,12 @@ export class SolidityBuildSystemImplementation implements SolidityBuildSystem {
       // based on reference, and not by deep equality. It misses some merging
       // opportunities, but this is Hardhat v2's behavior and works well enough.
       for (const [config, subgraph] of subgraphsWithConfig) {
-        const rootFile = getSingleRootFilePath(subgraph);
+        assertHardhatInvariant(
+          subgraph.getRoots().size === 1,
+          "there should be only 1 root file on subgraph",
+        );
+
+        const rootFile = Array.from(subgraph.getRoots().keys())[0];
 
         // Skip root files with cache hit (should not recompile)
         if (!rootFilesToCompile.has(rootFile)) {
@@ -599,7 +544,12 @@ export class SolidityBuildSystemImplementation implements SolidityBuildSystem {
       // isolated mode
       subgraphsWithConfig = subgraphsWithConfig.filter(
         ([_config, subgraph]) => {
-          const rootFile = getSingleRootFilePath(subgraph);
+          assertHardhatInvariant(
+            subgraph.getRoots().size === 1,
+            "there should be only 1 root file on subgraph",
+          );
+
+          const rootFile = Array.from(subgraph.getRoots().keys())[0];
 
           return rootFilesToCompile.has(rootFile);
         },
@@ -631,7 +581,7 @@ export class SolidityBuildSystemImplementation implements SolidityBuildSystem {
       }
     }
 
-    return { compilationJobsPerFile, indexedIndividualJobs, cacheHits };
+    return { compilationJobsPerFile, indexedIndividualJobs };
   }
 
   #getBuildProfile(buildProfileName: string = DEFAULT_BUILD_PROFILE) {
@@ -669,10 +619,7 @@ export class SolidityBuildSystemImplementation implements SolidityBuildSystem {
     const compiler = await getCompiler(
       runnableCompilationJob.solcConfig.version,
       {
-        preferWasm: resolvePreferWasm(
-          runnableCompilationJob.solcConfig,
-          buildProfile.preferWasm,
-        ),
+        preferWasm: buildProfile.preferWasm,
         compilerPath: runnableCompilationJob.solcConfig.path,
       },
     );
@@ -686,17 +633,9 @@ export class SolidityBuildSystemImplementation implements SolidityBuildSystem {
       "The long version of the compiler should match the long version of the compilation job",
     );
 
-    const input = await runnableCompilationJob.getSolcInput();
-
-    const output = await this.#hooks.runHandlerChain(
-      "solidity",
-      "invokeSolc",
-      [compiler, input, runnableCompilationJob.solcConfig],
-      async (_context, nextCompiler, nextSolcInput) => {
-        return nextCompiler.compile(nextSolcInput);
-      },
+    const output = await compiler.compile(
+      await runnableCompilationJob.getSolcInput(),
     );
-
     return { output, compiler };
   }
 
@@ -788,7 +727,7 @@ export class SolidityBuildSystemImplementation implements SolidityBuildSystem {
         }
       }
 
-      artifactsPerFile.set(formatRootPath(userSourceName, root), paths);
+      artifactsPerFile.set(userSourceName, paths);
 
       // Write the type declaration file, only for contracts
       if (scope === "contracts") {
@@ -796,10 +735,7 @@ export class SolidityBuildSystemImplementation implements SolidityBuildSystem {
           fileFolder,
           "artifacts.d.ts",
         );
-        typeFilePaths.set(
-          formatRootPath(userSourceName, root),
-          artifactsDeclarationFilePath,
-        );
+        typeFilePaths.set(userSourceName, artifactsDeclarationFilePath);
 
         const artifactsDeclarationFile = getArtifactsDeclarationFile(artifacts);
 
@@ -1000,31 +936,22 @@ export class SolidityBuildSystemImplementation implements SolidityBuildSystem {
   }
 
   public async compileBuildInfo(
-    buildInfo: SolidityBuildInfo,
-    options?: CompileBuildInfoOptions,
+    _buildInfo: SolidityBuildInfo,
+    _options?: CompileBuildInfoOptions,
   ): Promise<CompilerOutput> {
-    const quiet = options?.quiet ?? false;
-
-    // We download the compiler for the build info as it may not be configured
-    // in the HH config, hence not downloaded with the other compilers
-    await downloadSolcCompilers(new Set([buildInfo.solcVersion]), quiet);
-
-    const compiler = await getCompiler(buildInfo.solcVersion, {
-      preferWasm: false,
-    });
-
-    return compiler.compile(buildInfo.input);
+    // TODO: Download the buildinfo compiler version
+    assertHardhatInvariant(false, "Method not implemented.");
   }
 
   async #downloadConfiguredCompilers(quiet = false): Promise<void> {
-    // We always print that we are downloading the compilers
+    // TODO: For the alpha release, we always print this message
     quiet = false;
-    if (this.#configuredCompilersDownloaded) {
+    if (this.#downloadedCompilers) {
       return;
     }
 
-    await downloadSolcCompilers(this.#getAllCompilerVersions(), quiet);
-    this.#configuredCompilersDownloaded = true;
+    await downloadConfiguredCompilers(this.#getAllCompilerVersions(), quiet);
+    this.#downloadedCompilers = true;
   }
 
   #getAllCompilerVersions(): Set<string> {
@@ -1081,10 +1008,11 @@ export class SolidityBuildSystemImplementation implements SolidityBuildSystem {
     isolated: boolean,
     scope: BuildScope,
   ): Promise<void> {
-    for (const [userSourceName, root] of result.compilationJob.dependencyGraph
+    const rootFilePaths = result.compilationJob.dependencyGraph
       .getRoots()
-      .entries()) {
-      const rootFilePath = formatRootPath(userSourceName, root);
+      .keys();
+
+    for (const rootFilePath of rootFilePaths) {
       const individualJob = indexedIndividualJobs.get(rootFilePath);
 
       assertHardhatInvariant(
@@ -1127,14 +1055,9 @@ export class SolidityBuildSystemImplementation implements SolidityBuildSystem {
       return;
     }
 
-    // Filter out specific warnings that should be suppressed
-    const filteredErrors = errors.filter(
-      (error) => !this.#shouldSuppressWarning(error),
-    );
-
     console.log();
 
-    for (const error of filteredErrors) {
+    for (const error of errors) {
       if (error.severity === "error") {
         const errorMessage: string =
           this.#getFormattedInternalCompilerErrorMessage(error) ??
@@ -1154,7 +1077,7 @@ export class SolidityBuildSystemImplementation implements SolidityBuildSystem {
       }
     }
 
-    const hasConsoleErrors: boolean = filteredErrors.some((e) =>
+    const hasConsoleErrors: boolean = errors.some((e) =>
       this.#isConsoleLogError(e),
     );
 
@@ -1166,15 +1089,6 @@ export class SolidityBuildSystemImplementation implements SolidityBuildSystem {
       );
       console.log();
     }
-  }
-
-  #shouldSuppressWarning(error: CompilerOutputError): boolean {
-    const msg = error.formattedMessage ?? error.message;
-    return shouldSuppressWarning(
-      msg,
-      this.#options.solidityTestsPath,
-      this.#options.projectRoot,
-    );
   }
 
   async #printCompilationResult(

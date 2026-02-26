@@ -2,7 +2,10 @@ import { HardhatError } from "@nomicfoundation/hardhat-errors";
 import { assertRejectsWithHardhatError } from "@nomicfoundation/hardhat-test-utils";
 import { assert } from "chai";
 
-import { monitorOnchainInteraction } from "../../../../src/internal/execution/future-processor/handlers/monitor-onchain-interaction.js";
+import {
+  type GetTransactionRetryConfig,
+  monitorOnchainInteraction,
+} from "../../../../src/internal/execution/future-processor/handlers/monitor-onchain-interaction.js";
 import { decodeSimulationResult } from "../../../../src/internal/execution/future-processor/helpers/decode-simulation-result.js";
 import {
   TRANSACTION_SENT_TYPE,
@@ -218,6 +221,11 @@ describe("Network interactions", () => {
     const millisecondBeforeBumpingFees = 1;
     const maxFeeBumps = 1;
 
+    const testGetTransactionRetryConfig: GetTransactionRetryConfig = {
+      maxRetries: 10,
+      retryInterval: 1,
+    };
+
     let mockClient: MockGetTransactionJsonRpcClient;
     let fakeTransactionTrackingTimer: FakeTransactionTrackingTimer;
 
@@ -276,17 +284,16 @@ describe("Network interactions", () => {
         },
       };
 
-      const message = await monitorOnchainInteraction({
-        exState: deploymentExecutionState,
-        jsonRpcClient: mockClient,
-        transactionTrackingTimer: fakeTransactionTrackingTimer,
+      const message = await monitorOnchainInteraction(
+        deploymentExecutionState,
+        mockClient,
+        fakeTransactionTrackingTimer,
         requiredConfirmations,
         millisecondBeforeBumpingFees,
         maxFeeBumps,
-        disableFeeBumping: false,
-        maxRetries: 10,
-        retryInterval: 1,
-      });
+        testGetTransactionRetryConfig,
+        false,
+      );
 
       if (message === undefined) {
         return assert.fail("No message returned from monitoring");
@@ -322,17 +329,16 @@ describe("Network interactions", () => {
       };
 
       await assertRejectsWithHardhatError(
-        monitorOnchainInteraction({
-          exState: deploymentExecutionState,
-          jsonRpcClient: mockClient,
-          transactionTrackingTimer: fakeTransactionTrackingTimer,
+        monitorOnchainInteraction(
+          deploymentExecutionState,
+          mockClient,
+          fakeTransactionTrackingTimer,
           requiredConfirmations,
           millisecondBeforeBumpingFees,
           maxFeeBumps,
-          disableFeeBumping: false,
-          maxRetries: 10,
-          retryInterval: 1,
-        }),
+          testGetTransactionRetryConfig,
+          false,
+        ),
         HardhatError.ERRORS.IGNITION.EXECUTION.DROPPED_TRANSACTION,
         {
           futureId: "test",

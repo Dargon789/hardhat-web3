@@ -39,11 +39,6 @@ class LazyArtifactManager implements ArtifactManager {
     return artifactManager.getAllFullyQualifiedNames();
   }
 
-  public async getAllArtifactPaths(): Promise<ReadonlySet<string>> {
-    const artifactManager = await this.#getArtifactManager();
-    return artifactManager.getAllArtifactPaths();
-  }
-
   public async getBuildInfoId(
     contractNameOrFullyQualifiedName: string,
   ): Promise<string | undefined> {

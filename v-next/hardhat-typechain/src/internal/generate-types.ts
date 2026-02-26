@@ -2,8 +2,6 @@ import type { TypechainConfig } from "../types.js";
 import type { PublicConfig as RunTypeChainConfig } from "typechain";
 import type { OutputTransformer } from "typechain/dist/codegen/outputTransformers/index.js";
 
-import path from "node:path";
-
 import { assertHardhatInvariant } from "@nomicfoundation/hardhat-errors";
 import debug from "debug";
 
@@ -31,17 +29,12 @@ export async function generateTypes(
   removePrettierTransformerIfPresent(outputTransformers);
   addCompiledFilesTransformerIfAbsent(outputTransformers);
 
-  // Normalize paths to use forward slashes for TypeChain compatibility on Windows
-  // This is necessary because TypeChain expects forward-slash paths,
-  // but on Windows, paths use backslashes.
-  const normalizedPaths = artifactsPaths.map(toForwardSlash);
-
   const typechainOptions: RunTypeChainConfig = {
     cwd: rootPath,
-    allFiles: normalizedPaths,
+    allFiles: artifactsPaths,
     outDir: config.outDir, // // If not set, it defaults to "types" when processed by the typeChain package
     target: "ethers-v6", // We only support this target
-    filesToProcess: normalizedPaths,
+    filesToProcess: artifactsPaths,
     flags: {
       alwaysGenerateOverloads: config.alwaysGenerateOverloads,
       discriminateTypes: config.discriminateTypes,
@@ -145,8 +138,8 @@ export function addJsExtensionsIfNeeded(content: string): string {
 
   return content.replace(
     jsExtensionRegex,
-    (_match, imports, quote, importPath) =>
-      `import ${imports} from ${quote}${importPath}/index.js${quote};`,
+    (_match, imports, quote, path) =>
+      `import ${imports} from ${quote}${path}/index.js${quote};`,
   );
 }
 
@@ -193,11 +186,4 @@ function addSupportForAttachMethod(modifiedContent: string): string {
   );
 
   return modifiedContent;
-}
-
-/**
- * Converts a path to use forward slashes.
- */
-function toForwardSlash(str: string): string {
-  return str.split(/[\\\/]/).join(path.posix.sep);
 }
