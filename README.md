@@ -28,7 +28,7 @@ To learn more about Hardhat, check out the [documentation](https://hardhat.org/d
 
 Contributions are always welcome! Feel free to open any issue or send a pull request.
 
-Go to [CONTRIBUTING.md](https://github.com/NomicFoundation/hardhat/blob/main/CONTRIBUTING.md) to learn about how to set up Hardhat's development environment.
+Go to [CONTRIBUTING.md](./CONTRIBUTING.md) to learn about how to set up Hardhat's development environment.
 
 # 🚀 Project [0x](https://0x.org/) – Web3 DeFi GameFi Hub
 
