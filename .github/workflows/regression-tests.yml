@@ -592,3 +592,4 @@ jobs:
                 ...rows,
               ])
               .write()
+      continue-on-error: true
