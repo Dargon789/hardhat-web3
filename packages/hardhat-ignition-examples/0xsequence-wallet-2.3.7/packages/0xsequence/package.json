@@ -57,7 +57,7 @@
     "ganache": "^7.5.0",
     "hardhat": "^2.22.14",
     "html-webpack-plugin": "^5.3.1",
-    "webpack": "^5.65.0",
+    "webpack": "^5.104.1",
     "webpack-cli": "^4.6.0",
     "webpack-dev-server": "^5.2.1"
   },
