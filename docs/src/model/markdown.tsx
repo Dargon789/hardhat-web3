@@ -98,11 +98,11 @@ export const withInsertedCodeFromLinks = (content: string) => {
     })
     .join("\n");
 };
+
 export const withoutComments = (content: string) => {
-  return sanitizeHtml(content, {
-    allowComments: false,
-    allowedTags: false,
-    allowedAttributes: false,
+  return
+    allowedTags: sanitizeHtml.defaults.allowedTags.filter(tag => tag !== '!--'),
+    allowedAttributes: {}
   });
 };
 
