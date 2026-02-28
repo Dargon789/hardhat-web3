@@ -100,4 +100,7 @@ typings/
 
 # DynamoDB Local files
 .dynamodb/
+<<<<<<< HEAD
 
+=======
+>>>>>>> main
