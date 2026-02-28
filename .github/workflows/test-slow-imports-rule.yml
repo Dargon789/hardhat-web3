@@ -3,7 +3,6 @@
 # that we got a non-zero exit code. It's not a completely fault-proof strategy,
 # but it's an useful smoke test.
 name: Slow imports rule check
-
 on:
   schedule:
     - cron: "0 0 * * *"
@@ -21,18 +20,18 @@ jobs:
     name: Check that the slow-imports rule works correctly
     runs-on: "ubuntu-latest"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v2
       - uses: pnpm/action-setup@v2
         with:
-          version: 9
-      - uses: actions/setup-node@v4
+          version: 8
+      - uses: actions/setup-node@v2
         with:
-          node-version: 18
+          node-version: 16
           cache: "pnpm"
       - name: Install
         run: pnpm install --frozen-lockfile --prefer-offline
       - name: Add slow import
-        run: echo 'import "lodash";' >> src/internal/core/config/config-resolution.ts
+        run: echo 'import "lodash";' >> src/internal/constants.ts
       - name: Build
         run: pnpm build
       - name: Run eslint

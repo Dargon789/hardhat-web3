@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - "**"
-    paths:
-      - "docs/**"
-      - "packages/**"
   workflow_dispatch:
 
 concurrency:
@@ -14,17 +11,17 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  check:
-    name: Check docs site
+  lint:
+    name: Check Docs Site
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: pnpm/action-setup@v2
         with:
-          version: 8
+          version: 10
       - uses: actions/setup-node@v2
         with:
-          node-version: 18
+          node-version: 24
           cache: "pnpm"
       - name: Install
         run: pnpm install --frozen-lockfile --prefer-offline
