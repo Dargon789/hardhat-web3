@@ -336,31 +336,12 @@ jobs:
           printf 'RELEASE_VERSION=%s\n' "$RELEASE_VERSION" >>"$GITHUB_OUTPUT"
 
       - name: Stage Binary Into Package
-        run: |
-          set -euo pipefail
-          # Only allow specific, non-executable artifact files to be staged
-          for file in "$ARTIFACT_DIR"/foundry_*; do
-            [ -e "$file" ] || continue
-            case "$file" in
-              *.tar.gz|*.zip) ;;
-              *)
-                echo "Refusing to package unexpected file type: $file" >&2
-                exit 1
-                ;;
-            esac
-            if file "$file" | grep -E 'shell script|executable|ELF' >/dev/null; then
-              echo "Refusing to package executable/script file: $file" >&2
-              exit 1
-            fi
-            # Only copy to npm dir AFTER install/build
-            cp "$file" ./npm/
-          done
         working-directory: ./npm
         env:
           RELEASE_VERSION: ${{ steps.release-version.outputs.RELEASE_VERSION }}
           ARTIFACT_DIR: ${{ steps.paths.outputs.artifact_dir }}
         run: |
-          set -euo pipefail
+          set -euo pipe fail
           mkdir -p "$ARTIFACT_DIR/tmp"
 
           FILE_PREFIX="$ARTIFACT_DIR/foundry_${RELEASE_VERSION}_${{ matrix.os }}_${{ matrix.arch }}"
@@ -416,7 +397,7 @@ jobs:
               exit 1
             fi
           fi
-          
+
       # Run automatically after a successful 'release' workflow, or manually if a run_id is provided
       - name: Publish ${{ matrix.os }}-${{ matrix.arch }} Binary
           ARTIFACT_DIR: ${{ steps.paths.outputs.artifact_dir }}
@@ -427,7 +408,7 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          set -euo pipefail
+          set -euo pipe fail
 
           ls -la "$ARTIFACT_DIR/@foundry-rs/forge-${{ matrix.os }}-${{ matrix.arch }}"
 
