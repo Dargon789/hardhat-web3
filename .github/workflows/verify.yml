@@ -1,0 +1,127 @@
+name: Verify
+on:
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  check:
+    name: Check
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PTOKEN }}
+
+      - name: Install dependencies
+        uses: wevm/actions/.github/actions/pnpm@main
+
+      - name: Check repo
+        run: pnpm check:repo
+
+      - name: Check code
+        run: pnpm check
+
+      - name: Update package versions
+        run: pnpm version:update
+      
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          commit_message: 'chore: format'
+          commit_user_name: 'github-actions[bot]'
+          commit_user_email: 'github-actions[bot]@users.noreply.github.com'
+
+  build:
+    name: Build
+    needs: check
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        uses: wevm/actions/.github/actions/pnpm@main
+
+      - name: Build
+        run: pnpm build
+
+      - name: Publint
+        run: pnpm test:build
+
+      - name: Check for unused files, dependencies, and exports
+        run: pnpm knip --production
+
+  types:
+    name: Types
+    needs: check
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      matrix:
+        typescript-version: ['5.7.3', '5.8.3', 'latest']
+        viem-version: ['2.29.2', 'latest']
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        uses: wevm/actions/.github/actions/pnpm@main
+
+      - run: pnpm add -D -w typescript@${{ matrix.typescript-version }} viem@${{ matrix.viem-version }}
+
+      - name: Link packages
+        run: pnpm preconstruct
+
+      - name: Check types
+        run: pnpm check:types
+
+      # Redundant with `pnpm check:types`
+      # If Vitest adds special features in the future, e.g. type coverage, can add this back!
+      # - name: Test types
+      #   run: pnpm test:typecheck
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      max-parallel: 3
+      matrix:
+        shard: [1, 2, 3]
+        total-shards: [3]
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        uses: wevm/actions/.github/actions/pnpm@main
+
+      - name: Set up foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+
+      - name: Run tests
+        uses: nick-fields/retry@v3
+        with:
+          command: CI=true pnpm test:cov --shard=${{ matrix.shard }}/${{ matrix.total-shards }} --retry=3 --bail=1
+          max_attempts: 3
+          timeout_minutes: 5
+        env:
+          VITE_MAINNET_FORK_URL: ${{ secrets.VITE_MAINNET_FORK_URL }}
+          VITE_OPTIMISM_FORK_URL: ${{ secrets.VITE_OPTIMISM_FORK_URL }}
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
