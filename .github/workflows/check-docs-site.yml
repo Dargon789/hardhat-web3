@@ -12,16 +12,16 @@ concurrency:
 
 jobs:
   lint:
-    name: Lint
+    name: Check Docs Site
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: pnpm/action-setup@v2
         with:
-          version: 8
+          version: 10
       - uses: actions/setup-node@v2
         with:
-          node-version: 16
+          node-version: 24
           cache: "pnpm"
       - name: Install
         run: pnpm install --frozen-lockfile --prefer-offline
