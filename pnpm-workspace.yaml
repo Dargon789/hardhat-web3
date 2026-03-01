@@ -1,0 +1,16 @@
+packages:
+  - packages/*
+  
+onlyBuiltDependencies:
+  - bufferutil
+  - classic-level
+  - es5-ext
+  - esbuild
+  - keccak
+  - node-hid
+  - secp256k1
+  - usb
+  - utf-8-validate
+  - web3
+  - web3-bzz
+  - web3-shh

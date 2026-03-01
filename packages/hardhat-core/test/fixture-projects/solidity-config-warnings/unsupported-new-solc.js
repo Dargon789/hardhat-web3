@@ -1,3 +1,5 @@
+const { getNextUnsupportedVersion } = require("../../helpers/compilation");
+
 module.exports = {
-  solidity: "0.8.19",
+  solidity: getNextUnsupportedVersion(),
 };

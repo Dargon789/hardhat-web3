@@ -41,6 +41,7 @@ export const ERROR_RANGES: {
   INTERNAL: { min: 900, max: 999, title: "Internal Hardhat errors" },
   SOURCE_NAMES: { min: 1000, max: 1099, title: "Source name errors" },
   CONTRACT_NAMES: { min: 1100, max: 1199, title: "Contract name errors" },
+  VARS: { min: 1200, max: 1299, title: "Connfiguration variables errors" },
 };
 
 export const ERRORS = {
@@ -250,7 +251,7 @@ This bug can only affect you if you, or someone at your team, installed the proj
 To avoid it, please delete both your node_modules and package-lock.json, and reinstall your project.
 
 Note that you don't need to do this every time you install a new dependency, but please make sure to delete your node_modules every time you delete your package-lock.json.`,
-      shouldBeReported: false,
+      shouldBeReported: true,
     },
     ESM_PROJECT_WITHOUT_CJS_CONFIG: {
       number: 19,
@@ -267,6 +268,43 @@ Rename the file to use the .cjs to fix this problem.`,
       message: `Your project is an ESM project (you have "type": "module" set in your package.json) and you are trying to initialize a TypeScript project. This is not supported yet.`,
       title: "Initializing a TypeScript sample project in an ESM project",
       description: `Your project is an ESM project (you have "type": "module" set in your package.json) and you are trying to initialize a TypeScript project. This is not supported yet.`,
+      shouldBeReported: false,
+    },
+    UNINITIALIZED_PROVIDER: {
+      number: 21,
+      message:
+        "You tried to access an uninitialized provider. To initialize the provider, make sure you first call `.init()` or any method that hits a node like request, send or sendAsync.",
+      title: "Uninitialized provider",
+      description: `You tried to access an uninitialized provider. This is most likely caused by using the internal wrapped provider directly before using it to send a request or initializing it.
+To initialize the provider, make sure you first call \`.init()\` or any method that hits a node like request, send or sendAsync.`,
+      shouldBeReported: true,
+    },
+    INVALID_READ_OF_DIRECTORY: {
+      number: 22,
+      message:
+        "Invalid file path %absolutePath%. Attempting to read a directory instead of a file.",
+      title: "Invalid read: a directory cannot be read",
+      description: `An attempt was made to read a file, but a path to a directory was provided.
+
+Please double check the file path.`,
+      shouldBeReported: false,
+    },
+    HARDHAT_PROJECT_ALREADY_CREATED: {
+      number: 23,
+      message:
+        "You are trying to initialize a project inside an existing Hardhat project. The path to the project's configuration file is:  %hardhatProjectRootPath%.",
+      title: "Hardhat project already created",
+      description: `Cannot create a new Hardhat project, the current folder is already associated with a project.`,
+      shouldBeReported: false,
+    },
+    NOT_IN_INTERACTIVE_SHELL: {
+      number: 24,
+      message:
+        "You are trying to initialize a project but you are not in an interactive shell.",
+      title: "Not inside an interactive shell",
+      description: `You are trying to initialize a project but you are not in an interactive shell.
+
+Please re-run the command inside an interactive shell.`,
       shouldBeReported: false,
     },
   },
@@ -437,6 +475,35 @@ Please double check your transactions' parameters.`,
 Please check that you are sending an \`address\` parameter.`,
       shouldBeReported: false,
     },
+    EMPTY_URL: {
+      number: 117,
+      message:
+        "Empty string `%value%` for network or forking URL - Expected a non-empty string.",
+      title:
+        "Empty string `%value%` for network or forking URL - Expected a non-empty string.",
+      description: `You are trying to connect to a network with an empty network or forking URL.
+
+Please check that you are sending a non-empty string for network or forking \`URL\` parameter.`,
+      shouldBeReported: false,
+    },
+    INCOMPATIBLE_EIP7702_FIELDS: {
+      number: 118,
+      message: "An incompatible transaction with gasPrice and EIP-7702 fields.",
+      title: "Incompatible EIP-7702 parameters",
+      description: `You are trying to send a transaction with a locally managed
+account, and its parameters are incompatible. You sent both gasPrice and authorizationList.
+
+Please double check your transactions' parameters.`,
+      shouldBeReported: false,
+    },
+    DATA_FIELD_CANNOT_BE_NULL_WITH_NULL_ADDRESS: {
+      number: 119,
+      message: `The "to" field is undefined, and the "data" field is also undefined; however, a transaction to the null address cannot have an undefined "data" field.`,
+      title: "Transaction to null address cannot have undefined data",
+      description:
+        "The transaction to the null address cannot have undefined data",
+      shouldBeReported: false,
+    },
   },
   TASK_DEFINITIONS: {
     PARAM_AFTER_VARIADIC: {
@@ -503,7 +570,7 @@ Please use \`runSuper.isDefined\` to make sure that you can call it.`,
     DEFAULT_VALUE_WRONG_TYPE: {
       number: 206,
       message:
-        "Default value for param %paramName% of task %taskName% doesn't match the default one, try specifying it.",
+        "Default value for param %paramName% of task %taskName% doesn't match its expected type.",
       title: "Default value has incorrect type",
       description: `One of your tasks has a parameter whose default value doesn't match the expected type.
 
@@ -576,11 +643,37 @@ Please double check your task definitions.`,
 What makes these types special is that they can be represented as strings, so you can write them down in the terminal.`,
       shouldBeReported: false,
     },
+    TASK_SCOPE_CLASH: {
+      number: 213,
+      message:
+        "A clash was found while creating scope '%scopeName%', since a task with that name already exists.",
+      title: "Attempted to create a scope with a name already used by a task",
+      description: `You can't create a scope if a task with that name already exists.
+Please double check your task definitions.`,
+      shouldBeReported: false,
+    },
+    SCOPE_TASK_CLASH: {
+      number: 214,
+      message:
+        "A clash was found while creating task '%taskName%', since a scope with that name already exists.",
+      title: "Attempted to create a task with a name already used by a scope",
+      description: `You can't create a task if a scope with that name already exists.
+Please double check your task definitions.`,
+      shouldBeReported: false,
+    },
+    DEPRECATED_TRANSFORM_IMPORT_TASK: {
+      number: 215,
+      title: "Use of deprecated remapping task",
+      message:
+        "Task TASK_COMPILE_TRANSFORM_IMPORT_NAME is deprecated. Please update your @nomicfoundation/hardhat-foundry plugin version.",
+      description: `This task has been deprecated in favor of a new approach.`,
+      shouldBeReported: true,
+    },
   },
   ARGUMENTS: {
     INVALID_ENV_VAR_VALUE: {
       number: 300,
-      message: "Invalid environment variable %varName%'s value: %value%",
+      message: "Invalid environment variable '%varName%' with value: '%value%'",
       title: "Invalid environment variable value",
       description: `You are setting one of Hardhat's arguments using an environment variable, but it has an incorrect value.
 
@@ -609,7 +702,7 @@ Please double check your arguments.`,
     },
     UNRECOGNIZED_TASK: {
       number: 303,
-      message: "Unrecognized task %task%",
+      message: "Unrecognized task '%task%'",
       title: "Unrecognized task",
       description: `Tried to run a nonexistent task.
 
@@ -709,6 +802,24 @@ This is not supported. Please run the help task to see the available options.`,
       description: `You tried to run Hardhat with the \`--typecheck\` flag in a javascript project.
 
 This flag can only be used in typescript projects.`,
+      shouldBeReported: false,
+    },
+    UNRECOGNIZED_SCOPE: {
+      number: 314,
+      message: "Unrecognized scope '%scope%'",
+      title: "Unrecognized scope",
+      description: `Tried to run a task from a nonexistent scope.
+
+Please double check the scope of the task you are trying to run.`,
+      shouldBeReported: false,
+    },
+    UNRECOGNIZED_SCOPED_TASK: {
+      number: 315,
+      message: "Unrecognized task '%task%' under scope '%scope%'",
+      title: "Unrecognized scoped task",
+      description: `Tried to run a nonexistent scoped task.
+
+Please double check the name of the task you are trying to run.`,
       shouldBeReported: false,
     },
   },
@@ -846,6 +957,26 @@ Use a relative import instead of referencing the package's name.`,
 Please double check your imports and installed libraries.`,
       shouldBeReported: false,
     },
+    INVALID_IMPORT_OF_DIRECTORY: {
+      number: 414,
+      message:
+        "Invalid import %imported% from %from%. Attempting to import a directory. Directories cannot be imported.",
+      title: "Invalid import: a directory cannot be imported",
+      description: `A Solidity file is attempting to import a directory, which is not possible.
+
+Please double check your imports.`,
+      shouldBeReported: false,
+    },
+    AMBIGUOUS_SOURCE_NAMES: {
+      number: 415,
+      message:
+        "Two different source names (%sourcenames%) resolve to the same file (%file%).",
+      title: "Ambiguous source names",
+      description: `Two different source names map to the same file.
+
+This is probably caused by multiple remappings pointing to the same source file.`,
+      shouldBeReported: false,
+    },
   },
   SOLC: {
     INVALID_VERSION: {
@@ -916,6 +1047,13 @@ If this error persists, run "npx hardhat clean --global".`,
 If you are running MacOS, try installing Apple Rosetta.
 
 If this error persists, run "npx hardhat clean --global".`,
+      shouldBeReported: false,
+    },
+    SOLCJS_ERROR: {
+      number: 506,
+      message: "Error running solcjs: %error%",
+      title: "Error running solcjs",
+      description: `There was an error while running the solcjs compiler.`,
       shouldBeReported: false,
     },
   },
@@ -1194,6 +1332,43 @@ If you aren't overriding compilation-related tasks, please report this as a bug.
       description: `A contract name was expected to be in fully qualified form, but it's not.
 
 A fully qualified name should look like file.sol:Contract`,
+      shouldBeReported: false,
+    },
+  },
+  VARS: {
+    ONLY_MANAGED_IN_CLI: {
+      number: 1200,
+      title: "Configuration variables can only be managed from the CLI",
+      message:
+        "Configuration variables can only be managed from the CLI. They cannot be modified programmatically.",
+      description: `Configuration variables can only be managed from the CLI. They cannot be modified programmatically.`,
+      shouldBeReported: false,
+    },
+    VALUE_NOT_FOUND_FOR_VAR: {
+      number: 1201,
+      title: "Configuration variable is not set",
+      message:
+        "Cannot find a value for the configuration variable '%value%'. Use 'npx hardhat vars set %value%' to set it or 'npx hardhat vars setup' to list all the configuration variables used by this project.",
+      description: `Cannot find a value for a mandatory configuration variable.
+
+Use 'npx hardhat vars set VAR' to set it or 'npx hardhat vars setup' to list all the configuration variables used by this project.`,
+      shouldBeReported: false,
+    },
+    INVALID_CONFIG_VAR_NAME: {
+      number: 1202,
+      title: "Invalid name for a configuration variable",
+      message:
+        "Invalid name for a configuration variable: '%value%'. Configuration variables can only have alphanumeric characters and underscores, and they cannot start with a number.",
+      description: `Invalid name for a configuration variable.
+
+Configuration variables can only have alphanumeric characters and underscores, and they cannot start with a number.`,
+      shouldBeReported: false,
+    },
+    INVALID_EMPTY_VALUE: {
+      number: 1203,
+      title: "Invalid empty value for configuration variable",
+      message: "A configuration variable cannot have an empty value.",
+      description: "A configuration variable cannot have an empty value.",
       shouldBeReported: false,
     },
   },

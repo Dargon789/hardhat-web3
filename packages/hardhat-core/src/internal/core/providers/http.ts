@@ -21,7 +21,9 @@ import { shouldUseProxy } from "../../util/proxy";
 
 import { ProviderError } from "./errors";
 
-function isErrorResponse(response: any): response is FailedJsonRpcResponse {
+export function isErrorResponse(
+  response: any
+): response is FailedJsonRpcResponse {
   return typeof response.error !== "undefined";
 }
 
@@ -49,6 +51,12 @@ export class HttpProvider extends EventEmitter implements EIP1193Provider {
 
     const { Pool, ProxyAgent } = require("undici") as typeof Undici;
 
+    if (this._url.trim().length === 0) {
+      throw new HardhatError(ERRORS.NETWORK.EMPTY_URL, {
+        value: this._url,
+      });
+    }
+
     const url = new URL(this._url);
     this._path = url.pathname;
     this._authHeader =
@@ -68,7 +76,7 @@ export class HttpProvider extends EventEmitter implements EIP1193Provider {
       if (e instanceof TypeError && e.message === "Invalid URL") {
         e.message += ` ${url.origin}`;
       }
-      // eslint-disable-next-line @nomiclabs/hardhat-internal-rules/only-hardhat-error
+      // eslint-disable-next-line @nomicfoundation/hardhat-internal-rules/only-hardhat-error
       throw e;
     }
   }
@@ -78,6 +86,17 @@ export class HttpProvider extends EventEmitter implements EIP1193Provider {
   }
 
   public async request(args: RequestArguments): Promise<unknown> {
+    // This is a temporary fix to an issue with noisy warnings in the logs
+    // of a local node (#5406). This will be fixed in the next major release.
+    if (args.method === "hardhat_setLedgerOutputEnabled") {
+      const error = new ProviderError(
+        "hardhat_setLedgerOutputEnabled - Method not supported",
+        -32004
+      );
+      // eslint-disable-next-line @nomicfoundation/hardhat-internal-rules/only-hardhat-error
+      throw error;
+    }
+
     const jsonRpcRequest = this._getJsonRpcRequest(
       args.method,
       args.params as any[]
@@ -90,7 +109,7 @@ export class HttpProvider extends EventEmitter implements EIP1193Provider {
         jsonRpcResponse.error.code
       );
       error.data = jsonRpcResponse.error.data;
-      // eslint-disable-next-line @nomiclabs/hardhat-internal-rules/only-hardhat-error
+      // eslint-disable-next-line @nomicfoundation/hardhat-internal-rules/only-hardhat-error
       throw error;
     }
 
@@ -133,7 +152,7 @@ export class HttpProvider extends EventEmitter implements EIP1193Provider {
           stackSavingError
         );
         error.data = response.error.data;
-        // eslint-disable-next-line @nomiclabs/hardhat-internal-rules/only-hardhat-error
+        // eslint-disable-next-line @nomicfoundation/hardhat-internal-rules/only-hardhat-error
         throw error;
       }
     }
@@ -203,12 +222,12 @@ export class HttpProvider extends EventEmitter implements EIP1193Provider {
         // https://undici.nodejs.org/#/?id=garbage-collection
         // It's not clear how to "cancel", so we'll just consume:
         await response.body.text();
-        const seconds = this._getRetryAfterSeconds(response);
+        const seconds = this._getRetryAfterSeconds(response, retryNumber);
         if (seconds !== undefined && this._shouldRetry(retryNumber, seconds)) {
           return await this._retry(request, seconds, retryNumber);
         }
 
-        // eslint-disable-next-line @nomiclabs/hardhat-internal-rules/only-hardhat-error
+        // eslint-disable-next-line @nomicfoundation/hardhat-internal-rules/only-hardhat-error
         throw new ProviderError(
           `Too Many Requests error received from ${url.hostname}`,
           -32005 // Limit exceeded according to EIP1474
@@ -229,7 +248,7 @@ export class HttpProvider extends EventEmitter implements EIP1193Provider {
         throw new HardhatError(ERRORS.NETWORK.NETWORK_TIMEOUT, {}, error);
       }
 
-      // eslint-disable-next-line @nomiclabs/hardhat-internal-rules/only-hardhat-error
+      // eslint-disable-next-line @nomicfoundation/hardhat-internal-rules/only-hardhat-error
       throw error;
     }
   }
@@ -272,12 +291,15 @@ export class HttpProvider extends EventEmitter implements EIP1193Provider {
   }
 
   private _getRetryAfterSeconds(
-    response: Undici.Dispatcher.ResponseData
+    response: Undici.Dispatcher.ResponseData,
+    retryNumber: number
   ): number | undefined {
     const header = response.headers["retry-after"];
 
     if (header === undefined || header === null || Array.isArray(header)) {
-      return undefined;
+      // if the response doesn't have a retry-after header, we do
+      // an exponential backoff
+      return Math.min(2 ** retryNumber, MAX_RETRY_AWAIT_SECONDS);
     }
 
     const parsed = parseInt(header, 10);

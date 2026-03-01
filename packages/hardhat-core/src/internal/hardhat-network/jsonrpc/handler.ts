@@ -1,6 +1,7 @@
 import { IncomingMessage, ServerResponse } from "http";
 import getRawBody from "raw-body";
 import WebSocket from "ws";
+import { JsonStreamStringify } from "json-stream-stringify";
 
 import { EIP1193Provider } from "../../../types";
 import {
@@ -18,7 +19,7 @@ import {
   JsonRpcResponse,
 } from "../../util/jsonrpc";
 
-/* eslint-disable @nomiclabs/hardhat-internal-rules/only-hardhat-error */
+/* eslint-disable @nomicfoundation/hardhat-internal-rules/only-hardhat-error */
 
 export class JsonRpcHandler {
   constructor(private readonly _provider: EIP1193Provider) {}
@@ -135,7 +136,7 @@ export class JsonRpcHandler {
   ) {
     res.statusCode = 200;
     res.setHeader("Content-Type", "application/json");
-    res.end(JSON.stringify(rpcResp));
+    new JsonStreamStringify(rpcResp).pipe(res);
   }
 
   private async _handleSingleRequest(
@@ -214,7 +215,7 @@ const _readJsonHttpRequest = async (req: IncomingMessage): Promise<any> => {
       throw new InvalidJsonInputError(`Parse error: ${error.message}`);
     }
 
-    // eslint-disable-next-line @nomiclabs/hardhat-internal-rules/only-hardhat-error
+    // eslint-disable-next-line @nomicfoundation/hardhat-internal-rules/only-hardhat-error
     throw error;
   }
 
@@ -230,7 +231,7 @@ const _readWsRequest = (msg: string): JsonRpcRequest | JsonRpcRequest[] => {
       throw new InvalidJsonInputError(`Parse error: ${error.message}`);
     }
 
-    // eslint-disable-next-line @nomiclabs/hardhat-internal-rules/only-hardhat-error
+    // eslint-disable-next-line @nomicfoundation/hardhat-internal-rules/only-hardhat-error
     throw error;
   }
 
@@ -246,7 +247,15 @@ const _handleError = (error: any): JsonRpcResponse => {
     txHash = error.transactionHash;
   }
   if (error.data !== undefined) {
-    returnData = error.data;
+    if (error.data?.data !== undefined) {
+      returnData = error.data.data;
+    } else {
+      returnData = error.data;
+    }
+
+    if (txHash === undefined && error.data?.transactionHash !== undefined) {
+      txHash = error.data.transactionHash;
+    }
   }
 
   // In case of non-hardhat error, treat it as internal and associate the appropriate error code.

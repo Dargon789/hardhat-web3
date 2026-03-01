@@ -4,11 +4,15 @@ pragma solidity ^0.8.0;
 contract Events {
   AnotherContract anotherContract;
 
-  struct Struct { uint u; uint v; }
+  struct Struct {
+    uint u;
+    uint v;
+  }
 
   event WithoutArgs();
   event WithUintArg(uint u);
   event WithIntArg(int i);
+  event WithAddressArg(address a);
   event WithTwoUintArgs(uint u, uint v);
   event WithStringArg(string s);
   event WithTwoStringArgs(string s, string t);
@@ -37,6 +41,10 @@ contract Events {
 
   function emitInt(int i) public {
     emit WithIntArg(i);
+  }
+
+  function emitAddress(address a) public {
+    emit WithAddressArg(a);
   }
 
   function emitUintTwice(uint u, uint v) public {
@@ -108,5 +116,18 @@ contract AnotherContract {
 
   function emitUint(uint u) public {
     emit WithUintArg(u);
+  }
+}
+
+contract OverrideEventContract {
+  event simpleEvent(uint u);
+  event simpleEvent();
+
+  function emitSimpleEventWithUintArg(uint u) public {
+    emit simpleEvent(u);
+  }
+
+  function emitSimpleEventWithoutArg() public {
+    emit simpleEvent();
   }
 }

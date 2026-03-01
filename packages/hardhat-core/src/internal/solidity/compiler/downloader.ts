@@ -8,7 +8,7 @@ import { promisify } from "util";
 import { download } from "../../util/download";
 import { assertHardhatInvariant, HardhatError } from "../../core/errors";
 import { ERRORS } from "../../core/errors-list";
-import { Mutex } from "../../vendor/await-semaphore";
+import { MultiProcessMutex } from "../../util/multi-process-mutex";
 
 const log = debug("hardhat:core:solidity:downloader");
 
@@ -60,7 +60,11 @@ export interface ICompilerDownloader {
    * Downloads the compiler for a given version, which can later be obtained
    * with getCompiler.
    */
-  downloadCompiler(version: string): Promise<void>;
+  downloadCompiler(
+    version: string,
+    downloadStartedCb: (isCompilerDownloaded: boolean) => Promise<any>,
+    downloadEndedCb: (isCompilerDownloaded: boolean) => Promise<any>
+  ): Promise<void>;
 
   /**
    * Returns the compiler, which MUST be downloaded before calling this function.
@@ -122,7 +126,7 @@ export class CompilerDownloader implements ICompilerDownloader {
   }
 
   public static defaultCompilerListCachePeriod = 3_600_00;
-  private readonly _mutex = new Mutex();
+  private readonly _mutex = new MultiProcessMutex("compiler-download");
 
   /**
    * Use CompilerDownloader.getConcurrencySafeDownloader instead
@@ -146,8 +150,24 @@ export class CompilerDownloader implements ICompilerDownloader {
     return fsExtra.pathExists(downloadPath);
   }
 
-  public async downloadCompiler(version: string): Promise<void> {
+  public async downloadCompiler(
+    version: string,
+    downloadStartedCb: (isCompilerDownloaded: boolean) => Promise<any>,
+    downloadEndedCb: (isCompilerDownloaded: boolean) => Promise<any>
+  ): Promise<void> {
+    // Since only one process at a time can acquire the mutex, we avoid the risk of downloading the same compiler multiple times.
+    // This is because the mutex blocks access until a compiler has been fully downloaded, preventing any new process
+    // from checking whether that version of the compiler exists. Without mutex it might incorrectly
+    // return false, indicating that the compiler isn't present, even though it is currently being downloaded.
     await this._mutex.use(async () => {
+      const isCompilerDownloaded = await this.isCompilerDownloaded(version);
+
+      if (isCompilerDownloaded === true) {
+        return;
+      }
+
+      await downloadStartedCb(isCompilerDownloaded);
+
       let build = await this._getCompilerBuild(version);
 
       if (build === undefined && (await this._shouldDownloadCompilerList())) {
@@ -189,6 +209,8 @@ export class CompilerDownloader implements ICompilerDownloader {
       }
 
       await this._postProcessCompilerDownload(build, downloadPath);
+
+      await downloadEndedCb(isCompilerDownloaded);
     });
   }
 
@@ -294,13 +316,14 @@ export class CompilerDownloader implements ICompilerDownloader {
     build: CompilerBuild,
     downloadPath: string
   ): Promise<boolean> {
-    const ethereumjsUtil = require("@nomicfoundation/ethereumjs-util");
+    const { bytesToHex } =
+      require("@ethereumjs/util") as typeof import("@ethereumjs/util");
     const { keccak256 } = await import("../../util/keccak");
 
     const expectedKeccak256 = build.keccak256;
     const compiler = await fsExtra.readFile(downloadPath);
 
-    const compilerKeccak256 = ethereumjsUtil.bufferToHex(keccak256(compiler));
+    const compilerKeccak256 = bytesToHex(keccak256(compiler));
 
     if (expectedKeccak256 !== compilerKeccak256) {
       await fsExtra.unlink(downloadPath);
