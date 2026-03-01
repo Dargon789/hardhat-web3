@@ -1,18 +1,12 @@
-<!--
-Thank you for using Hardhat and taking the time to send a Pull Request!
+<!-- What is this PR solving? Write a clear description or reference the issues it solves (e.g. `fixes #123`). What other alternatives have you explored? Are there any parts you think require more attention from reviewers? -->
 
-If you are introducing a new feature, please discuss it in an Issue or with someone from the team before submitting your change.
+<!----------------------------------------------------------------------
+Before creating the pull request, please make sure you do the following:
 
-Please:
- - consider the checklist items below
- - keep the ones that make sense for your PR, and
- - DELETE the items that DON'T make sense for your PR.
--->
+- Read the Contributing Guidelines at https://wagmi.sh/dev/contributing
+- Check that there isn't already a PR that solves the problem the same way. If you find a duplicate, please help us review it.
+- Update the corresponding documentation if needed.
+- Include relevant tests that fail without this PR, but pass with it.
 
-- [ ] Because this PR includes a **bug fix**, relevant tests have been included.
-- [ ] Because this PR includes a **new feature**, the change was previously discussed on an Issue or with someone from the team.
-- [x] I didn't do anything of this.
-
----
-
-<!-- Add a description of your PR here -->
+Thank you for contributing to Wagmi!
+----------------------------------------------------------------------->
