@@ -9,6 +9,7 @@ executors:
         auth:
           # ensure you have first added these secrets
           # visit app.circleci.com/settings/project/github/Dargon789/hardhat-project/environment-variables
+          # https://circleci.com/docs/configuration-reference
           username: $DOCKER_HUB_USER
           password: $DOCKER_HUB_PASSWORD
 jobs:
@@ -21,4 +22,4 @@ jobs:
 workflows:
   my-custom-workflow:
     jobs:
-      - web3-defi-game-project-
+      - web3-defi-game-project
