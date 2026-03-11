@@ -68,7 +68,7 @@
       <img src="https://img.shields.io/npm/v/wagmi?colorA=f6f8fa&colorB=f6f8fa" alt="Version">
     </picture>
   </a>
-  <a href="https://scorecard.dev/viewer/?uri=github.com/ossf/scorecard">
+  <a href="https://scorecard.dev/viewer/?uri=github.com/wevm/wagmi">
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/ossf-scorecard/github.com/wevm/wagmi?label=openssf+scorecard&style=flat&color=21262d&labelColor=21262d">
       <img src="https://img.shields.io/ossf-scorecard/github.com/wevm/wagmi?label=openssf+scorecard&style=flat&color=f6f8fa&labelColor=f6f8fa" alt="OpenSSF Best Practices">
@@ -95,8 +95,8 @@
   </a>
   <a href="https://bestofjs.org/projects/wagmi">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/endpoint?colorA=21262d&colorB=21262d&url=https://bestofjs-serverless.now.sh/api/project-badge?fullName=wevm%2Fviem%26since=daily">
-      <img src="https://img.shields.io/endpoint?colorA=f6f8fa&colorB=f6f8fa&url=https://bestofjs-serverless.now.sh/api/project-badge?fullName=wevm%2Fviem%26since=daily" alt="Best of JS">
+      <source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/endpoint?colorA=21262d&colorB=21262d&url=https://bestofjs-serverless.now.sh/api/project-badge?fullName=wevm%2Fwagmi%26since=daily">
+      <img src="https://img.shields.io/endpoint?colorA=f6f8fa&colorB=f6f8fa&url=https://bestofjs-serverless.now.sh/api/project-badge?fullName=wevm%2Fwagmi%26since=daily" alt="Best of JS">
     </picture>
   </a>
   <a href="https://app.codecov.io/gh/wevm/wagmi">
@@ -315,6 +315,6 @@ If you find Wagmi useful or use it for work, please consider [sponsoring Wagmi](
 </a>
 <br />
 <a href="https://quicknode.com/?utm_source=wevm&utm_campaign=oss">
-  <img src="https://raw.githubusercontent.com/wevm/.github/refs/heads/main/content/quicknode-badge.svg" alt="Powered by QuickNode" height="35">
+  <img src="https://raw.githubusercontent.com/wevm/.github/main/content/quicknode-badge.svg" alt="Powered by QuickNode" height="35">
 </a>
 
