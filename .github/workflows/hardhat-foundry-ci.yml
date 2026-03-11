@@ -1,4 +1,6 @@
 name: hardhat-foundry CI
+permissions:
+  contents: read
 
 on:
   push:
@@ -29,12 +31,14 @@ jobs:
     name: Test hardhat-foundry on Windows with Node 16
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v2
         with:
           version: 8
-      - uses: actions/setup-node@v2
+      - uses: actions/cache@v3
+        continue-on-error: true
         with:
+        # cache config here
           node-version: 16
           cache: "pnpm"
       - name: Install
@@ -52,7 +56,7 @@ jobs:
     # disable until actions/virtual-environments#4896 is fixed
     if: ${{ false }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v2
         with:
           version: 8
@@ -76,7 +80,7 @@ jobs:
       matrix:
         node: [16, 18, 20]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v2
         with:
           version: 8
