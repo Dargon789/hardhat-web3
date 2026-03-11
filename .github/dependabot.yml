@@ -1,12 +1,6 @@
-# Please see the documentation for all configuration options:
-# https://help.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
-
 version: 2
 updates:
-  - package-ecosystem: "npm"
-    directory: "/"
+  - package-ecosystem: 'github-actions'
+    directory: '/'
     schedule:
-      interval: "daily"
-    allow:
-      - dependency-name: "@solidity-parser/parser"
-    versioning-strategy: increase
+      interval: 'monthly'
