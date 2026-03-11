@@ -1,18 +1,9 @@
-<!--
-Thank you for using Hardhat and taking the time to send a Pull Request!
+## Description
 
-If you are introducing a new feature, please discuss it in an Issue or with someone from the team before submitting your change.
+_Concise description of proposed changes_
 
-Please:
- - consider the checklist items below
- - keep the ones that make sense for your PR, and
- - DELETE the items that DON'T make sense for your PR.
--->
+## Additional Information
 
-- [ ] Because this PR includes a **bug fix**, relevant tests have been included.
-- [ ] Because this PR includes a **new feature**, the change was previously discussed on an Issue or with someone from the team.
-- [x] I didn't do anything of this.
+- [ ] I read the [contributing docs](/wagmi-dev/wagmi/blob/main/.github/CONTRIBUTING.md) (if this is your first contribution)
 
----
-
-<!-- Add a description of your PR here -->
+Your ENS/address:
