@@ -23,7 +23,7 @@ function App() {
 
   if (error?.name === 'HttpRequestError') {
     const { status } = error
-    //      ^?      
+    //      ^?
 
 
     return <div>A HTTP error occurred. Status: {status}</div>
@@ -32,7 +32,7 @@ function App() {
     const { code } = error
     //      ^?
 
-    
+
     return <div>Rate limit exceeded. Code: {code}</div>
   }
   // ...

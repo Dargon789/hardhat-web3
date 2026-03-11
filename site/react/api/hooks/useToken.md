@@ -13,7 +13,7 @@ const TError = 'GetTokenErrorType'
 
 # useToken <Badge type="warning">[deprecated](/react/guides/migrate-from-v1-to-v2#deprecated-usetoken)</Badge>
 
-Hook for fetching token info. 
+Hook for fetching token info.
 
 ## Import
 

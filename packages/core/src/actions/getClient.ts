@@ -44,9 +44,5 @@ export function getClient<
   config: config,
   parameters: GetClientParameters<config, chainId> = {},
 ): GetClientReturnType<config, chainId> {
-  let client = undefined
   try {
-    client = config.getClient(parameters)
-  } catch {}
-  return client as GetClientReturnType<config, chainId>
 }

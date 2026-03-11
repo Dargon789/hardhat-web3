@@ -1,6 +1,6 @@
 ---
 title: useWriteContracts
-description: Hook that requests for the wallet to sign and broadcast a batch of calls (transactions) to the network. 
+description: Hook that requests for the wallet to sign and broadcast a batch of calls (transactions) to the network.
 ---
 
 <script setup>
@@ -50,7 +50,7 @@ function App() {
               abi,
               functionName: 'approve',
               args: [
-                '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC', 
+                '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
                 100n
               ],
             },

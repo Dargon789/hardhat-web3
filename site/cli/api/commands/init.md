@@ -5,7 +5,7 @@ Creates configuration file. If TypeScript is detected, the config file will use 
 ## Usage
 
 ```bash
-wagmi init 
+wagmi init
 ```
 
 ## Options

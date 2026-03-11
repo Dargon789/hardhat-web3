@@ -8,7 +8,7 @@ const typeName = 'WaitForCallsStatus'
 
 Waits for a call bundle to be confirmed & included on a block before returning the status & receipts.
 
- 
+
 
 ## Import
 
@@ -140,4 +140,3 @@ import { type WaitForCallsStatusErrorType } from '@wagmi/core'
 
 ## Viem
 
-- [`waitForCallsStatus`](https://viem.sh/experimental/eip5792/waitForCallsStatus)

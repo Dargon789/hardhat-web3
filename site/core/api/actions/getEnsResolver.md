@@ -164,4 +164,3 @@ import { type getEnsResolverError } from '@wagmi/core'
 
 ## Viem
 
-- [`getEnsResolver`](https://viem.sh/docs/ens/actions/getEnsResolver.html)

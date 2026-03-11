@@ -6,7 +6,6 @@ const typeName = 'GetConnectorClient'
 
 # getConnectorClient
 
-Action for getting a Viem [`Client`](https://viem.sh/docs/clients/custom.html) object for the current or provided connector.
 
 ## Import
 
@@ -97,7 +96,6 @@ import { type GetChainIdReturnType } from '@wagmi/core'
 
 `Client`
 
-Viem [`Client`](https://viem.sh/docs/clients/custom.html) object for the current or provided connector.
 
 ## Error
 

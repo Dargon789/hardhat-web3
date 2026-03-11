@@ -1,28 +1,23 @@
 import {
   type EIP6963ProviderDetail,
   type Store as MipdStore,
-  createStore as createMipd,
 } from 'mipd'
 import {
   type Address,
   type Chain,
   type Client,
   type EIP1193RequestFn,
-  createClient,
   type ClientConfig as viem_ClientConfig,
   type Transport as viem_Transport,
 } from 'viem'
 import { persist, subscribeWithSelector } from 'zustand/middleware'
-import { type Mutate, type StoreApi, createStore } from 'zustand/vanilla'
 
 import type {
   ConnectorEventMap,
   CreateConnectorFn,
 } from './connectors/createConnector.js'
 import { injected } from './connectors/injected.js'
-import { type Emitter, type EventData, createEmitter } from './createEmitter.js'
 import {
-  type Storage,
   createStorage,
   getDefaultStorage,
 } from './createStorage.js'
@@ -198,9 +193,7 @@ export function createConfig<
   let currentVersion: number
   const prefix = '0.0.0-canary-'
   if (version.startsWith(prefix))
-    currentVersion = Number.parseInt(version.replace(prefix, ''))
   // use package major version to version store
-  else currentVersion = Number.parseInt(version.split('.')[0] ?? '0')
 
   const store = createStore(
     subscribeWithSelector(
@@ -414,7 +407,6 @@ export function createConfig<
       return chains.getState() as chains
     },
     get connectors() {
-      return connectors.getState() as Connector<connectorFns[number]>[]
     },
     storage,
 
@@ -515,10 +507,6 @@ export type CreateConfigParameters<
           | undefined
       })
     | {
-        client(parameters: { chain: chains[number] }): Client<
-          transports[chains[number]['id']],
-          chains[number]
-        >
       }
   >
 >
@@ -533,7 +521,6 @@ export type Config<
     readonly CreateConnectorFn[] = readonly CreateConnectorFn[],
 > = {
   readonly chains: chains
-  readonly connectors: readonly Connector<connectorFns[number]>[]
   readonly storage: Storage | null
 
   readonly state: State<chains>
