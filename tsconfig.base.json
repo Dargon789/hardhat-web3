@@ -1,5 +1,5 @@
 {
-  // This tsconfig file contains the shared config for the build (tsconfig.build.json) and type checking (tsconfig.json) config.
+  // This config file contains the shared config for the build (tsconfig.build.json) and type checking (tsconfig.json) config.
   "include": [],
   "compilerOptions": {
     // Incremental builds
@@ -8,7 +8,7 @@
 
     // Type checking
     "strict": true,
-    // "exactOptionalPropertyTypes": true, // Enabled once supported in tanstack query https://github.com/TanStack/query/issues/7641
+    // "exactOptionalPropertyTypes": true, // Enabled once supported in tans tack query https://github.com/TanStack/query/issues/7641
     "noFallthroughCasesInSwitch": true, // Not enabled by default in `strict` mode.
     "noImplicitOverride": true, // Not enabled by default in `strict` mode.
     "noImplicitReturns": true, // Not enabled by default in `strict` mode.
