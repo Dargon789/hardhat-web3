@@ -1,9 +1,6 @@
 import type { FormEvent } from 'react'
-import { type Hex, formatEther, parseAbi, parseEther } from 'viem'
 import {
   type BaseError,
-  useAccount,
-  useAccountEffect,
   useBalance,
   useBlockNumber,
   useChainId,
@@ -16,7 +13,6 @@ import {
   useReadContracts,
   useSendTransaction,
   useSignMessage,
-  useSwitchAccount,
   useSwitchChain,
   useWaitForTransactionReceipt,
   useWriteContract,
@@ -26,7 +22,6 @@ import { optimism } from 'wagmi/chains'
 import { wagmiContractConfig } from './contracts'
 
 function App() {
-  useAccountEffect({
     onConnect(_data) {
       // console.log('onConnect', data)
     },
@@ -37,9 +32,7 @@ function App() {
 
   return (
     <>
-      <Account />
       <Connect />
-      <SwitchAccount />
       <SwitchChain />
       <SignMessage />
       <Connections />
@@ -54,26 +47,18 @@ function App() {
   )
 }
 
-function Account() {
-  const account = useAccount()
   const { disconnect } = useDisconnect()
   const { data: ensName } = useEnsName({
-    address: account.address,
   })
 
   return (
     <div>
-      <h2>Account</h2>
 
       <div>
-        account: {account.address} {ensName}
         <br />
-        chainId: {account.chainId}
         <br />
-        status: {account.status}
       </div>
 
-      {account.status !== 'disconnected' && (
         <button type="button" onClick={() => disconnect()}>
           Disconnect
         </button>
@@ -84,7 +69,6 @@ function Account() {
 
 function Connect() {
   const chainId = useChainId()
-  const { connectors, connect, status, error } = useConnect()
 
   return (
     <div>
@@ -92,36 +76,24 @@ function Connect() {
       {connectors.map((connector) => (
         <button
           key={connector.uid}
-          onClick={() =>
-            connect({
-              connector,
-              chainId,
-            })
-          }
+                connector,
+                chainId,
+              })
           type="button"
         >
           {connector.name}
         </button>
       ))}
-      <div>{status}</div>
-      <div>{error?.message}</div>
     </div>
   )
 }
 
-function SwitchAccount() {
-  const account = useAccount()
-  const { connectors, switchAccount } = useSwitchAccount()
 
   return (
     <div>
-      <h2>Switch Account</h2>
 
-      {connectors.map((connector) => (
         <button
-          disabled={account.connector?.uid === connector.uid}
           key={connector.uid}
-          onClick={() => switchAccount({ connector })}
           type="button"
         >
           {connector.name}
@@ -133,7 +105,6 @@ function SwitchAccount() {
 
 function SwitchChain() {
   const chainId = useChainId()
-  const { chains, switchChain, error } = useSwitchChain()
 
   return (
     <div>
@@ -156,7 +127,6 @@ function SwitchChain() {
 }
 
 function SignMessage() {
-  const { data, signMessage } = useSignMessage()
 
   return (
     <div>
@@ -166,14 +136,12 @@ function SignMessage() {
         onSubmit={(event) => {
           event.preventDefault()
           const formData = new FormData(event.target as HTMLFormElement)
-          signMessage({ message: formData.get('message') as string })
         }}
       >
         <input name="message" />
         <button type="submit">Sign Message</button>
       </form>
 
-      {data}
     </div>
   )
 }
@@ -188,7 +156,6 @@ function Connections() {
       {connections.map((connection) => (
         <div key={connection.connector.uid}>
           <div>connector {connection.connector.name}</div>
-          <div>accounts: {JSON.stringify(connection.accounts)}</div>
           <div>chainId: {connection.chainId}</div>
         </div>
       ))}
@@ -197,7 +164,6 @@ function Connections() {
 }
 
 function Balance() {
-  const { address } = useAccount()
 
   const { data: default_ } = useBalance({ address })
   const { data: account_ } = useBalance({ address })
@@ -215,7 +181,6 @@ function Balance() {
         {!!default_?.value && formatEther(default_.value)}
       </div>
       <div>
-        Balance (Account Chain):{' '}
         {!!account_?.value && formatEther(account_.value)}
       </div>
       <div>
@@ -241,7 +206,6 @@ function BlockNumber() {
       <h2>Block Number</h2>
 
       <div>Block Number (Default Chain): {default_?.toString()}</div>
-      <div>Block Number (Account Chain): {account_?.toString()}</div>
       <div>Block Number (Optimism): {optimism_?.toString()}</div>
     </div>
   )

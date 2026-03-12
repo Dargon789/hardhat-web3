@@ -1,4 +1,3 @@
-import type { QueryOptions } from '@tanstack/query-core'
 import type { FeeValuesType } from 'viem'
 
 import {
@@ -17,24 +16,15 @@ export type EstimateFeesPerGasOptions<
   config extends Config,
 > = Compute<
   ExactPartial<EstimateFeesPerGasParameters<type, config>> & ScopeKeyParameter
->
+  >
 
 export function estimateFeesPerGasQueryOptions<
   config extends Config,
   type extends FeeValuesType = 'eip1559',
->(config: config, options: EstimateFeesPerGasOptions<type, config> = {}) {
   return {
-    async queryFn({ queryKey }) {
-      const { scopeKey: _, ...parameters } = queryKey[1]
       return estimateFeesPerGas(config, parameters)
     },
     queryKey: estimateFeesPerGasQueryKey(options),
-  } as const satisfies QueryOptions<
-    EstimateFeesPerGasQueryFnData<type>,
-    EstimateFeesPerGasErrorType,
-    EstimateFeesPerGasData<type>,
-    EstimateFeesPerGasQueryKey<config, type>
-  >
 }
 
 export type EstimateFeesPerGasQueryFnData<type extends FeeValuesType> =
@@ -46,7 +36,6 @@ export type EstimateFeesPerGasData<type extends FeeValuesType> =
 export function estimateFeesPerGasQueryKey<
   config extends Config,
   type extends FeeValuesType = 'eip1559',
->(options: EstimateFeesPerGasOptions<type, config> = {}) {
   return ['estimateFeesPerGas', filterQueryOptions(options)] as const
 }
 

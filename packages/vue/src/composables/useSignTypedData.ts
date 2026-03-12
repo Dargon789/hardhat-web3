@@ -45,20 +45,9 @@ export type UseSignTypedDataReturnType<context = unknown> = Compute<
 export function useSignTypedData<context = unknown>(
   parameters: UseSignTypedDataParameters<context> = {},
 ): UseSignTypedDataReturnType<context> {
-  const { mutation } = parameters
-
   const config = useConfig(parameters)
-
   const mutationOptions = signTypedDataMutationOptions(config)
-  const { mutate, mutateAsync, ...result } = useMutation({
-    ...mutation,
-    ...mutationOptions,
-  })
-
   type Return = UseSignTypedDataReturnType<context>
   return {
-    ...result,
-    signTypedData: mutate as Return['signTypedData'],
-    signTypedDataAsync: mutateAsync as Return['signTypedDataAsync'],
   }
 }

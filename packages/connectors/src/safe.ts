@@ -3,7 +3,6 @@ import type { Opts } from '@safe-global/safe-apps-sdk'
 import {
   type Connector,
   ProviderNotFoundError,
-  createConnector,
 } from '@wagmi/core'
 import type { Compute } from '@wagmi/core/internal'
 import { getAddress, withTimeout } from 'viem'
@@ -45,7 +44,6 @@ export function safe(parameters: SafeParameters = {}) {
     id: 'safe',
     name: 'Safe',
     type: safe.type,
-    async connect() {
       const provider = await this.getProvider()
       if (!provider) throw new ProviderNotFoundError()
 
@@ -60,7 +58,6 @@ export function safe(parameters: SafeParameters = {}) {
       // Remove disconnected shim if it exists
       if (shimDisconnect) await config.storage?.removeItem('safe.disconnected')
 
-      return { accounts, chainId }
     },
     async disconnect() {
       const provider = await this.getProvider()
@@ -89,7 +86,6 @@ export function safe(parameters: SafeParameters = {}) {
       if (!isIframe) return
 
       if (!provider_) {
-        const { default: SDK } = await import('@safe-global/safe-apps-sdk')
         const sdk = new SDK(parameters)
 
         // `getInfo` hangs when not used in Safe App iFrame
@@ -101,7 +97,6 @@ export function safe(parameters: SafeParameters = {}) {
         // Unwrapping import for Vite compatibility.
         // See: https://github.com/vitejs/vite/issues/9703
         const SafeAppProvider = await (async () => {
-          const Provider = await import('@safe-global/safe-apps-provider')
           if (
             typeof Provider.SafeAppProvider !== 'function' &&
             typeof Provider.default.SafeAppProvider === 'function'

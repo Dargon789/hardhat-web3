@@ -20,7 +20,6 @@ test('default', () => {
       "queryKey": [
         "verifyTypedData",
         {
-          "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
           "domain": {
             "chainId": 1,
             "name": "Ether Mail",
@@ -92,7 +91,6 @@ test('parameters: chainId', () => {
       "queryKey": [
         "verifyTypedData",
         {
-          "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
           "chainId": 456,
           "domain": {
             "chainId": 456,
@@ -161,7 +159,6 @@ test('parameters: blockNumber', () => {
       "queryKey": [
         "verifyTypedData",
         {
-          "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
           "blockNumber": 1234567890n,
           "domain": {
             "chainId": 1,
@@ -230,7 +227,6 @@ test('parameters: blockTag', () => {
       "queryKey": [
         "verifyTypedData",
         {
-          "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
           "blockTag": "pending",
           "domain": {
             "chainId": 1,

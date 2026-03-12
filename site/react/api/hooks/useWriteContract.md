@@ -34,12 +34,9 @@ import { useWriteContract } from 'wagmi'
 import { abi } from './abi'
 
 function App() {
-  const { writeContract } = useWriteContract()
-
   return (
-    <button 
-      onClick={() => 
-        writeContract({ 
+    <button
+      onClick={() =>
           abi,
           address: '0x6b175474e89094c44da98b954eedeac495271d0f',
           functionName: 'transferFrom',
@@ -84,7 +81,6 @@ import { useWriteContract } from 'wagmi'
 import { config } from './config' // [!code focus]
 
 function App() {
-  const result = useWriteContract({
     config, // [!code focus]
   })
 }
