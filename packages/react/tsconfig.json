@@ -1,0 +1,7 @@
+{
+  "extends": "./tsconfig.build.json",
+  "compilerOptions": {
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx", "test/**/*.ts", "test/**/*.tsx"],
+  "exclude": []
+}
