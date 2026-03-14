@@ -4,6 +4,7 @@ import { expect, test } from 'vitest'
 import { deepUnref } from '../utils/cloneDeep.js'
 import { useEnsAvatar } from './useEnsAvatar.js'
 
+test('default', async () => {
   const [result] = renderComposable(() =>
     useEnsAvatar({
       name: 'wevm.eth',

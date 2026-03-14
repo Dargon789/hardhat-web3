@@ -59,9 +59,20 @@ export function useDeployContract<
 >(
   parameters: UseDeployContractParameters<config, context> = {},
 ): UseDeployContractReturnType<config, context> {
+  const { mutation } = parameters
+
   const config = useConfig(parameters)
+
   const mutationOptions = deployContractMutationOptions(config)
+  const { mutate, mutateAsync, ...result } = useMutation({
+    ...mutation,
+    ...mutationOptions,
+  })
+
   type Return = UseDeployContractReturnType<config, context>
   return {
+    ...result,
+    deployContract: mutate as Return['deployContract'],
+    deployContractAsync: mutateAsync as Return['deployContractAsync'],
   }
 }

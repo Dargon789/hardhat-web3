@@ -282,9 +282,11 @@ const result = await simulateContract(config, {
 
 ::: code-group
 ```ts [index.ts]
+import { getAccount, simulateContract } from '@wagmi/core'
 import { abi } from './abi'
 import { config } from './config'
 
+const { connector } = getAccount(config)
 const result = await simulateContract(config, {
   abi,
   address: '0x6b175474e89094c44da98b954eedeac495271d0f',
@@ -389,6 +391,7 @@ const result = await simulateContract(config, {
 
 `bigint | undefined`
 
+The price in wei to pay per gas. Only applies to [Legacy Transactions](https://viem.sh/docs/glossary/terms.html#legacy-transaction).
 
 ::: code-group
 ```ts [index.ts]
@@ -417,6 +420,7 @@ const result = await simulateContract(config, {
 
 `bigint | undefined`
 
+Total fee per gas in wei, inclusive of [`maxPriorityFeePerGas`](#maxPriorityFeePerGas). Only applies to [EIP-1559 Transactions](https://viem.sh/docs/glossary/terms.html#eip-1559-transaction).
 
 ::: code-group
 ```ts [index.ts]
@@ -445,6 +449,7 @@ const result = await simulateContract(config, {
 
 `bigint | undefined`
 
+Max priority fee per gas in wei. Only applies to [EIP-1559 Transactions](https://viem.sh/docs/glossary/terms.html#eip-1559-transaction).
 
 ::: code-group
 ```ts [index.ts]
@@ -590,3 +595,4 @@ import { type SimulateContractErrorType } from '@wagmi/core'
 
 ## Viem
 
+- [`simulateContract`](https://viem.sh/docs/contract/simulateContract.html)

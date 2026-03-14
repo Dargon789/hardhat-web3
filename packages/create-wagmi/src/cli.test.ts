@@ -134,13 +134,13 @@ test('shows help', () => {
       $ create-wagmi <project-directory> [options]
 
     Options:
-      -t, --template [name]  Template to bootstrap with. Available: vite-react, next, vite-vue, nuxt, vite-vanilla
-      --bun                  Use bun as your package manager
-      --npm                  Use npm as your package manager
-      --pnpm                 Use pnpm as your package manager
-      --yarn                 Use yarn as your package manager
-      -h, --help             Display this message
-      -v, --version          Display version number
+      -t, --template [name]  Template to bootstrap with. Available: vite-react, next, vite-vue, nuxt, vite-vanilla 
+      --bun                  Use bun as your package manager 
+      --npm                  Use npm as your package manager 
+      --pnpm                 Use pnpm as your package manager 
+      --yarn                 Use yarn as your package manager 
+      -h, --help             Display this message 
+      -v, --version          Display version number 
     "
   `)
 })

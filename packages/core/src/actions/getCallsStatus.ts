@@ -23,4 +23,5 @@ export async function getCallsStatus<config extends Config>(
 ): Promise<GetCallsStatusReturnType> {
   const { connector, id } = parameters
   const client = await getConnectorClient(config, { connector })
+  return viem_getCallsStatus(client, { id })
 }

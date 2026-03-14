@@ -6,8 +6,12 @@ import path from 'node:path'
 console.log('Setting up packages for development.')
 
 // Get all package.json files
+const packagePaths = await Array.fromAsync(
+  new Bun.Glob('**/package.json').scan(),
+)
 
 let count = 0
+for (const packagePath of packagePaths) {
   type Package = {
     bin?: Record<string, string> | undefined
     exports?:
@@ -16,6 +20,8 @@ let count = 0
     name?: string | undefined
     private?: boolean | undefined
   }
+  const file = Bun.file(packagePath)
+  const packageJson = (await file.json()) as Package
 
   // Skip private packages
   if (packageJson.private && packageJson.name !== '@wagmi/test') continue

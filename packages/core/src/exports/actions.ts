@@ -39,6 +39,13 @@ export {
 } from '../actions/estimateGas.js'
 
 export {
+  type EstimateFeesPerGasErrorType,
+  type EstimateFeesPerGasParameters,
+  type EstimateFeesPerGasReturnType,
+  estimateFeesPerGas,
+} from '../actions/estimateFeesPerGas.js'
+
+export {
   type EstimateMaxPriorityFeePerGasErrorType,
   type EstimateMaxPriorityFeePerGasParameters,
   type EstimateMaxPriorityFeePerGasReturnType,
@@ -46,9 +53,17 @@ export {
 } from '../actions/estimateMaxPriorityFeePerGas.js'
 
 export {
+  type GetAccountReturnType,
+  getAccount,
+} from '../actions/getAccount.js'
+
+export {
   type GetBalanceParameters,
   type GetBalanceReturnType,
+  type GetBalanceErrorType,
   getBalance,
+  /** @deprecated use `getBalance` instead */
+  getBalance as fetchBalance,
 } from '../actions/getBalance.js'
 
 export {
@@ -63,6 +78,8 @@ export {
   type GetBlockNumberParameters,
   type GetBlockNumberReturnType,
   getBlockNumber,
+  /** @deprecated use `getBlockNumber` instead */
+  getBlockNumber as fetchBlockNumber,
 } from '../actions/getBlockNumber.js'
 
 export {
@@ -113,6 +130,12 @@ export {
   type GetConnectionsReturnType,
   getConnections,
 } from '../actions/getConnections.js'
+
+export {
+  type GetConnectorsReturnType,
+  getConnectors,
+} from '../actions/getConnectors.js'
+
 export {
   type GetConnectorClientErrorType,
   type GetConnectorClientParameters,
@@ -125,6 +148,8 @@ export {
   type GetEnsAddressParameters,
   type GetEnsAddressReturnType,
   getEnsAddress,
+  /** @deprecated use `getEnsAddress` instead */
+  getEnsAddress as fetchEnsAddress,
 } from '../actions/getEnsAddress.js'
 
 export {
@@ -132,6 +157,8 @@ export {
   type GetEnsAvatarParameters,
   type GetEnsAvatarReturnType,
   getEnsAvatar,
+  /** @deprecated use `getEnsAvatar` instead */
+  getEnsAvatar as fetchEnsAvatar,
 } from '../actions/getEnsAvatar.js'
 
 export {
@@ -139,6 +166,8 @@ export {
   type GetEnsNameParameters,
   type GetEnsNameReturnType,
   getEnsName,
+  /** @deprecated */
+  getEnsName as fetchEnsName,
 } from '../actions/getEnsName.js'
 
 export {
@@ -146,6 +175,8 @@ export {
   type GetEnsResolverParameters,
   type GetEnsResolverReturnType,
   getEnsResolver,
+  /** @deprecated use `getEnsResolver` instead */
+  getEnsResolver as fetchEnsResolver,
 } from '../actions/getEnsResolver.js'
 
 export {
@@ -190,10 +221,21 @@ export {
 } from '../actions/getStorageAt.js'
 
 export {
+  type GetTokenErrorType,
+  type GetTokenParameters,
+  type GetTokenReturnType,
+  getToken,
+  /** @deprecated use `getToken` instead */
+  getToken as fetchToken,
+} from '../actions/getToken.js'
+
+export {
   type GetTransactionErrorType,
   type GetTransactionParameters,
   type GetTransactionReturnType,
   getTransaction,
+  /** @deprecated use `getTransaction` instead */
+  getTransaction as fetchTransaction,
 } from '../actions/getTransaction.js'
 
 export {
@@ -233,18 +275,21 @@ export {
 export {
   type PrepareTransactionRequestParameters,
   type PrepareTransactionRequestReturnType,
+  type PrepareTransactionRequestErrorType,
   prepareTransactionRequest,
 } from '../actions/prepareTransactionRequest.js'
 
 export {
   type ReadContractParameters,
   type ReadContractReturnType,
+  type ReadContractErrorType,
   readContract,
 } from '../actions/readContract.js'
 
 export {
   type ReadContractsParameters,
   type ReadContractsReturnType,
+  type ReadContractsErrorType,
   readContracts,
 } from '../actions/readContracts.js'
 
@@ -298,10 +343,19 @@ export {
 } from '../actions/simulateContract.js'
 
 export {
+  type SwitchAccountErrorType,
+  type SwitchAccountParameters,
+  type SwitchAccountReturnType,
+  switchAccount,
+} from '../actions/switchAccount.js'
+
+export {
   type SwitchChainErrorType,
   type SwitchChainParameters,
   type SwitchChainReturnType,
   switchChain,
+  /** @deprecated use `switchChain` instead */
+  switchChain as switchNetwork,
 } from '../actions/switchChain.js'
 
 export {
@@ -324,12 +378,22 @@ export {
 } from '../actions/waitForCallsStatus.js'
 
 export {
+  type WatchAccountParameters,
+  type WatchAccountReturnType,
+  watchAccount,
+} from '../actions/watchAccount.js'
 
 export {
   type WatchAssetParameters,
   type WatchAssetReturnType,
   watchAsset,
 } from '../actions/watchAsset.js'
+
+export {
+  type WatchBlocksParameters,
+  type WatchBlocksReturnType,
+  watchBlocks,
+} from '../actions/watchBlocks.js'
 
 export {
   type WatchBlockNumberParameters,
@@ -378,6 +442,15 @@ export {
   type WatchPublicClientReturnType,
   watchPublicClient,
 } from '../actions/watchPublicClient.js'
+
+export {
+  type WaitForTransactionReceiptErrorType,
+  type WaitForTransactionReceiptParameters,
+  type WaitForTransactionReceiptReturnType,
+  waitForTransactionReceipt,
+  /** @deprecated use `waitForTransactionReceipt` instead */
+  waitForTransactionReceipt as waitForTransaction,
+} from '../actions/waitForTransactionReceipt.js'
 
 export {
   type WriteContractErrorType,

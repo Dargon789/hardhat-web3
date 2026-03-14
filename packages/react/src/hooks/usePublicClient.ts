@@ -5,6 +5,7 @@ import {
   type GetPublicClientParameters,
   type GetPublicClientReturnType,
   type ResolvedRegister,
+  getPublicClient,
   watchPublicClient,
 } from '@wagmi/core'
 import type { Compute } from '@wagmi/core/internal'

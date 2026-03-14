@@ -17,6 +17,7 @@ test('parameter', () => {
 })
 
 test('context', () => {
+  const { context, data, disconnect, error, variables } = useDisconnect({
     mutation: {
       onMutate(variables) {
         expectTypeOf(variables).toEqualTypeOf<
@@ -49,9 +50,14 @@ test('context', () => {
     },
   })
 
+  expectTypeOf(data.value).toEqualTypeOf<void | undefined>()
+  expectTypeOf(error.value).toEqualTypeOf<DisconnectErrorType | null>()
+  expectTypeOf(variables.value).toEqualTypeOf<
     { connector?: Connector | undefined } | undefined
   >()
+  expectTypeOf(context.value).toEqualTypeOf<typeof contextValue | undefined>()
 
+  disconnect(
     { connector },
     {
       onError(error, variables, context) {

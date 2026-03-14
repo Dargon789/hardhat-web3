@@ -1,10 +1,13 @@
 import { QueryClientProvider } from '@tanstack/react-query'
 import { abi, address, bytecode, chain, config, wait } from '@wagmi/test'
+import { queryClient, renderHook, waitFor } from '@wagmi/test/react'
 import { createElement } from 'react'
+import { expect, test } from 'vitest'
 
 import { useReadContract } from './useReadContract.js'
 
 test('default', async () => {
+  const { result } = renderHook(() =>
     useReadContract({
       address: address.wagmiMintExample,
       abi: abi.wagmiMintExample,
@@ -13,9 +16,11 @@ test('default', async () => {
     }),
   )
 
+  await waitFor(() => expect(result.current.isSuccess).toBeTruthy())
 
   expect(result.current).toMatchInlineSnapshot(`
     {
+      "data": 4n,
       "dataUpdatedAt": 1675209600000,
       "error": null,
       "errorUpdateCount": 0,
@@ -55,6 +60,7 @@ test('default', async () => {
 })
 
 test('parameters: chainId', async () => {
+  const { result } = renderHook(() =>
     useReadContract({
       address: address.wagmiMintExample,
       abi: abi.wagmiMintExample,
@@ -64,9 +70,11 @@ test('parameters: chainId', async () => {
     }),
   )
 
+  await waitFor(() => expect(result.current.isSuccess).toBeTruthy())
 
   expect(result.current).toMatchInlineSnapshot(`
     {
+      "data": 4n,
       "dataUpdatedAt": 1675209600000,
       "error": null,
       "errorUpdateCount": 0,
@@ -106,6 +114,7 @@ test('parameters: chainId', async () => {
 })
 
 test('parameters: config', async () => {
+  const { result } = renderHook(
     () =>
       useReadContract({
         address: address.wagmiMintExample,
@@ -120,9 +129,11 @@ test('parameters: config', async () => {
     },
   )
 
+  await waitFor(() => expect(result.current.isSuccess).toBeTruthy())
 
   expect(result.current).toMatchInlineSnapshot(`
     {
+      "data": 4n,
       "dataUpdatedAt": 1675209600000,
       "error": null,
       "errorUpdateCount": 0,
@@ -162,6 +173,7 @@ test('parameters: config', async () => {
 })
 
 test('parameters: deployless read (bytecode)', async () => {
+  const { result } = renderHook(() =>
     useReadContract({
       abi: abi.wagmiMintExample,
       functionName: 'name',
@@ -169,11 +181,14 @@ test('parameters: deployless read (bytecode)', async () => {
     }),
   )
 
+  await waitFor(() => expect(result.current.isSuccess).toBeTruthy())
 
   expect(result.current.data).toMatchInlineSnapshot(`"wagmi"`)
 })
 
 test('behavior: disabled when properties missing', async () => {
+  const { result } = renderHook(() => useReadContract())
 
   await wait(100)
+  await waitFor(() => expect(result.current.isPending).toBeTruthy())
 })

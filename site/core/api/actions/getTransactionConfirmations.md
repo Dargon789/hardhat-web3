@@ -114,3 +114,4 @@ import { type GetTransactionConfirmationsErrorType } from '@wagmi/core'
 
 ## Viem
 
+- [`getTransactionConfirmations`](https://viem.sh/docs/actions/public/getTransactionConfirmations.html)

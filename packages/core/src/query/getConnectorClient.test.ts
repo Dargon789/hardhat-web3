@@ -10,6 +10,9 @@ test('default', () => {
       "queryFn": [Function],
       "queryKey": [
         "connectorClient",
+        {
+          "connectorUid": undefined,
+        },
       ],
     }
   `)
@@ -26,6 +29,7 @@ test('parameters: chainId', () => {
         "connectorClient",
         {
           "chainId": 1,
+          "connectorUid": undefined,
         },
       ],
     }

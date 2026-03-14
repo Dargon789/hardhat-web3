@@ -14,6 +14,7 @@ import type {
   ConfigParameter,
   EnabledParameter,
 } from '../../types/properties.js'
+import { useAccount } from '../useAccount.js'
 import { useChainId } from '../useChainId.js'
 import { useConfig } from '../useConfig.js'
 import { useWatchContractEvent } from '../useWatchContractEvent.js'
@@ -76,7 +77,11 @@ export function createUseWatchContractEvent<
     return (parameters) => {
       const config = useConfig(parameters)
       const configChainId = useChainId({ config })
+      const account = useAccount({ config })
       const chainId =
+        (parameters as { chainId?: number })?.chainId ??
+        account.chainId ??
+        configChainId
       return useWatchContractEvent({
         ...(parameters as any),
         ...(props.eventName ? { eventName: props.eventName } : {}),

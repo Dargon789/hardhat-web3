@@ -203,7 +203,7 @@ export default defineConfig({
 ```ts
 import { defineConfig } from '@wagmi/cli'
 import { fetch } from '@wagmi/cli/plugins'
-
+ 
 export default defineConfig({
   plugins: [
     fetch({

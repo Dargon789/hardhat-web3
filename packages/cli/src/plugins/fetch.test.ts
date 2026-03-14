@@ -6,11 +6,14 @@ import { afterAll, afterEach, beforeAll, expect, test } from 'vitest'
 import {
   address,
   apiKey,
+  baseUrl,
+  handlers,
   timeoutAddress,
   unverifiedContractAddress,
 } from '../../test/utils.js'
 import { fetch, getCacheDir } from './fetch.js'
 
+const server = setupServer(...handlers)
 
 beforeAll(() => server.listen())
 afterEach(() => server.resetHandlers())

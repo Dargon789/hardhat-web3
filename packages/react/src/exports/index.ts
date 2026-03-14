@@ -4,22 +4,40 @@
 
 // biome-ignore lint/performance/noBarrelFile: entrypoint module
 export {
+  type WagmiProviderProps,
   WagmiContext,
   WagmiProvider,
+  /** @deprecated Use `WagmiContext` instead */
+  WagmiContext as Context,
+  /** @deprecated Use `WagmiProvider` instead */
+  WagmiProvider as WagmiConfig,
 } from '../context.js'
 
 ////////////////////////////////////////////////////////////////////////////////
 // Errors
 ////////////////////////////////////////////////////////////////////////////////
 
+export { type BaseErrorType, BaseError } from '../errors/base.js'
 
 export {
   type WagmiProviderNotFoundErrorType,
+  WagmiProviderNotFoundError,
 } from '../errors/context.js'
 
 ////////////////////////////////////////////////////////////////////////////////
 // Hooks
 ////////////////////////////////////////////////////////////////////////////////
+
+export {
+  type UseAccountParameters,
+  type UseAccountReturnType,
+  useAccount,
+} from '../hooks/useAccount.js'
+
+export {
+  type UseAccountEffectParameters,
+  useAccountEffect,
+} from '../hooks/useAccountEffect.js'
 
 export {
   type UseBalanceParameters,
@@ -64,6 +82,12 @@ export {
 } from '../hooks/useCapabilities.js'
 
 export {
+  type UseCallParameters,
+  type UseCallReturnType,
+  useCall,
+} from '../hooks/useCall.js'
+
+export {
   type UseChainIdParameters,
   type UseChainIdReturnType,
   useChainId,
@@ -98,6 +122,12 @@ export {
   type UseConnectionsReturnType,
   useConnections,
 } from '../hooks/useConnections.js'
+
+export {
+  type UseConnectorsParameters,
+  type UseConnectorsReturnType,
+  useConnectors,
+} from '../hooks/useConnectors.js'
 
 export {
   type UseConnectorClientParameters,
@@ -151,6 +181,8 @@ export {
   type UseEstimateFeesPerGasParameters,
   type UseEstimateFeesPerGasReturnType,
   useEstimateFeesPerGas,
+  /** @deprecated Use `useEstimateFeesPerGas` instead */
+  useEstimateFeesPerGas as useFeeData,
 } from '../hooks/useEstimateFeesPerGas.js'
 
 export {
@@ -181,6 +213,8 @@ export {
   type UseInfiniteContractReadsParameters,
   type UseInfiniteContractReadsReturnType,
   useInfiniteReadContracts,
+  /** @deprecated Use `useInfiniteReadContracts` instead */
+  useInfiniteReadContracts as useContractInfiniteReads,
 } from '../hooks/useInfiniteReadContracts.js'
 
 export {
@@ -205,12 +239,16 @@ export {
   type UseReadContractParameters,
   type UseReadContractReturnType,
   useReadContract,
+  /** @deprecated Use `useWriteContract` instead */
+  useReadContract as useContractRead,
 } from '../hooks/useReadContract.js'
 
 export {
   type UseReadContractsParameters,
   type UseReadContractsReturnType,
   useReadContracts,
+  /** @deprecated Use `useWriteContract` instead */
+  useReadContracts as useContractReads,
 } from '../hooks/useReadContracts.js'
 
 export {
@@ -262,12 +300,23 @@ export {
 } from '../hooks/useStorageAt.js'
 
 export {
+  type UseSwitchAccountParameters,
+  type UseSwitchAccountReturnType,
+  useSwitchAccount,
+} from '../hooks/useSwitchAccount.js'
+
+export {
   type UseSwitchChainParameters,
   type UseSwitchChainReturnType,
   useSwitchChain,
 } from '../hooks/useSwitchChain.js'
 
 export {
+  type UseTokenParameters,
+  type UseTokenReturnType,
+  /** @deprecated Use `useReadContracts` instead */
+  useToken,
+} from '../hooks/useToken.js'
 
 export {
   type UseTransactionParameters,
@@ -304,11 +353,19 @@ export {
   type UseVerifyTypedDataReturnType,
   useVerifyTypedData,
 } from '../hooks/useVerifyTypedData.js'
+
+export {
+  type UseWalletClientParameters,
+  type UseWalletClientReturnType,
+  useWalletClient,
+} from '../hooks/useWalletClient.js'
+
 export {
   type UseWaitForCallsStatusParameters,
   type UseWaitForCallsStatusReturnType,
   useWaitForCallsStatus,
 } from '../hooks/useWaitForCallsStatus.js'
+
 export {
   type UseWaitForTransactionReceiptParameters,
   type UseWaitForTransactionReceiptReturnType,
@@ -320,6 +377,13 @@ export {
   type UseWatchAssetReturnType,
   useWatchAsset,
 } from '../hooks/useWatchAsset.js'
+
+export {
+  type UseWatchBlocksParameters,
+  type UseWatchBlocksReturnType,
+  useWatchBlocks,
+} from '../hooks/useWatchBlocks.js'
+
 export {
   type UseWatchBlockNumberParameters,
   type UseWatchBlockNumberReturnType,
@@ -342,6 +406,8 @@ export {
   type UseWriteContractParameters,
   type UseWriteContractReturnType,
   useWriteContract,
+  /** @deprecated Use `useWriteContract` instead */
+  useWriteContract as useContractWrite,
 } from '../hooks/useWriteContract.js'
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -350,6 +416,7 @@ export {
 
 export {
   type HydrateProps,
+  Hydrate,
 } from '../hydrate.js'
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -360,20 +427,56 @@ export {
   // Config
   type Connection,
   type Connector,
+  type Config,
+  type CreateConfigParameters,
+  type PartializedState,
+  type State,
+  createConfig,
   // Connector
   type ConnectorEventMap,
+  type CreateConnectorFn,
+  createConnector,
+  injected,
+  mock,
+  // Errors
+  type ChainNotConfiguredErrorType,
+  ChainNotConfiguredError,
+  type ConnectorAlreadyConnectedErrorType,
+  ConnectorAlreadyConnectedError,
+  type ConnectorNotFoundErrorType,
   ConnectorNotFoundError,
+  type ConnectorAccountNotFoundErrorType,
+  ConnectorAccountNotFoundError,
+  type ConnectorChainMismatchErrorType,
+  ConnectorChainMismatchError,
+  type ConnectorUnavailableReconnectingErrorType,
   ConnectorUnavailableReconnectingError,
+  type ProviderNotFoundErrorType,
+  ProviderNotFoundError,
+  type SwitchChainNotSupportedErrorType,
+  SwitchChainNotSupportedError,
   // Storage
   type CreateStorageParameters,
+  type Storage,
   createStorage,
+  noopStorage,
   // Transports
   custom,
   fallback,
   http,
+  webSocket,
+  unstable_connector,
+  type Transport,
   // Types
   type Register,
   type ResolvedRegister,
+  // Utilities
+  cookieStorage,
+  cookieToInitialState,
+  deepEqual,
+  deserialize,
+  normalizeChainId,
+  parseCookie,
   serialize,
 } from '@wagmi/core'
 

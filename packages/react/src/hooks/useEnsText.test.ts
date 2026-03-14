@@ -1,14 +1,18 @@
 import { wait } from '@wagmi/test'
+import { renderHook, waitFor } from '@wagmi/test/react'
+import { expect, test } from 'vitest'
 
 import { useEnsText } from './useEnsText.js'
 
 test('default', async () => {
+  const { result } = renderHook(() =>
     useEnsText({
       key: 'com.twitter',
       name: 'wevm.eth',
     }),
   )
 
+  await waitFor(() => expect(result.current.isSuccess).toBeTruthy())
 
   expect(result.current).toMatchInlineSnapshot(`
     {
@@ -49,9 +53,13 @@ test('default', async () => {
 })
 
 test('behavior: name: undefined -> defined', async () => {
-      useEnsText({
-        key: 'com.twitter',
-      }),
+  let name: string | undefined = undefined
+
+  const { result, rerender } = renderHook(() =>
+    useEnsText({
+      key: 'com.twitter',
+      name,
+    }),
   )
 
   expect(result.current).toMatchInlineSnapshot(`
@@ -91,7 +99,10 @@ test('behavior: name: undefined -> defined', async () => {
     }
   `)
 
+  name = 'wevm.eth'
+  rerender()
 
+  await waitFor(() => expect(result.current.isSuccess).toBeTruthy())
 
   expect(result.current).toMatchInlineSnapshot(`
     {
@@ -132,6 +143,8 @@ test('behavior: name: undefined -> defined', async () => {
 })
 
 test('behavior: disabled when properties missing', async () => {
+  const { result } = renderHook(() => useEnsText())
 
   await wait(100)
+  await waitFor(() => expect(result.current.isPending).toBeTruthy())
 })

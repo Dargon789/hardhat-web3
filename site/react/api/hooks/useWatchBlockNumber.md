@@ -182,9 +182,9 @@ import { useWatchBlockNumber } from 'wagmi'
 
 function App() {
   useWatchBlockNumber({
-    onBlockNumber(blockNumber) {
-      console.log('New block number', blockNumber)
-    },
+    onBlockNumber(blockNumber) { 
+      console.log('New block number', blockNumber) 
+    }, 
     onError(error) { // [!code focus]
       console.error('Block error', error) // [!code focus]
     }, // [!code focus]
@@ -207,8 +207,8 @@ import { useWatchBlockNumber } from 'wagmi'
 
 function App() {
   useWatchBlockNumber({
-    onBlockNumber(blockNumber) {
-      console.log('New block number', blockNumber)
+    onBlockNumber(blockNumber) { 
+      console.log('New block number', blockNumber) 
     }
     poll: true, // [!code focus]
   })
@@ -230,8 +230,8 @@ import { useWatchBlockNumber } from 'wagmi'
 
 function App() {
   useWatchBlockNumber({
-    onBlockNumber(blockNumber) {
-      console.log('New block number', blockNumber)
+    onBlockNumber(blockNumber) { 
+      console.log('New block number', blockNumber) 
     }
     pollingInterval: 1_000, // [!code focus]
   })
@@ -253,8 +253,8 @@ import { useWatchBlockNumber } from 'wagmi'
 
 function App() {
   useWatchBlockNumber({
-    onBlockNumber(blockNumber) {
-      console.log('New block number', blockNumber)
+    onBlockNumber(blockNumber) { 
+      console.log('New block number', blockNumber) 
     }
     syncConnectedChain: false, // [!code focus]
   })

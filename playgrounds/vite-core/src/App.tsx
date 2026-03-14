@@ -1,9 +1,14 @@
 import {
   type GetBalanceReturnType,
   type GetBlockNumberReturnType,
+  connect,
+  disconnect,
+  getAccount,
   getBalance,
   getBlockNumber,
   reconnect,
+  switchAccount,
+  watchAccount,
   watchBlockNumber,
 } from '@wagmi/core'
 import { useEffect, useReducer, useState } from 'react'
@@ -18,28 +23,39 @@ function App() {
 
   return (
     <>
+      <Account />
       <Connect />
+      <SwitchAccount />
       <Balance />
       <BlockNumber />
     </>
   )
 }
 
+function Account() {
+  const [account, setAccount] = useState(getAccount(config))
 
   useEffect(() => {
+    return watchAccount(config, {
       onChange(data) {
+        setAccount(data)
       },
     })
   }, [])
 
   return (
     <div>
+      <h2>Account</h2>
 
       <div>
+        account: {account.address}
         <br />
+        chainId: {account.chainId}
         <br />
+        status: {account.status}
       </div>
 
+      {account.status === 'connected' && (
         <button type="button" onClick={() => disconnect(config)}>
           Disconnect
         </button>
@@ -74,6 +90,7 @@ function Connect() {
   )
 }
 
+function SwitchAccount() {
   const [, rerender] = useReducer((count) => count + 1, 0)
 
   useEffect(() => {
@@ -85,6 +102,7 @@ function Connect() {
 
   return (
     <div>
+      <h2>SwitchAccount</h2>
 
       {config.connectors
         .filter((connector) => config.state.connections.has(connector.uid))
@@ -93,6 +111,7 @@ function Connect() {
             disabled={config.state.current === connector.uid}
             id={connector.uid}
             key={connector.uid}
+            onClick={async () => await switchAccount(config, { connector })}
             type="button"
           >
             {connector.name}
@@ -103,9 +122,12 @@ function Connect() {
 }
 
 function Balance() {
+  const [account, setAccount] = useState(getAccount(config))
 
   useEffect(() => {
+    return watchAccount(config, {
       onChange(data) {
+        setAccount(data)
       },
     })
   }, [])
@@ -115,10 +137,12 @@ function Balance() {
   const [balance, setBalance] = useState<GetBalanceReturnType | undefined>()
 
   useEffect(() => {
+    if (!account.address) return
     return watchBlockNumber(config, {
       async onBlockNumber() {
         try {
           const balance = await getBalance(config, {
+            address: account.address!,
           })
           setBalance(balance)
         } catch (error) {
@@ -126,6 +150,7 @@ function Balance() {
         }
       },
     })
+  }, [account.address])
 
   return (
     <div>

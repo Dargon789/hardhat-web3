@@ -1,4 +1,4 @@
-import { createConfig, http } from 'wagmi'
+import { http, createConfig } from 'wagmi'
 import { base, celo, mainnet } from 'wagmi/chains'
 
 export const config = createConfig({

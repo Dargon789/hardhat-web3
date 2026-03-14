@@ -1,5 +1,7 @@
 import { connect, disconnect } from '@wagmi/core'
 import { abi, address, chain, config } from '@wagmi/test'
+import { renderHook, waitFor } from '@wagmi/test/react'
+import { expect, test } from 'vitest'
 
 import { createUseSimulateContract } from './createUseSimulateContract.js'
 
@@ -13,11 +15,13 @@ test('default', async () => {
     abi: abi.wagmiMintExample,
   })
 
+  const { result } = renderHook(() =>
     useSimulateWagmiMintExample({
       functionName: 'mint',
     }),
   )
 
+  await waitFor(() => expect(result.current.isSuccess).toBeTruthy())
 
   expect(result.current).toMatchInlineSnapshot(`
     {
@@ -34,6 +38,7 @@ test('default', async () => {
             },
           ],
           "account": {
+            "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
             "type": "json-rpc",
           },
           "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
@@ -68,6 +73,10 @@ test('default', async () => {
       "queryKey": [
         "simulateContract",
         {
+          "account": {
+            "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+            "type": "json-rpc",
+          },
           "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
           "chainId": 1,
           "functionName": "mint",
@@ -92,12 +101,14 @@ test('multichain', async () => {
     abi: abi.wagmiMintExample,
   })
 
+  const { result } = renderHook(() =>
     useReadWagmiMintExample({
       functionName: 'mint',
       chainId: chain.mainnet2.id,
     }),
   )
 
+  await waitFor(() => expect(result.current.isSuccess).toBeTruthy())
 
   expect(result.current).toMatchInlineSnapshot(`
     {
@@ -114,6 +125,7 @@ test('multichain', async () => {
             },
           ],
           "account": {
+            "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
             "type": "json-rpc",
           },
           "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
@@ -148,6 +160,10 @@ test('multichain', async () => {
       "queryKey": [
         "simulateContract",
         {
+          "account": {
+            "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+            "type": "json-rpc",
+          },
           "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
           "chainId": 456,
           "functionName": "mint",
@@ -170,7 +186,9 @@ test('functionName', async () => {
     functionName: 'mint',
   })
 
+  const { result } = renderHook(() => useSimulateWagmiMintExample({}))
 
+  await waitFor(() => expect(result.current.isSuccess).toBeTruthy())
 
   expect(result.current).toMatchInlineSnapshot(`
     {
@@ -187,6 +205,7 @@ test('functionName', async () => {
             },
           ],
           "account": {
+            "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
             "type": "json-rpc",
           },
           "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
@@ -221,6 +240,10 @@ test('functionName', async () => {
       "queryKey": [
         "simulateContract",
         {
+          "account": {
+            "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+            "type": "json-rpc",
+          },
           "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
           "chainId": 1,
           "functionName": "mint",

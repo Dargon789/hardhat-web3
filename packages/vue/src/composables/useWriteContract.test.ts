@@ -12,6 +12,7 @@ test('default', async () => {
 
   const [result] = renderComposable(() => useWriteContract())
 
+  result.writeContract({
     abi: abi.wagmiMintExample,
     address: address.wagmiMintExample,
     functionName: 'mint',

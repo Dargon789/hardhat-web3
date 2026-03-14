@@ -10,7 +10,7 @@ Action to extract capabilities (grouped by chain ID) that a connected wallet sup
 
 [Read more.](https://github.com/ethereum/EIPs/blob/815028dc634463e1716fc5ce44c019a6040f0bef/EIPS/eip-5792.md#wallet_getcapabilities)
 
-
+ 
 
 ## Import
 
@@ -93,3 +93,4 @@ import { type GetCapabilitiesErrorType } from '@wagmi/core'
 
 ## Viem
 
+- [`getCapabilities`](https://viem.sh/experimental/eip5792/getCapabilities)

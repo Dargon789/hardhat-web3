@@ -45,6 +45,7 @@ function App() {
 <<< @/snippets/react/config.ts[config.ts]
 :::
 
+<!-- TODO: Usage for combining with useWriteContract -->
 
 ## Parameters
 
@@ -185,7 +186,7 @@ import { abi } from './abi'
 function App() {
   const result = useSimulateContract({
     abi,
-    address: '0x6b175474e89094c44da98b954eedeac495271d0f',
+    address: '0x6b175474e89094c44da98b954eedeac495271d0f', 
     functionName: 'transferFrom',
     args: [ // [!code focus]
       '0xd2135CfB216b74109775236E36d4b433F1DF507B', // [!code focus]
@@ -215,7 +216,7 @@ import { abi } from './abi'
 function App() {
   const result = useSimulateContract({
     abi,
-    address: '0x6b175474e89094c44da98b954eedeac495271d0f',
+    address: '0x6b175474e89094c44da98b954eedeac495271d0f', 
     functionName: 'transferFrom',
     args: [
       '0xd2135CfB216b74109775236E36d4b433F1DF507B',
@@ -244,7 +245,7 @@ import { abi } from './abi'
 function App() {
   const result = useSimulateContract({
     abi,
-    address: '0x6b175474e89094c44da98b954eedeac495271d0f',
+    address: '0x6b175474e89094c44da98b954eedeac495271d0f', 
     functionName: 'transferFrom',
     args: [
       '0xd2135CfB216b74109775236E36d4b433F1DF507B',
@@ -276,7 +277,7 @@ import { abi } from './abi'
 function App() {
   const result = useSimulateContract({
     abi,
-    address: '0x6b175474e89094c44da98b954eedeac495271d0f',
+    address: '0x6b175474e89094c44da98b954eedeac495271d0f', 
     functionName: 'transferFrom',
     args: [
       '0xd2135CfB216b74109775236E36d4b433F1DF507B',
@@ -306,7 +307,7 @@ import { config } from './config' // [!code focus]
 function App() {
   const result = useSimulateContract({
     abi,
-    address: '0x6b175474e89094c44da98b954eedeac495271d0f',
+    address: '0x6b175474e89094c44da98b954eedeac495271d0f', 
     functionName: 'transferFrom',
     args: [
       '0xd2135CfB216b74109775236E36d4b433F1DF507B',
@@ -398,7 +399,7 @@ import { abi } from './abi'
 function App() {
   const result = useSimulateContract({
     abi,
-    address: '0x6b175474e89094c44da98b954eedeac495271d0f',
+    address: '0x6b175474e89094c44da98b954eedeac495271d0f', 
     functionName: 'transferFrom', // [!code focus]
     args: [
       '0xd2135CfB216b74109775236E36d4b433F1DF507B',
@@ -449,6 +450,7 @@ function App() {
 
 `bigint | undefined`
 
+The price in wei to pay per gas. Only applies to [Legacy Transactions](https://viem.sh/docs/glossary/terms.html#legacy-transaction).
 
 ::: code-group
 ```tsx [index.ts]
@@ -479,6 +481,7 @@ function App() {
 
 `bigint | undefined`
 
+Total fee per gas in wei, inclusive of [`maxPriorityFeePerGas`](#maxPriorityFeePerGas). Only applies to [EIP-1559 Transactions](https://viem.sh/docs/glossary/terms.html#eip-1559-transaction).
 
 ::: code-group
 ```tsx [index.ts]
@@ -509,6 +512,7 @@ function App() {
 
 `bigint | undefined`
 
+Max priority fee per gas in wei. Only applies to [EIP-1559 Transactions](https://viem.sh/docs/glossary/terms.html#eip-1559-transaction).
 
 ::: code-group
 ```tsx [index.ts]

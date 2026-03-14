@@ -1,4 +1,5 @@
 <template>
+  <Account />
   <Connect />
 </template>
 
