@@ -56,9 +56,20 @@ export function useSendCalls<
 >(
   parameters: UseSendCallsParameters<config, context> = {},
 ): UseSendCallsReturnType<config, context> {
+  const { mutation } = parameters
+
   const config = useConfig(parameters)
+
   const mutationOptions = sendCallsMutationOptions(config)
+  const { mutate, mutateAsync, ...result } = useMutation({
+    ...mutation,
+    ...mutationOptions,
+  })
+
   type Return = UseSendCallsReturnType<config, context>
   return {
+    ...result,
+    sendCalls: mutate as Return['sendCalls'],
+    sendCallsAsync: mutateAsync as Return['sendCallsAsync'],
   }
 }

@@ -1,3 +1,5 @@
+import type { QueryOptions } from '@tanstack/query-core'
+
 import type { PrepareTransactionRequestRequest as viem_PrepareTransactionRequestRequest } from 'viem'
 
 import {
@@ -22,6 +24,7 @@ export type PrepareTransactionRequestOptions<
 > = UnionExactPartial<
   PrepareTransactionRequestParameters<config, chainId, request>
 > &
+  ScopeKeyParameter
 
 export function prepareTransactionRequestQueryOptions<
   config extends Config,
@@ -35,15 +38,28 @@ export function prepareTransactionRequestQueryOptions<
   options: PrepareTransactionRequestOptions<
     config,
     chainId,
+    request
   > = {} as any,
+) {
   return {
+    queryFn({ queryKey }) {
+      const { scopeKey: _, to, ...parameters } = queryKey[1]
+      if (!to) throw new Error('to is required')
       return prepareTransactionRequest(config, {
+        to,
         ...(parameters as any),
       }) as unknown as Promise<
         PrepareTransactionRequestQueryFnData<config, chainId, request>
       >
     },
-  }
+    queryKey: prepareTransactionRequestQueryKey(options),
+  } as const satisfies QueryOptions<
+    PrepareTransactionRequestQueryFnData<config, chainId, request>,
+    PrepareTransactionRequestErrorType,
+    PrepareTransactionRequestData<config, chainId, request>,
+    PrepareTransactionRequestQueryKey<config, chainId, request>
+  >
+}
 export type PrepareTransactionRequestQueryFnData<
   config extends Config,
   chainId extends config['chains'][number]['id'] | undefined,
@@ -69,6 +85,7 @@ export function prepareTransactionRequestQueryKey<
     SelectChains<config, chainId>[0],
     SelectChains<config, chainId>[0]
   >,
+>(options: PrepareTransactionRequestOptions<config, chainId, request>) {
   return ['prepareTransactionRequest', filterQueryOptions(options)] as const
 }
 

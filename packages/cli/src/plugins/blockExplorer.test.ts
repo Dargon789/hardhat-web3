@@ -4,10 +4,13 @@ import { afterAll, afterEach, beforeAll, expect, test } from 'vitest'
 import {
   address,
   apiKey,
+  baseUrl,
+  handlers,
   unverifiedContractAddress,
 } from '../../test/utils.js'
 import { blockExplorer } from './blockExplorer.js'
 
+const server = setupServer(...handlers)
 
 beforeAll(() => server.listen())
 afterEach(() => server.resetHandlers())

@@ -1,5 +1,7 @@
 import { connect, disconnect } from '@wagmi/core'
 import { abi, address, config, wait } from '@wagmi/test'
+import { renderHook, waitFor } from '@wagmi/test/react'
+import { expect, test } from 'vitest'
 
 import { useSimulateContract } from './useSimulateContract.js'
 
@@ -8,6 +10,7 @@ const connector = config.connectors[0]!
 test('default', async () => {
   await connect(config, { connector })
 
+  const { result } = renderHook(() =>
     useSimulateContract({
       address: address.wagmiMintExample,
       abi: abi.wagmiMintExample,
@@ -15,6 +18,7 @@ test('default', async () => {
     }),
   )
 
+  await waitFor(() => expect(result.current.isSuccess).toBeTruthy())
 
   expect(result.current).toMatchInlineSnapshot(`
     {
@@ -31,6 +35,7 @@ test('default', async () => {
             },
           ],
           "account": {
+            "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
             "type": "json-rpc",
           },
           "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
@@ -65,6 +70,10 @@ test('default', async () => {
       "queryKey": [
         "simulateContract",
         {
+          "account": {
+            "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+            "type": "json-rpc",
+          },
           "address": "0xFBA3912Ca04dd458c843e2EE08967fC04f3579c2",
           "chainId": 1,
           "functionName": "mint",
@@ -79,6 +88,8 @@ test('default', async () => {
 })
 
 test('behavior: disabled when properties missing', async () => {
+  const { result } = renderHook(() => useSimulateContract())
 
   await wait(100)
+  await waitFor(() => expect(result.current.isPending).toBeTruthy())
 })

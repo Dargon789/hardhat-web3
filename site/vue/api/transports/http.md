@@ -1,7 +1,3 @@
----
-title: http
----
-
 <script setup>
 const packageName = '@wagmi/vue'
 </script>

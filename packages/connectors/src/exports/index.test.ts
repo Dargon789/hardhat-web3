@@ -11,6 +11,7 @@ test('exports', () => {
       "metaMask",
       "safe",
       "walletConnect",
+      "version",
     ]
   `)
 })

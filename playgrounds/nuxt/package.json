@@ -10,8 +10,11 @@
     "_postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@tanstack/vue-query": ">=5.45.0",
     "@wagmi/vue": "workspace:*",
+    "nuxt": "^3.16.0",
     "viem": "2.*",
+    "vue": ">=3.4.21",
     "vue-router": "^4.3.2"
   }
 }

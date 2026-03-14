@@ -14,6 +14,7 @@ test('default', () => {
       "queryKey": [
         "transactionCount",
         {
+          "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         },
       ],
     }
@@ -27,16 +28,17 @@ test('parameters: chainId', () => {
       chainId: chain.mainnet.id,
     }),
   ).toMatchInlineSnapshot(`
-    {
-      "queryFn": [Function],
-      "queryKey": [
-        "transactionCount",
-        {
-          "chainId": 1,
-        },
-      ],
-    }
-  `)
+      {
+        "queryFn": [Function],
+        "queryKey": [
+          "transactionCount",
+          {
+            "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+            "chainId": 1,
+          },
+        ],
+      }
+    `)
 })
 
 test('parameters: blockNumber', () => {
@@ -46,16 +48,17 @@ test('parameters: blockNumber', () => {
       blockNumber: 13677382n,
     }),
   ).toMatchInlineSnapshot(`
-    {
-      "queryFn": [Function],
-      "queryKey": [
-        "transactionCount",
-        {
-          "blockNumber": 13677382n,
-        },
-      ],
-    }
-  `)
+      {
+        "queryFn": [Function],
+        "queryKey": [
+          "transactionCount",
+          {
+            "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+            "blockNumber": 13677382n,
+          },
+        ],
+      }
+    `)
 })
 
 test('parameters: blockTag', () => {
@@ -65,14 +68,15 @@ test('parameters: blockTag', () => {
       blockTag: 'earliest',
     }),
   ).toMatchInlineSnapshot(`
-    {
-      "queryFn": [Function],
-      "queryKey": [
-        "transactionCount",
-        {
-          "blockTag": "earliest",
-        },
-      ],
-    }
-  `)
+      {
+        "queryFn": [Function],
+        "queryKey": [
+          "transactionCount",
+          {
+            "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+            "blockTag": "earliest",
+          },
+        ],
+      }
+    `)
 })

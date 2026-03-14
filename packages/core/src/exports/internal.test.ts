@@ -7,6 +7,7 @@ test('exports', () => {
     [
       "watchChains",
       "Emitter",
+      "createEmitter",
       "deepEqual",
       "uid",
     ]

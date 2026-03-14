@@ -31,9 +31,9 @@ import { useReconnect } from '@wagmi/vue'
 import { useReconnect } from '@wagmi/vue'
 import { useEffect } from 'react'
 
-const reconnect = useReconnect()
+const { reconnect } = useReconnect()
 
-reconnect.mutate()
+reconnect()
 </script>
 ```
 
@@ -61,7 +61,7 @@ import { type UseReconnectParameters } from '@wagmi/vue'
 import { useReconnect } from '@wagmi/vue'
 import { config } from './config' // [!code focus]
 
-const reconnect = useReconnect({
+const result = useReconnect({
   config, // [!code focus]
 })
 </script>
@@ -76,6 +76,26 @@ const reconnect = useReconnect({
 ```ts
 import { type UseReconnectReturnType } from '@wagmi/vue'
 ```
+
+### connectors
+
+`readonly Connector[]`
+
+Globally configured connectors via [`createConfig`](/vue/api/createConfig#connectors).
+
+::: code-group
+```vue [index.vue]
+<script setup lang="ts">
+import { useReconnect } from '@wagmi/vue'
+import { mainnet } from '@wagmi/vue/chains'
+
+const { reconnect, connectors } = useReconnect()
+
+reconnect({ connectors })
+</script>
+```
+<<< @/snippets/vue/config.ts[config.ts]
+:::
 
 <!--@include: @shared/mutation-result.md-->
 

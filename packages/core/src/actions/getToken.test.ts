@@ -73,7 +73,7 @@ test('behavior: bogus token', async () => {
       - The contract does not have the function "decimals",
       - The parameters passed to the contract function may be invalid, or
       - The address is not a contract.
-
+     
     Contract Call:
       address:   0xa0cf798816d4b9b9866b5330eea46a18382f251e
       function:  decimals()

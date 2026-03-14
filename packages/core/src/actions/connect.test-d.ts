@@ -1,3 +1,5 @@
+import { accounts } from '@wagmi/test'
+import { http } from 'viem'
 import { mainnet } from 'viem/chains'
 import { expectTypeOf, test } from 'vitest'
 

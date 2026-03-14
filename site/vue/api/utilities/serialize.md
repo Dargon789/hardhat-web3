@@ -1,7 +1,3 @@
----
-title: serialize
----
-
 <script setup>
 const packageName = '@wagmi/vue'
 </script>

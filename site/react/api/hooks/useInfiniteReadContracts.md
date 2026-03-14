@@ -13,7 +13,7 @@ const TError = 'ReadContractsErrorType'
 
 # useInfiniteReadContracts
 
-Hook for calling multiple contract read-only methods with "infinite scrolling"/"fetch more" support.
+Hook for calling multiple contract read-only methods with "infinite scrolling"/"fetch more" support. 
 
 ## Import
 
@@ -163,11 +163,11 @@ function App() {
       const args = [pageParam] as const
       return [
         // ...
-        {
+        {  
           address: '0x1dfe7ca09e99d10835bf73044a23b73fc20623df',
           abi, // [!code hl]
-          functionName: 'getChest',
-          args
+          functionName: 'getChest', 
+          args 
         },
         // ...
       ]
@@ -203,11 +203,11 @@ function App() {
       const args = [pageParam] as const
       return [
         // ...
-        {
+        {  
           address: '0x1dfe7ca09e99d10835bf73044a23b73fc20623df', // [!code hl]
           abi,
-          functionName: 'getChest',
-          args
+          functionName: 'getChest', 
+          args 
         },
         // ...
       ]
@@ -244,11 +244,11 @@ function App() {
       const args = [pageParam] as const
       return [
         // ...
-        {
+        {  
           address: '0x1dfe7ca09e99d10835bf73044a23b73fc20623df',
           abi,
           functionName: 'getChest', // [!code hl]
-          args
+          args 
         },
         // ...
       ]
@@ -284,10 +284,10 @@ function App() {
     contracts(pageParam) {
       return [
         // ...
-        {
+        {  
           address: '0x1dfe7ca09e99d10835bf73044a23b73fc20623df',
           abi,
-          functionName: 'getChest',
+          functionName: 'getChest', 
           args: [pageParam] // [!code hl]
         },
         // ...
@@ -324,10 +324,10 @@ function App() {
       const args = [pageParam] as const
       return [
         // ...
-        {
+        {  
           address: '0x1dfe7ca09e99d10835bf73044a23b73fc20623df',
           abi,
-          functionName: 'getChest',
+          functionName: 'getChest', 
           args,
           chainId: 1 // [!code hl]
         },
