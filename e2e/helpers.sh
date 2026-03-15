@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#! /usr/bin/env sh
 
 # fail if any commands fails
 set -e
@@ -38,7 +38,7 @@ assert_directory_exists() {
   fi
 }
 
-assert_directory_does_not_exist() {
+assert_directory_doesnt_exist() {
   if [ -d "$1" ]; then
     echo "Expected directory $1 to not exist, but it does"
     exit 1

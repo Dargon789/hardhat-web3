@@ -462,7 +462,7 @@ describe("network-manager/hook-handlers/config", () => {
       );
       assertValidationErrors(validationErrors, [
         {
-          path: ["networks", "test", "mining", "interval"],
+          path: ["networks", "test"],
           message: errorMessage,
         },
       ]);
@@ -483,7 +483,7 @@ describe("network-manager/hook-handlers/config", () => {
       );
       assertValidationErrors(validationErrors, [
         {
-          path: ["networks", "test", "mining", "interval"],
+          path: ["networks", "test"],
           message: errorMessage,
         },
       ]);

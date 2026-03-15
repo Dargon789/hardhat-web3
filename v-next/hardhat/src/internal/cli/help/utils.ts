@@ -69,10 +69,6 @@ export function parseOptions(task: Task): {
   const positionalArguments = [];
 
   for (const [optionName, option] of task.options) {
-    if (option.hidden === true) {
-      continue;
-    }
-
     options.push({
       name: toCommandLineOption(optionName),
       shortName: toShortCommandLineOption(option.shortName),

@@ -64,7 +64,6 @@ export function resolveHttpNetwork(
 
 export function resolveEdrNetwork(
   networkConfig: EdrNetworkUserConfig,
-  defaultChainType: ChainType,
   cachePath: string,
   resolveConfigurationVariable: ConfigurationVariableResolver,
 ): EdrNetworkConfig {
@@ -85,7 +84,7 @@ export function resolveEdrNetwork(
       networkConfig.allowBlocksWithSameTimestamp ?? false,
     allowUnlimitedContractSize:
       networkConfig.allowUnlimitedContractSize ?? false,
-    blockGasLimit: BigInt(networkConfig.blockGasLimit ?? 60_000_000n),
+    blockGasLimit: BigInt(networkConfig.blockGasLimit ?? 30_000_000n),
     coinbase: resolveCoinbase(networkConfig.coinbase),
 
     forking: resolveForkingConfig(
@@ -93,10 +92,7 @@ export function resolveEdrNetwork(
       cachePath,
       resolveConfigurationVariable,
     ),
-    hardfork: resolveHardfork(
-      networkConfig.hardfork,
-      networkConfig.chainType ?? defaultChainType,
-    ),
+    hardfork: resolveHardfork(networkConfig.hardfork, networkConfig.chainType),
     initialBaseFeePerGas: resolveInitialBaseFeePerGas(
       networkConfig.initialBaseFeePerGas,
     ),
@@ -279,7 +275,7 @@ export async function resolveChainDescriptors(
 
 export function resolveHardfork(
   hardfork: string | undefined,
-  chainType: ChainType,
+  chainType: ChainType | undefined = GENERIC_CHAIN_TYPE,
 ): string {
   if (hardfork !== undefined) {
     return hardfork;

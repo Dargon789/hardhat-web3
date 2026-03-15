@@ -1,26 +1,12 @@
 {
   "$schema": "https://unpkg.com/@changesets/config@1.6.0/schema.json",
-  "changelog": "../scripts/custom-changelog.mjs",
+  "changelog": "@changesets/cli/changelog",
   "commit": false,
   "linked": [],
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "minor",
-  "ignore": [
-    "@nomicfoundation/config",
-    "@nomicfoundation/example-project",
-    "@nomicfoundation/template-package",
-    "template-*"
-  ],
-  "fixed": [
-    [
-      "@nomicfoundation/hardhat-ignition",
-      "@nomicfoundation/hardhat-ignition-ethers",
-      "@nomicfoundation/hardhat-ignition-viem",
-      "@nomicfoundation/ignition-core",
-      "@nomicfoundation/ignition-ui"
-    ]
-  ],
+  "ignore": ["@nomiclabs/common"],
   "___experimentalUnsafeOptions_WILL_CHANGE_IN_PATCH": {
     "onlyUpdatePeerDependentsWhenOutOfRange": true
   }
