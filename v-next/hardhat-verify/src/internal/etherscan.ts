@@ -1,4 +1,5 @@
 import type {
+  EtherscanChainListResponse,
   EtherscanGetSourceCodeResponse,
   EtherscanResponse,
 } from "./etherscan.types.js";
@@ -6,55 +7,188 @@ import type {
   VerificationProvider,
   VerificationResponse,
   VerificationStatusResponse,
+  BaseVerifyFunctionArgs,
+  CreateEtherscanOptions,
+  ResolveConfigOptions,
 } from "./types.js";
 import type {
   Dispatcher,
+  DispatcherOptions,
   HttpResponse,
 } from "@nomicfoundation/hardhat-utils/request";
-import type { VerificationProvidersConfig } from "hardhat/types/config";
+import type {
+  ChainDescriptorsConfig,
+  VerificationProvidersConfig,
+} from "hardhat/types/config";
 
 import { HardhatError } from "@nomicfoundation/hardhat-errors";
+import { toBigInt } from "@nomicfoundation/hardhat-utils/bigint";
 import { ensureError } from "@nomicfoundation/hardhat-utils/error";
 import { sleep } from "@nomicfoundation/hardhat-utils/lang";
 import {
+  getProxyUrl,
   getRequest,
   postFormRequest,
+  shouldUseProxy,
 } from "@nomicfoundation/hardhat-utils/request";
+import debug from "debug";
+
+const log = debug("hardhat:hardhat-verify:etherscan");
 
 export const ETHERSCAN_PROVIDER_NAME: keyof VerificationProvidersConfig =
   "etherscan";
 
 const VERIFICATION_STATUS_POLLING_SECONDS = 3;
 
-// TODO: we need to remove the apiUrl from the chain descriptors in
-// v-next/hardhat/src/internal/builtin-plugins/network-manager/chain-descriptors.ts
-// and use this as the default API URL for Etherscan v2
-// this.apiUrl = etherscanConfig.apiUrl ?? ETHERSCAN_API_URL;
 export const ETHERSCAN_API_URL = "https://api.etherscan.io/v2/api";
 
-export class Etherscan implements VerificationProvider {
-  public chainId: string;
-  public name: string;
-  public url: string;
-  public apiUrl: string;
-  public apiKey: string;
+export interface EtherscanVerifyFunctionArgs extends BaseVerifyFunctionArgs {
+  constructorArguments: string;
+}
 
-  readonly #dispatcher?: Dispatcher;
-  readonly #pollingIntervalMs: number;
+let supportedChainsCache: ChainDescriptorsConfig | undefined;
+
+export class Etherscan implements VerificationProvider {
+  public readonly chainId: string;
+  public readonly name: string;
+  public readonly url: string;
+  public readonly apiUrl: string;
+  public readonly apiKey: string;
+  public readonly dispatcherOrDispatcherOptions?:
+    | Dispatcher
+    | DispatcherOptions;
+  public readonly pollingIntervalMs: number;
+
+  public static async resolveConfig({
+    chainId,
+    networkName,
+    chainDescriptors,
+    verificationProvidersConfig,
+    dispatcher,
+    shouldUseCache = true,
+  }: ResolveConfigOptions): Promise<CreateEtherscanOptions> {
+    const chainDescriptor = chainDescriptors.get(toBigInt(chainId));
+
+    let blockExplorerConfig = chainDescriptor?.blockExplorers.etherscan;
+    if (blockExplorerConfig === undefined) {
+      const supportedChains = await Etherscan.getSupportedChains(
+        dispatcher,
+        shouldUseCache,
+      );
+      blockExplorerConfig = supportedChains.get(toBigInt(chainId))
+        ?.blockExplorers.etherscan;
+    }
+
+    if (blockExplorerConfig === undefined) {
+      if (chainDescriptor === undefined) {
+        throw new HardhatError(
+          HardhatError.ERRORS.HARDHAT_VERIFY.GENERAL.NETWORK_NOT_SUPPORTED,
+          {
+            networkName,
+            chainId,
+          },
+        );
+      }
+
+      throw new HardhatError(
+        HardhatError.ERRORS.HARDHAT_VERIFY.GENERAL.BLOCK_EXPLORER_NOT_CONFIGURED,
+        {
+          verificationProvider: "Etherscan",
+          chainId,
+        },
+      );
+    }
+
+    return {
+      blockExplorerConfig,
+      verificationProviderConfig: verificationProvidersConfig.etherscan,
+      chainId,
+      dispatcher,
+    };
+  }
+
+  public static async create({
+    blockExplorerConfig,
+    verificationProviderConfig,
+    chainId,
+    dispatcher,
+  }: CreateEtherscanOptions): Promise<Etherscan> {
+    return new Etherscan({
+      chainId,
+      ...blockExplorerConfig,
+      apiKey: await verificationProviderConfig.apiKey.get(),
+      dispatcher,
+    });
+  }
+
+  public static async getSupportedChains(
+    dispatcher?: Dispatcher,
+    shouldUseCache = true,
+  ): Promise<ChainDescriptorsConfig> {
+    if (supportedChainsCache !== undefined && shouldUseCache) {
+      return supportedChainsCache;
+    }
+
+    const supportedChains: ChainDescriptorsConfig = new Map();
+
+    try {
+      const response = await getRequest(
+        "https://api.etherscan.io/v2/chainlist",
+        undefined,
+        dispatcher,
+      );
+      const responseBody: EtherscanChainListResponse =
+        await response.body.json();
+
+      const chainListData = responseBody.result;
+
+      for (const chain of chainListData) {
+        const chainId = toBigInt(chain.chainid);
+        supportedChains.set(chainId, {
+          name: chain.chainname,
+          chainType: "generic",
+          blockExplorers: {
+            etherscan: {
+              url: chain.blockexplorer,
+            },
+          },
+        });
+      }
+    } catch (error) {
+      // ignore errors
+      log("Failed to fetch supported chains from Etherscan");
+      log(error);
+      return new Map();
+    }
+
+    if (shouldUseCache) {
+      supportedChainsCache = supportedChains;
+    }
+
+    return supportedChains;
+  }
 
   constructor(etherscanConfig: {
     chainId: number;
     name?: string;
     url: string;
+    apiUrl?: string;
     apiKey: string;
     dispatcher?: Dispatcher;
   }) {
     this.chainId = String(etherscanConfig.chainId);
     this.name = etherscanConfig.name ?? "Etherscan";
     this.url = etherscanConfig.url;
-    this.apiUrl = ETHERSCAN_API_URL;
-    this.#dispatcher = etherscanConfig.dispatcher;
-    this.#pollingIntervalMs =
+    this.apiUrl = etherscanConfig.apiUrl ?? ETHERSCAN_API_URL;
+
+    const proxyUrl = shouldUseProxy(this.apiUrl)
+      ? getProxyUrl(this.apiUrl)
+      : undefined;
+    this.dispatcherOrDispatcherOptions =
+      etherscanConfig.dispatcher ??
+      (proxyUrl !== undefined ? { proxy: proxyUrl } : {});
+
+    this.pollingIntervalMs =
       etherscanConfig.dispatcher !== undefined
         ? 0
         : VERIFICATION_STATUS_POLLING_SECONDS;
@@ -89,7 +223,7 @@ export class Etherscan implements VerificationProvider {
             address,
           },
         },
-        this.#dispatcher,
+        this.dispatcherOrDispatcherOptions,
       );
       responseBody =
         /* eslint-disable-next-line @typescript-eslint/consistent-type-assertions
@@ -133,16 +267,16 @@ export class Etherscan implements VerificationProvider {
     return typeof sourceCode === "string" && sourceCode !== "";
   }
 
-  public async verify(
-    contractAddress: string,
-    sourceCode: string,
-    contractName: string,
-    compilerVersion: string,
-    constructorArguments: string,
-  ): Promise<string> {
+  public async verify({
+    contractAddress,
+    compilerInput,
+    contractName,
+    compilerVersion,
+    constructorArguments,
+  }: EtherscanVerifyFunctionArgs): Promise<string> {
     const body = {
       contractaddress: contractAddress,
-      sourceCode,
+      sourceCode: JSON.stringify(compilerInput),
       codeformat: "solidity-standard-json-input",
       contractname: contractName,
       compilerversion: compilerVersion,
@@ -162,7 +296,7 @@ export class Etherscan implements VerificationProvider {
             apikey: this.apiKey,
           },
         },
-        this.#dispatcher,
+        this.dispatcherOrDispatcherOptions,
       );
       responseBody =
         /* eslint-disable-next-line @typescript-eslint/consistent-type-assertions
@@ -252,7 +386,7 @@ export class Etherscan implements VerificationProvider {
             guid,
           },
         },
-        this.#dispatcher,
+        this.dispatcherOrDispatcherOptions,
       );
       responseBody =
         /* eslint-disable-next-line @typescript-eslint/consistent-type-assertions
@@ -293,7 +427,7 @@ export class Etherscan implements VerificationProvider {
     );
 
     if (etherscanResponse.isPending()) {
-      await sleep(this.#pollingIntervalMs);
+      await sleep(this.pollingIntervalMs);
 
       return this.pollVerificationStatus(guid, contractAddress, contractName);
     }
@@ -308,6 +442,13 @@ export class Etherscan implements VerificationProvider {
       );
     }
 
+    if (etherscanResponse.isFailure() || etherscanResponse.isSuccess()) {
+      return {
+        success: etherscanResponse.isSuccess(),
+        message: etherscanResponse.message,
+      };
+    }
+
     if (!etherscanResponse.isOk()) {
       throw new HardhatError(
         HardhatError.ERRORS.HARDHAT_VERIFY.GENERAL.CONTRACT_VERIFICATION_STATUS_POLLING_FAILED,
@@ -315,18 +456,11 @@ export class Etherscan implements VerificationProvider {
       );
     }
 
-    if (!(etherscanResponse.isFailure() || etherscanResponse.isSuccess())) {
-      // Reaching this point shouldn't be possible unless the API is behaving in a new way.
-      throw new HardhatError(
-        HardhatError.ERRORS.HARDHAT_VERIFY.GENERAL.CONTRACT_VERIFICATION_UNEXPECTED_RESPONSE,
-        { message: etherscanResponse.message },
-      );
-    }
-
-    return {
-      success: etherscanResponse.isSuccess(),
-      message: etherscanResponse.message,
-    };
+    // Reaching this point shouldn't be possible unless the API is behaving in a new way.
+    throw new HardhatError(
+      HardhatError.ERRORS.HARDHAT_VERIFY.GENERAL.CONTRACT_VERIFICATION_UNEXPECTED_RESPONSE,
+      { message: etherscanResponse.message },
+    );
   }
 }
 
@@ -371,7 +505,7 @@ class EtherscanVerificationStatusResponse
   }
 
   public isFailure(): boolean {
-    return this.message === "Fail - Unable to verify";
+    return this.message.startsWith("Fail - Unable to verify");
   }
 
   public isSuccess(): boolean {

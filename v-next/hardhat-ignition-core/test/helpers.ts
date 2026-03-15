@@ -1,6 +1,6 @@
 import { assert } from "chai";
 
-import { Artifact, ArtifactResolver } from "../src/index.js";
+import type { Artifact, ArtifactResolver } from "../src/index.js";
 import { DeploymentLoader } from "../src/internal/deployment-loader/types.js";
 import { Journal } from "../src/internal/journal/types/index.js";
 
@@ -78,7 +78,8 @@ export function setupMockDeploymentLoader(
 
   return {
     recordToJournal: async (message) => {
-      journal.record(message);
+      // NOTE: the journal record is sync, even though this call is async
+      await journal.record(message);
     },
     readFromJournal: () => {
       return journal.read();

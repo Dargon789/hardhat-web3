@@ -10,6 +10,7 @@ import { beforeEach, describe, it } from "node:test";
 
 import { disableConsole, useTmpDir } from "@nomicfoundation/hardhat-test-utils";
 import { getAllFilesMatching } from "@nomicfoundation/hardhat-utils/fs";
+import chalk from "chalk";
 
 import { CoverageManagerImplementation } from "../../../../src/internal/builtin-plugins/coverage/coverage-manager.js";
 
@@ -137,6 +138,47 @@ describe("CoverageManagerImplementation", () => {
     const allData = coverageManager.data;
 
     for (const item of [...data1, ...data2]) {
+      assert.ok(
+        allData.includes(item),
+        `The loaded data should include ${item}`,
+      );
+    }
+  });
+
+  /**
+   * This test was introduced in response to:
+   * https://github.com/NomicFoundation/hardhat/issues/7385
+   *
+   * The underlying issue was that with enough coverage entries
+   * we were getting issues with conversion to function params,
+   * hence the large array size: `150_000`.
+   *
+   * This test should be monitored for performance in our CI.
+   */
+  it("should load large save data files", async () => {
+    const data1: CoverageData = Array.from({ length: 150_000 }, (_, i) =>
+      (i + 1).toString(),
+    );
+
+    const allMetadata: CoverageMetadata = [];
+
+    for (const item of [...data1]) {
+      allMetadata.push({
+        relativePath: "contracts/test.sol",
+        tag: item,
+        startLine: 1,
+        endLine: 1,
+      });
+    }
+
+    const coverageManager1 = new CoverageManagerImplementation(process.cwd());
+    await coverageManager1.addData(data1);
+    await coverageManager1.saveData(id);
+
+    await coverageManager.loadData(id);
+    const allData = coverageManager.data;
+
+    for (const item of [...data1]) {
       assert.ok(
         allData.includes(item),
         `The loaded data should include ${item}`,
@@ -274,12 +316,13 @@ describe("CoverageManagerImplementation", () => {
   it("should format the markdown report", async () => {
     const actual = coverageManager.formatMarkdownReport(report);
     const expected = [
-      "| File Path 📦        | Line % 📈 | Statement % 📈 | Uncovered Lines 🔍 | Partially Covered Lines 🔍 |",
-      "| ------------------- | --------- | -------------- | ------------------ | -------------------------- |",
-      "| contracts/test.sol  | 80.00     | 75.00          | 6                  | 5                          |",
-      "| contracts/other.sol | 0.00      | 0.00           | 1-2                | -                          |",
-      "| ------------------- | --------- | -------------- | ------------------ | -------------------------- |",
-      "| Total               | 57.14     | 60.00          |                    |                            |",
+      `| ${chalk.bold("Coverage Report")}     |        |             |                 |                         |`,
+      "| ------------------- | ------ | ----------- | --------------- | ----------------------- |",
+      `| ${chalk.yellow("File Path")}           | ${chalk.yellow("Line %")} | ${chalk.yellow("Statement %")} | ${chalk.yellow("Uncovered Lines")} | ${chalk.yellow("Partially Covered Lines")} |`,
+      "| contracts/test.sol  | 80.00  | 75.00       | 6               | 5                       |",
+      "| contracts/other.sol | 0.00   | 0.00        | 1-2             | -                       |",
+      "| ------------------- | ------ | ----------- | --------------- | ----------------------- |",
+      `| ${chalk.yellow("Total")}               | 57.14  | 60.00       |                 |                         |`,
     ].join("\n");
     assert.equal(actual, expected);
   });

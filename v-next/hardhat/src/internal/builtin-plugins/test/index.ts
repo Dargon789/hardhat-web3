@@ -1,6 +1,7 @@
 import type { HardhatPlugin } from "../../../types/plugins.js";
 
 import { ArgumentType } from "../../../types/arguments.js";
+import { DEFAULT_VERBOSITY } from "../../constants.js";
 import { task } from "../../core/config.js";
 
 import "./type-extensions.js";
@@ -11,7 +12,7 @@ const hardhatPlugin: HardhatPlugin = {
     config: () => import("./hook-handlers/config.js"),
   },
   tasks: [
-    task("test", "Runs all your tests")
+    task("test", "Run all tests")
       .addVariadicArgument({
         name: "testFiles",
         description: "List of specific files to run tests on",
@@ -30,13 +31,13 @@ const hardhatPlugin: HardhatPlugin = {
       })
       .addFlag({
         name: "noCompile",
-        description: "Don't compile the project before running the tests",
+        description: "Do not compile the project before running the tests",
       })
       .addLevel({
         name: "verbosity",
         shortName: "v",
         description: "Verbosity level of the test output",
-        defaultValue: 2,
+        defaultValue: DEFAULT_VERBOSITY,
       })
       .setAction(async () => import("./task-action.js"))
       .build(),

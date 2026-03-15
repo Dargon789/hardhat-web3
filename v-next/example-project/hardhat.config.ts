@@ -1,4 +1,4 @@
-import type { HardhatUserConfig } from "hardhat/config";
+import { defineConfig } from "hardhat/config";
 
 import { HardhatPluginError } from "hardhat/plugins";
 
@@ -15,6 +15,7 @@ import hardhatChaiMatchersPlugin from "@nomicfoundation/hardhat-ethers-chai-matc
 import hardhatTypechain from "@nomicfoundation/hardhat-typechain";
 import hardhatIgnitionViem from "@nomicfoundation/hardhat-ignition-viem";
 import hardhatVerify from "@nomicfoundation/hardhat-verify";
+import hardhatLedger from "@nomicfoundation/hardhat-ledger";
 import { ArgumentType } from "hardhat/types/arguments";
 
 util.inspect.defaultOptions.depth = null;
@@ -62,11 +63,18 @@ const exampleTaskOverride = task("example2")
   })
   .build();
 
-const greeting = task("hello", "Prints a greeting")
+const greeting = task("hello", "Print a greeting")
   .addOption({
     name: "greeting",
     description: "The greeting to print",
     defaultValue: "Hello, World!",
+  })
+  .addOption({
+    name: "programmatic",
+    description: "An example to show a hidden option",
+    type: ArgumentType.BOOLEAN,
+    defaultValue: false,
+    hidden: true,
   })
   .setAction(async () => ({
     default: async ({ greeting }, _) => {
@@ -75,7 +83,7 @@ const greeting = task("hello", "Prints a greeting")
   }))
   .build();
 
-const printConfig = task("config", "Prints the config")
+const printConfig = task("config", "Print the config")
   .setAction(async () => ({
     default: async ({}, hre) => {
       console.log(util.inspect(hre.config, { colors: true, depth: null }));
@@ -83,7 +91,7 @@ const printConfig = task("config", "Prints the config")
   }))
   .build();
 
-const printAccounts = task("accounts", "Prints the accounts")
+const printAccounts = task("accounts", "Print the accounts")
   .setAction(async () => ({
     default: async ({}, hre) => {
       const { provider } = await hre.network.connect();
@@ -95,7 +103,7 @@ const printAccounts = task("accounts", "Prints the accounts")
 const pluginExample = {
   id: "community-plugin",
   tasks: [
-    task("plugin-hello", "Prints a greeting from community-plugin")
+    task("plugin-hello", "Print a greeting from community-plugin")
       .addOption({
         name: "greeting",
         description: "The greeting to print",
@@ -124,7 +132,7 @@ const pluginExample = {
   ],
 };
 
-const config: HardhatUserConfig = {
+export default defineConfig({
   networks: {
     op: {
       type: "http",
@@ -139,6 +147,10 @@ const config: HardhatUserConfig = {
       forking: {
         url: "https://mainnet.optimism.io",
       },
+      ledgerAccounts: [
+        // Set your ledger address here
+        // "0x070Da0697e6B82F0ab3f5D0FD9210EAdF2Ba1516",
+      ],
     },
     opSepolia: {
       type: "http",
@@ -175,6 +187,7 @@ const config: HardhatUserConfig = {
     hardhatChaiMatchersPlugin,
     hardhatTypechain,
     hardhatIgnitionViem,
+    hardhatLedger,
   ],
   paths: {
     tests: {
@@ -227,6 +240,4 @@ const config: HardhatUserConfig = {
       timeout: 1000,
     },
   },
-};
-
-export default config;
+});

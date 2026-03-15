@@ -1,17 +1,32 @@
 # Changelog
 
-## 3.0.0-next.2
+## 3.0.5
+
+## 3.0.4
+
+## 3.0.3
 
 ### Patch Changes
 
-- Hardhat 3 Alpha release (2025-03-20T08:38:27.809Z)
+- bebf87c: Added support for Linea network verification, thanks @kyzooghost ([#7357](https://github.com/NomicFoundation/hardhat/issues/7357))
 
-## 3.0.0-next.1
+## 3.0.2
 
 ### Patch Changes
 
-- 726fe76: update mermaid version and re-enable visualize task (v3)
-- af5eb2b: Fix for mermaid diagram centering in visalization report [#6409](https://github.com/NomicFoundation/hardhat/issues/6409).
+- ddefbff: Added guard to stop multiple simultaneous calls to `ignition.deploy(...)` at once ([#6440](https://github.com/NomicFoundation/hardhat/issues/6440))
+
+## 3.0.1
+
+### Patch Changes
+
+- 86cecc7: Fix the type guard to include `m.encodeFunctionCall` in those that do not submit transactions, thanks @radik878 ([#7264](https://github.com/NomicFoundation/hardhat/pull/7264))
+
+## 3.0.0
+
+### Major Changes
+
+- 29cc141: First release of Hardhat 3!
 
 ## 0.15.9 - 2024-12-18
 

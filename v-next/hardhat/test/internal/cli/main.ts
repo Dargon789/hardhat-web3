@@ -108,6 +108,7 @@ async function runMain(command: string): Promise<string[]> {
       lines.push(message);
     },
     rethrowErrors: true,
+    allowNonlocalHardhatInstallation: true,
   });
 
   return lines;
@@ -227,6 +228,34 @@ describe("main", function () {
       });
     });
 
+    describe("task with hidden option", function () {
+      useFixtureProject("cli/parsing/hidden-option");
+
+      it("should throw when passing a hidden option from the CLI", async function () {
+        const command = "npx hardhat test-task --opt <value>";
+
+        await assertRejectsWithHardhatError(
+          () => runMain(command),
+          HardhatError.ERRORS.CORE.ARGUMENTS.NO_HIDDEN_OPTION_CLI,
+          {
+            option: "--opt",
+          },
+        );
+      });
+
+      it("should throw when passing a hidden flag from the CLI", async function () {
+        const command = "npx hardhat test-task --flag";
+
+        await assertRejectsWithHardhatError(
+          () => runMain(command),
+          HardhatError.ERRORS.CORE.ARGUMENTS.NO_HIDDEN_OPTION_CLI,
+          {
+            option: "--flag",
+          },
+        );
+      });
+    });
+
     describe("global help", function () {
       useFixtureProject("cli/parsing/base-project");
 
@@ -240,16 +269,16 @@ Usage: hardhat [GLOBAL OPTIONS] <TASK> [SUBTASK] [TASK OPTIONS] [--] [TASK ARGUM
 
 AVAILABLE TASKS:
 
-  build                    Builds your project
-  clean                    Clears the cache and deletes all artifacts
-  compile                  Builds your project (alias for build)
-  console                  Opens a hardhat console
-  flatten                  Flattens and prints contracts and their dependencies
-  node                     Starts a JSON-RPC server on top of Hardhat Network
-  run                      Runs a user-defined script after compiling the project
+  build                    Build project
+  clean                    Clear the cache and delete all artifacts
+  compile                  Build project (alias for build)
+  console                  Open a hardhat console
+  flatten                  Flatten and print contracts and their dependencies
+  node                     Start a JSON-RPC server on top of Hardhat Network
+  run                      Run a user-defined script after compiling the project
   task                     A task that uses arg1
-  telemetry                Displays and modifies your telemetry settings
-  test                     Runs all your tests
+  telemetry                Display and modify telemetry settings
+  test                     Run all tests
 
 AVAILABLE SUBTASKS:
 
@@ -258,13 +287,14 @@ AVAILABLE SUBTASKS:
 GLOBAL OPTIONS:
 
   --build-profile          The build profile to use
-  --config                 A Hardhat config file.
+  --config                 A Hardhat config file
   --coverage               Enables code coverage
-  --help, -h               Shows this message, or a task's help if its name is provided.
-  --init                   Initializes a Hardhat project.
+  --gas-stats              Collects and displays gas usage statistics for all function calls during tests
+  --help, -h               Show this message, or a task's help if its name is provided
+  --init                   Initializes a Hardhat project
   --network                The network to connect to
-  --show-stack-traces      Show stack traces (always enabled on CI servers).
-  --version                Shows hardhat's version.
+  --show-stack-traces      Show stack traces (always enabled on CI servers)
+  --version                Show the version of hardhat
 
 To get help for a specific task run: npx hardhat <TASK> [SUBTASK] --help`;
 
@@ -330,13 +360,14 @@ POSITIONAL ARGUMENTS:
 GLOBAL OPTIONS:
 
   --build-profile          The build profile to use
-  --config                 A Hardhat config file.
+  --config                 A Hardhat config file
   --coverage               Enables code coverage
-  --help, -h               Shows this message, or a task's help if its name is provided.
-  --init                   Initializes a Hardhat project.
+  --gas-stats              Collects and displays gas usage statistics for all function calls during tests
+  --help, -h               Show this message, or a task's help if its name is provided
+  --init                   Initializes a Hardhat project
   --network                The network to connect to
-  --show-stack-traces      Show stack traces (always enabled on CI servers).
-  --version                Shows hardhat's version.
+  --show-stack-traces      Show stack traces (always enabled on CI servers)
+  --version                Show the version of hardhat
 `;
 
           assert.equal(lines.join(""), expected);
@@ -369,13 +400,14 @@ POSITIONAL ARGUMENTS:
 GLOBAL OPTIONS:
 
   --build-profile          The build profile to use
-  --config                 A Hardhat config file.
+  --config                 A Hardhat config file
   --coverage               Enables code coverage
-  --help, -h               Shows this message, or a task's help if its name is provided.
-  --init                   Initializes a Hardhat project.
+  --gas-stats              Collects and displays gas usage statistics for all function calls during tests
+  --help, -h               Show this message, or a task's help if its name is provided
+  --init                   Initializes a Hardhat project
   --network                The network to connect to
-  --show-stack-traces      Show stack traces (always enabled on CI servers).
-  --version                Shows hardhat's version.
+  --show-stack-traces      Show stack traces (always enabled on CI servers)
+  --version                Show the version of hardhat
 `;
 
         assert.equal(lines.join(""), expected);

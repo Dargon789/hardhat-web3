@@ -1,6 +1,6 @@
 {
   "name": "@nomicfoundation/hardhat-utils",
-  "version": "3.0.0-next.32",
+  "version": "3.0.5",
   "description": "Utilities for Hardhat and its plugins",
   "homepage": "https://github.com/nomicfoundation/hardhat/tree/v-next/v-next/hardhat-utils",
   "repository": {
@@ -20,20 +20,24 @@
     "./crypto": "./dist/src/crypto.js",
     "./date": "./dist/src/date.js",
     "./debug": "./dist/src/debug.js",
+    "./env": "./dist/src/env.js",
     "./error": "./dist/src/error.js",
     "./eth": "./dist/src/eth.js",
+    "./format": "./dist/src/format.js",
     "./fs": "./dist/src/fs.js",
     "./global-dir": "./dist/src/global-dir.js",
     "./hex": "./dist/src/hex.js",
     "./lang": "./dist/src/lang.js",
     "./number": "./dist/src/number.js",
     "./package": "./dist/src/package.js",
+    "./panic-errors": "./dist/src/panic-errors.js",
     "./path": "./dist/src/path.js",
     "./request": "./dist/src/request.js",
     "./string": "./dist/src/string.js",
     "./stream": "./dist/src/stream.js",
     "./subprocess": "./dist/src/subprocess.js",
-    "./synchronization": "./dist/src/synchronization.js"
+    "./synchronization": "./dist/src/synchronization.js",
+    "./spinner": "./dist/src/spinner.js"
   },
   "keywords": [
     "ethereum",
@@ -62,7 +66,7 @@
     "README.md"
   ],
   "devDependencies": {
-    "@nomicfoundation/hardhat-node-test-reporter": "workspace:^3.0.0-next.32",
+    "@nomicfoundation/hardhat-node-test-reporter": "workspace:^3.0.0",
     "@types/bn.js": "^5.1.5",
     "@types/debug": "^4.1.7",
     "@types/node": "^20.14.9",

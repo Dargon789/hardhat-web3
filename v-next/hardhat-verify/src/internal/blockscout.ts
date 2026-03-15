@@ -1,4 +1,5 @@
 import type {
+  BlockscoutChainListResponse,
   BlockscoutGetSourceCodeResponse,
   BlockscoutResponse,
 } from "./blockscout.types.js";
@@ -6,33 +7,161 @@ import type {
   VerificationProvider,
   VerificationResponse,
   VerificationStatusResponse,
+  BaseVerifyFunctionArgs,
+  CreateBlockscoutOptions,
+  ResolveConfigOptions,
 } from "./types.js";
 import type {
   Dispatcher,
+  DispatcherOptions,
   HttpResponse,
 } from "@nomicfoundation/hardhat-utils/request";
-import type { VerificationProvidersConfig } from "hardhat/types/config";
+import type {
+  ChainDescriptorsConfig,
+  VerificationProvidersConfig,
+} from "hardhat/types/config";
 
 import { HardhatError } from "@nomicfoundation/hardhat-errors";
+import { toBigInt } from "@nomicfoundation/hardhat-utils/bigint";
 import { ensureError } from "@nomicfoundation/hardhat-utils/error";
 import { sleep } from "@nomicfoundation/hardhat-utils/lang";
 import {
+  getProxyUrl,
   getRequest,
   postFormRequest,
+  shouldUseProxy,
 } from "@nomicfoundation/hardhat-utils/request";
+import debug from "debug";
+
+const log = debug("hardhat:hardhat-verify:blockscout");
 
 export const BLOCKSCOUT_PROVIDER_NAME: keyof VerificationProvidersConfig =
   "blockscout";
 
 const VERIFICATION_STATUS_POLLING_SECONDS = 3;
 
-export class Blockscout implements VerificationProvider {
-  public name: string;
-  public url: string;
-  public apiUrl: string;
+export interface BlockscoutVerifyFunctionArgs extends BaseVerifyFunctionArgs {
+  constructorArguments: string;
+}
 
-  readonly #dispatcher?: Dispatcher;
-  readonly #pollingIntervalMs: number;
+let supportedChainsCache: ChainDescriptorsConfig | undefined;
+
+export class Blockscout implements VerificationProvider {
+  public readonly name: string;
+  public readonly url: string;
+  public readonly apiUrl: string;
+  public readonly dispatcherOrDispatcherOptions?:
+    | Dispatcher
+    | DispatcherOptions;
+  public readonly pollingIntervalMs: number;
+
+  public static async resolveConfig({
+    chainId,
+    networkName,
+    chainDescriptors,
+    dispatcher,
+    shouldUseCache = true,
+  }: ResolveConfigOptions): Promise<CreateBlockscoutOptions> {
+    const chainDescriptor = chainDescriptors.get(toBigInt(chainId));
+
+    let blockExplorerConfig = chainDescriptor?.blockExplorers.blockscout;
+    if (blockExplorerConfig === undefined) {
+      const supportedChains = await Blockscout.getSupportedChains(
+        dispatcher,
+        shouldUseCache,
+      );
+      blockExplorerConfig = supportedChains.get(toBigInt(chainId))
+        ?.blockExplorers.blockscout;
+    }
+
+    if (blockExplorerConfig === undefined) {
+      if (chainDescriptor === undefined) {
+        throw new HardhatError(
+          HardhatError.ERRORS.HARDHAT_VERIFY.GENERAL.NETWORK_NOT_SUPPORTED,
+          {
+            networkName,
+            chainId,
+          },
+        );
+      }
+
+      throw new HardhatError(
+        HardhatError.ERRORS.HARDHAT_VERIFY.GENERAL.BLOCK_EXPLORER_NOT_CONFIGURED,
+        {
+          verificationProvider: "Blockscout",
+          chainId,
+        },
+      );
+    }
+
+    return {
+      blockExplorerConfig,
+      dispatcher,
+    };
+  }
+
+  public static async create({
+    blockExplorerConfig,
+    dispatcher,
+  }: CreateBlockscoutOptions): Promise<Blockscout> {
+    return new Blockscout({
+      ...blockExplorerConfig,
+      dispatcher,
+    });
+  }
+
+  public static async getSupportedChains(
+    dispatcher?: Dispatcher,
+    shouldUseCache = true,
+  ): Promise<ChainDescriptorsConfig> {
+    if (supportedChainsCache !== undefined && shouldUseCache) {
+      return supportedChainsCache;
+    }
+
+    const supportedChains: ChainDescriptorsConfig = new Map();
+
+    try {
+      const response = await getRequest(
+        "https://chains.blockscout.com/api/chains",
+        undefined,
+        dispatcher,
+      );
+      const chainListData: BlockscoutChainListResponse =
+        await response.body.json();
+
+      for (const [chainId, chain] of Object.entries(chainListData)) {
+        const blockExplorer = chain.explorers.find(
+          (explorer) => explorer.hostedBy.toLowerCase() === "blockscout",
+        );
+
+        if (blockExplorer === undefined) {
+          continue;
+        }
+
+        supportedChains.set(toBigInt(chainId), {
+          name: chain.name,
+          chainType: "generic",
+          blockExplorers: {
+            blockscout: {
+              url: blockExplorer.url,
+              apiUrl: `${blockExplorer.url}/api`,
+            },
+          },
+        });
+      }
+    } catch (error) {
+      // ignore errors
+      log("Failed to fetch supported chains from Blockscout");
+      log(error);
+      return new Map();
+    }
+
+    if (shouldUseCache) {
+      supportedChainsCache = supportedChains;
+    }
+
+    return supportedChains;
+  }
 
   constructor(blockscoutConfig: {
     name?: string;
@@ -43,8 +172,15 @@ export class Blockscout implements VerificationProvider {
     this.name = blockscoutConfig.name ?? "Blockscout";
     this.url = blockscoutConfig.url;
     this.apiUrl = blockscoutConfig.apiUrl;
-    this.#dispatcher = blockscoutConfig.dispatcher;
-    this.#pollingIntervalMs =
+
+    const proxyUrl = shouldUseProxy(this.apiUrl)
+      ? getProxyUrl(this.apiUrl)
+      : undefined;
+    this.dispatcherOrDispatcherOptions =
+      blockscoutConfig.dispatcher ??
+      (proxyUrl !== undefined ? { proxy: proxyUrl } : {});
+
+    this.pollingIntervalMs =
       blockscoutConfig.dispatcher !== undefined
         ? 0
         : VERIFICATION_STATUS_POLLING_SECONDS;
@@ -67,7 +203,7 @@ export class Blockscout implements VerificationProvider {
             address,
           },
         },
-        this.#dispatcher,
+        this.dispatcherOrDispatcherOptions,
       );
       responseBody =
         /* eslint-disable-next-line @typescript-eslint/consistent-type-assertions
@@ -111,16 +247,16 @@ export class Blockscout implements VerificationProvider {
     return typeof sourceCode === "string" && sourceCode !== "";
   }
 
-  public async verify(
-    contractAddress: string,
-    sourceCode: string,
-    contractName: string,
-    compilerVersion: string,
-    constructorArguments: string,
-  ): Promise<string> {
+  public async verify({
+    contractAddress,
+    compilerInput,
+    contractName,
+    compilerVersion,
+    constructorArguments,
+  }: BlockscoutVerifyFunctionArgs): Promise<string> {
     const body = {
       contractaddress: contractAddress,
-      sourceCode,
+      sourceCode: JSON.stringify(compilerInput),
       codeformat: "solidity-standard-json-input",
       contractname: contractName,
       compilerversion: compilerVersion,
@@ -138,7 +274,7 @@ export class Blockscout implements VerificationProvider {
             action: "verifysourcecode",
           },
         },
-        this.#dispatcher,
+        this.dispatcherOrDispatcherOptions,
       );
       responseBody =
         /* eslint-disable-next-line @typescript-eslint/consistent-type-assertions
@@ -236,7 +372,7 @@ export class Blockscout implements VerificationProvider {
             guid,
           },
         },
-        this.#dispatcher,
+        this.dispatcherOrDispatcherOptions,
       );
       responseBody =
         /* eslint-disable-next-line @typescript-eslint/consistent-type-assertions
@@ -277,7 +413,7 @@ export class Blockscout implements VerificationProvider {
     );
 
     if (blockscoutResponse.isPending()) {
-      await sleep(this.#pollingIntervalMs);
+      await sleep(this.pollingIntervalMs);
 
       return this.pollVerificationStatus(guid, contractAddress, contractName);
     }

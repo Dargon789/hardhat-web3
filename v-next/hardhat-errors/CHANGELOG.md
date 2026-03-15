@@ -1,15 +1,45 @@
 # @nomicfoundation/hardhat-errors
 
-## 3.0.0-next.2
+## 3.0.6
 
 ### Patch Changes
 
-- Hardhat 3 Alpha release (2025-03-20T08:38:27.809Z)
+- 6b2ed9a: Add ability for task options to be hidden from the CLI ([#7426](https://github.com/NomicFoundation/hardhat/issues/7426))
 
-## 3.0.0-next.1
+## 3.0.5
 
 ### Patch Changes
 
-- bfb708c: Improve error message when build profile is not found.
-- e853ff8: Improve error message if a non-existing subtask is invoked ([#6375](https://github.com/NomicFoundation/hardhat/issues/6375))
-- 209ea79: Improve the keystore error message displayed when the password is incorrect or the encrypted file is corrupted.
+- 03a4539: Export error descriptors for the website
+- 95684ac: Full links to documentation replaced by short links with redirects added to the Hardhat website ([#142](https://github.com/NomicFoundation/hardhat-website/issues/142))
+
+## 3.0.4
+
+### Patch Changes
+
+- ce5c22a: Fail when a file isn't built neither as contract nor test
+
+## 3.0.3
+
+### Patch Changes
+
+- a871e3e: Ported the `@nomicfoundation/hardhat-ledger` plugin to Hardhat 3 ([#5646](https://github.com/NomicFoundation/hardhat/issues/5646))
+
+## 3.0.2
+
+### Patch Changes
+
+- be469d6: Display an error message when attempting to use a global hardhat installation in a local repo ([#5362](https://github.com/NomicFoundation/hardhat/issues/5362))
+- 8d3b16c: Support for custom compilers ([#7130](https://github.com/NomicFoundation/hardhat/issues/7130))
+
+## 3.0.1
+
+### Patch Changes
+
+- ddefbff: Added guard to stop multiple simultaneous calls to `ignition.deploy(...)` at once ([#6440](https://github.com/NomicFoundation/hardhat/issues/6440))
+
+## 3.0.0
+
+### Major Changes
+
+- 29cc141: First release of Hardhat 3!

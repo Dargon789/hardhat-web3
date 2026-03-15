@@ -12,15 +12,20 @@ import {
 } from "@nomicfoundation/hardhat-test-utils";
 import { createHardhatRuntimeEnvironment } from "hardhat/hre";
 
-import { ETHERSCAN_API_URL } from "../src/internal/etherscan.js";
-import { verifyContract, validateArgs } from "../src/internal/verification.js";
+import { VERIFICATION_PROVIDERS } from "../src/internal/verification-providers.js";
+import {
+  verifyContract,
+  validateArgs,
+  validateVerificationProviderName,
+} from "../src/internal/verification.js";
 import { deployContract, initializeTestDispatcher } from "../test/utils.js";
 
 describe("verification", () => {
   describe("verifyContract", () => {
     describe("base cases", () => {
       useEphemeralFixtureProject("integration");
-      const etherscanApiUrl = new URL(ETHERSCAN_API_URL).origin;
+      const etherscanApiUrl = new URL("https://api-sepolia.etherscan.io")
+        .origin;
       const testDispatcher = initializeTestDispatcher({
         url: etherscanApiUrl,
       });
@@ -33,7 +38,7 @@ describe("verification", () => {
           (await import("./fixture-projects/integration/hardhat.config.js"))
             .default;
         hre = await createHardhatRuntimeEnvironment(hardhatUserConfig);
-        await hre.tasks.getTask("compile").run();
+        await hre.tasks.getTask("build").run();
       });
 
       beforeEach(() => {
@@ -233,7 +238,11 @@ describe("verification", () => {
 
     it("should throw an error for an invalid address", () => {
       assertThrowsHardhatError(
-        () => validateArgs({ address: invalidAddress, contract: undefined }),
+        () =>
+          validateArgs({
+            address: invalidAddress,
+            contract: undefined,
+          }),
         HardhatError.ERRORS.HARDHAT_VERIFY.VALIDATION.INVALID_ADDRESS,
         { value: invalidAddress },
       );
@@ -241,9 +250,97 @@ describe("verification", () => {
 
     it("should throw an error for an invalid contract name", () => {
       assertThrowsHardhatError(
-        () => validateArgs({ address: validAddress, contract: invalidFqn }),
+        () =>
+          validateArgs({
+            address: validAddress,
+            contract: invalidFqn,
+          }),
         HardhatError.ERRORS.CORE.GENERAL.INVALID_FULLY_QUALIFIED_NAME,
         { name: invalidFqn },
+      );
+    });
+  });
+
+  describe("Provider Factory Pattern", () => {
+    it("VERIFICATION_PROVIDERS should not be empty", () => {
+      const providerCount = Object.keys(VERIFICATION_PROVIDERS).length;
+      assert.ok(
+        providerCount > 0,
+        "VERIFICATION_PROVIDERS should contain providers",
+      );
+    });
+
+    it("all providers should have resolveConfig method", () => {
+      for (const [providerName, provider] of Object.entries(
+        VERIFICATION_PROVIDERS,
+      )) {
+        assert.equal(
+          typeof provider.resolveConfig,
+          "function",
+          `Provider "${providerName}" should have resolveConfig method`,
+        );
+      }
+    });
+
+    it("all providers should have create method", () => {
+      for (const [providerName, provider] of Object.entries(
+        VERIFICATION_PROVIDERS,
+      )) {
+        assert.equal(
+          typeof provider.create,
+          "function",
+          `Provider "${providerName}" should have create method`,
+        );
+      }
+    });
+
+    it("all providers should have getSupportedChains method", () => {
+      for (const [providerName, provider] of Object.entries(
+        VERIFICATION_PROVIDERS,
+      )) {
+        assert.equal(
+          typeof provider.getSupportedChains,
+          "function",
+          `Provider "${providerName}" should have getSupportedChains method`,
+        );
+      }
+    });
+  });
+
+  describe("validateVerificationProviderName", () => {
+    it("should accept valid provider names", () => {
+      validateVerificationProviderName("etherscan");
+      validateVerificationProviderName("blockscout");
+      validateVerificationProviderName("sourcify");
+    });
+
+    it("should throw error for invalid provider names", () => {
+      assertThrowsHardhatError(
+        () => {
+          validateVerificationProviderName("invalid");
+        },
+        HardhatError.ERRORS.HARDHAT_VERIFY.VALIDATION
+          .INVALID_VERIFICATION_PROVIDER,
+        {
+          verificationProvider: "invalid",
+          supportedVerificationProviders: Object.keys(
+            VERIFICATION_PROVIDERS,
+          ).join(", "),
+        },
+      );
+
+      assertThrowsHardhatError(
+        () => {
+          validateVerificationProviderName("ethscan");
+        },
+        HardhatError.ERRORS.HARDHAT_VERIFY.VALIDATION
+          .INVALID_VERIFICATION_PROVIDER,
+        {
+          verificationProvider: "ethscan",
+          supportedVerificationProviders: Object.keys(
+            VERIFICATION_PROVIDERS,
+          ).join(", "),
+        },
       );
     });
   });
@@ -252,14 +349,14 @@ describe("verification", () => {
 function mockEtherscanRequests(interceptable: Interceptable) {
   interceptable
     .intercept({
-      path: /^\/v2\/api\?action=getsourcecode&address=0x[a-fA-F0-9]{40}&apikey=[A-Za-z0-9]+&chainid=\d+&module=contract$/,
+      path: /^\/(?:v2\/)?api\?action=getsourcecode&address=0x[a-fA-F0-9]{40}&apikey=[A-Za-z0-9]+&chainid=\d+&module=contract$/,
       method: "GET",
     })
     .reply(200, { status: "1", result: [{ SourceCode: "" }] });
 
   interceptable
     .intercept({
-      path: /^\/v2\/api\?action=verifysourcecode&apikey=[A-Za-z0-9]+&chainid=\d+&module=contract$/,
+      path: /^\/(?:v2\/)?api\?action=verifysourcecode&apikey=[A-Za-z0-9]+&chainid=\d+&module=contract$/,
       method: "POST",
     })
     .reply(200, {
@@ -270,7 +367,7 @@ function mockEtherscanRequests(interceptable: Interceptable) {
 
   interceptable
     .intercept({
-      path: /^\/v2\/api\?action=checkverifystatus&apikey=[A-Za-z0-9]+&chainid=\d+&guid=1234&module=contract$/,
+      path: /^\/(?:v2\/)?api\?action=checkverifystatus&apikey=[A-Za-z0-9]+&chainid=\d+&guid=1234&module=contract$/,
       method: "GET",
     })
     .reply(200, {

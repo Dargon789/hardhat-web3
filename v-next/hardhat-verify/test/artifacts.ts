@@ -21,7 +21,7 @@ describe("artifacts", () => {
         // eslint-disable-next-line import/no-relative-packages -- allowed in test
         (await import("./fixture-projects/default/hardhat.config.js")).default;
       hre = await createHardhatRuntimeEnvironment(hardhatUserConfig);
-      await hre.tasks.getTask("compile").run();
+      await hre.tasks.getTask("build").run();
     });
 
     it("should return the build info and output for a contract", async () => {
@@ -54,7 +54,7 @@ describe("artifacts", () => {
         // eslint-disable-next-line import/no-relative-packages -- allowed in test
         (await import("./fixture-projects/default/hardhat.config.js")).default;
       hre = await createHardhatRuntimeEnvironment(hardhatUserConfig);
-      await hre.tasks.getTask("compile").run();
+      await hre.tasks.getTask("build").run();
     });
 
     it("should return the compiler input for a contract", async () => {
@@ -62,6 +62,24 @@ describe("artifacts", () => {
         hre.solidity,
         hre.config.paths.root,
         "contracts/Counter.sol",
+        false,
+        "production",
+      );
+
+      assert(
+        compilerInput !== undefined,
+        "Compiler input should not be undefined",
+      );
+      assert.equal(compilerInput.settings.optimizer.enabled, true);
+      assert.equal(compilerInput.settings.optimizer.runs, 200);
+    });
+
+    it("should return the compiler input for a npm contract", async () => {
+      const compilerInput = await getCompilerInput(
+        hre.solidity,
+        hre.config.paths.root,
+        "@openzeppelin/contracts/access/Ownable.sol",
+        true,
         "production",
       );
 

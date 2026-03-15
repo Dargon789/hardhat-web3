@@ -372,10 +372,21 @@ describe("installProjectDependencies", async () => {
           process.env.HARDHAT_DISABLE_SLOW_TESTS === "true" ||
           process.env.GITHUB_EVENT_NAME === "push" || // TODO: This check should be limited to push events associated with a release PR merge
           process.env.GITHUB_EVENT_NAME === "merge_group" || // TODO: This check should be limited to merge_group events associated with a release PR merge
+          process.env.GITHUB_HEAD_REF === "chore/remove-pre-release-config" || // TODO: remove this line after release
           process.env.GITHUB_HEAD_REF?.startsWith("changeset-release/"),
       },
       async () => {
         await writeUtf8File("package.json", JSON.stringify({ type: "module" }));
+        // NOTE: Because we run tests under `pnpm`, the config setting in
+        // the root `./npmrc` file make it to the subprocesses.
+        // Unfortunately the `minimum-release-age-exclude` because it is an
+        // array can get lost.
+        // We explicitly add the `minimum-release-age-exclude` in as a
+        // `.npmrc` file in the temporary folder to re-introduce this exclude.
+        await writeUtf8File(
+          ".npmrc",
+          'minimum-release-age-exclude[]="hardhat"\nminimum-release-age-exclude[]="@nomicfoundation/*"',
+        );
         await installProjectDependencies(process.cwd(), template, true, false);
         assert.ok(await exists("node_modules"), "node_modules should exist");
         const dependencies = Object.keys(
@@ -419,6 +430,11 @@ describe("installProjectDependencies", async () => {
           type: "module",
           devDependencies: { hardhat: "0.0.0" },
         }),
+      );
+      // NOTE: See related explanation in the `should install all the ${template.name} ...` test
+      await writeUtf8File(
+        ".npmrc",
+        'minimum-release-age-exclude[]="hardhat"\nminimum-release-age-exclude[]="@nomicfoundation/*"',
       );
       await installProjectDependencies(process.cwd(), template, false, true);
       assert.ok(await exists("node_modules"), "node_modules should exist");
