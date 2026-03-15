@@ -47,11 +47,11 @@
     "lodash.clonedeep": "^4.5.0",
     "semver": "^6.3.0",
     "table": "^6.8.0",
-<<<<<<< HEAD
+"<<<<<<<" "HEAD"
     "undici": "^5.29.0"
-=======
+"======="
     "undici": "^6.23.0"
->>>>>>> main
+">>>>>>>" "main"
   },
   "devDependencies": {
     "@nomicfoundation/eslint-plugin-hardhat-internal-rules": "workspace:^",
