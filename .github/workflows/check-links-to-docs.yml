@@ -3,6 +3,9 @@
 
 name: Check that the PR links to documentation
 
+permissions:
+  contents: read
+
 on:
   merge_group:
   pull_request:
