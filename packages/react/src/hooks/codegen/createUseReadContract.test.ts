@@ -1,7 +1,3 @@
-import { abi, address, chain } from '@wagmi/test'
-import { renderHook, waitFor } from '@wagmi/test/react'
-import { expect, test } from 'vitest'
-
 import { createUseReadContract } from './createUseReadContract.js'
 
 test('default', async () => {
@@ -10,18 +6,15 @@ test('default', async () => {
     abi: abi.wagmiMintExample,
   })
 
-  const { result } = renderHook(() =>
     useReadWagmiMintExample({
       functionName: 'balanceOf',
       args: ['0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC'],
     }),
   )
 
-  await waitFor(() => expect(result.current.isSuccess).toBeTruthy())
 
   expect(result.current).toMatchInlineSnapshot(`
     {
-      "data": 4n,
       "dataUpdatedAt": 1675209600000,
       "error": null,
       "errorUpdateCount": 0,
@@ -69,7 +62,6 @@ test('multichain', async () => {
     abi: abi.wagmiMintExample,
   })
 
-  const { result } = renderHook(() =>
     useReadWagmiMintExample({
       functionName: 'balanceOf',
       args: ['0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC'],
@@ -77,11 +69,9 @@ test('multichain', async () => {
     }),
   )
 
-  await waitFor(() => expect(result.current.isSuccess).toBeTruthy())
 
   expect(result.current).toMatchInlineSnapshot(`
     {
-      "data": 4n,
       "dataUpdatedAt": 1675209600000,
       "error": null,
       "errorUpdateCount": 0,
@@ -127,17 +117,14 @@ test('functionName', async () => {
     functionName: 'balanceOf',
   })
 
-  const { result } = renderHook(() =>
     useReadWagmiMintExampleBalanceOf({
       args: ['0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC'],
     }),
   )
 
-  await waitFor(() => expect(result.current.isSuccess).toBeTruthy())
 
   expect(result.current).toMatchInlineSnapshot(`
     {
-      "data": 4n,
       "dataUpdatedAt": 1675209600000,
       "error": null,
       "errorUpdateCount": 0,

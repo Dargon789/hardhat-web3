@@ -31,10 +31,7 @@ import { useReconnect } from 'wagmi'
 import { useEffect } from 'react'
 
 function App() {
-  const { reconnect } = useReconnect()
-
   useEffect(() => {
-    reconnect()
   }, [])
 }
 ```
@@ -63,7 +60,6 @@ import { useReconnect } from 'wagmi'
 import { config } from './config' // [!code focus]
 
 function App() {
-  const result = useReconnect({
     config, // [!code focus]
   })
 }
@@ -79,7 +75,6 @@ function App() {
 import { type UseReconnectReturnType } from 'wagmi'
 ```
 
-### connectors
 
 `readonly Connector[]`
 
@@ -92,10 +87,8 @@ import { mainnet } from 'wagmi/chains'
 import { useEffect } from 'react'
 
 function App() {
-  const { reconnect, connectors } = useReconnect()
 
   useEffect(() => {
-    reconnect({ connectors })
   }, [])
 }
 ```

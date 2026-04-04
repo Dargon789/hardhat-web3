@@ -252,11 +252,9 @@ const result = await writeContract(config, {
 
 ::: code-group
 ```ts [index.ts]
-import { getAccount, writeContract } from '@wagmi/core'
 import { abi } from './abi'
 import { config } from './config'
 
-const { connector } = getAccount(config)
 const result = await writeContract(config, {
   abi,
   address: '0x6b175474e89094c44da98b954eedeac495271d0f',
@@ -362,7 +360,6 @@ const result = await writeContract(config, {
 
 `bigint | undefined`
 
-The price in wei to pay per gas. Only applies to [Legacy Transactions](https://viem.sh/docs/glossary/terms.html#legacy-transaction).
 
 ::: code-group
 ```ts [index.ts]
@@ -391,7 +388,6 @@ const result = await writeContract(config, {
 
 `bigint | undefined`
 
-Total fee per gas in wei, inclusive of [`maxPriorityFeePerGas`](#maxPriorityFeePerGas). Only applies to [EIP-1559 Transactions](https://viem.sh/docs/glossary/terms.html#eip-1559-transaction).
 
 ::: code-group
 ```ts [index.ts]
@@ -420,7 +416,6 @@ const result = await writeContract(config, {
 
 `bigint | undefined`
 
-Max priority fee per gas in wei. Only applies to [EIP-1559 Transactions](https://viem.sh/docs/glossary/terms.html#eip-1559-transaction).
 
 ::: code-group
 ```ts [index.ts]
@@ -539,7 +534,6 @@ const result = await writeContract(config, {
 import { type WriteContractReturnType } from '@wagmi/core'
 ```
 
-[`Hash`](https://viem.sh/docs/glossary/types.html#hash)
 
 The transaction hash.
 
@@ -557,4 +551,3 @@ import { type WriteContractErrorType } from '@wagmi/core'
 
 ## Viem
 
-- [`writeContract`](https://viem.sh/docs/contract/writeContract.html)

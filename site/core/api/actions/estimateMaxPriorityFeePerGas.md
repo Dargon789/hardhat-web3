@@ -71,4 +71,3 @@ import { type EstimateFeesPerGasErrorType } from '@wagmi/core'
 
 ## Viem
 
-- [`estimateMaxPriorityFeePerGas`](https://viem.sh/docs/actions/public/estimateMaxPriorityFeePerGas.html)

@@ -38,17 +38,12 @@ export type CreateConnectorFn<
     readonly id: string
     readonly name: string
     readonly rdns?: string | readonly string[] | undefined
-    /** @deprecated */
-    readonly supportsSimulation?: boolean | undefined
     readonly type: string
 
     setup?(): Promise<void>
-    connect(
       parameters?:
-        | { chainId?: number | undefined; isReconnecting?: boolean | undefined }
         | undefined,
     ): Promise<{
-      accounts: readonly Address[]
       chainId: number
     }>
     disconnect(): Promise<void>

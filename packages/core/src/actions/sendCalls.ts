@@ -65,7 +65,6 @@ export async function sendCalls<
     connector,
   })
 
-  return viem_sendCalls(client, {
     ...(rest as any),
     ...(typeof account !== 'undefined' ? { account } : {}),
     calls,

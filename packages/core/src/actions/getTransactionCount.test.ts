@@ -1,7 +1,5 @@
 import { accounts, chain, config, testClient } from '@wagmi/test'
 import { expect, test } from 'vitest'
-
-import type { BlockTag } from 'viem'
 import { getTransactionCount } from './getTransactionCount.js'
 
 const address = accounts[0]

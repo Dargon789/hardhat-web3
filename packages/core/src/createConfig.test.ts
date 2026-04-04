@@ -2,7 +2,6 @@ import { accounts, chain, wait } from '@wagmi/test'
 import {
   type EIP1193Provider,
   type EIP6963ProviderDetail,
-  announceProvider,
 } from 'mipd'
 import { http } from 'viem'
 import { expect, test, vi } from 'vitest'
@@ -12,7 +11,6 @@ import { disconnect } from './actions/disconnect.js'
 import { switchChain } from './actions/switchChain.js'
 import { createConnector } from './connectors/createConnector.js'
 import { mock } from './connectors/mock.js'
-import { createConfig } from './createConfig.js'
 import { createStorage } from './createStorage.js'
 
 const { mainnet, optimism } = chain

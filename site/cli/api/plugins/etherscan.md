@@ -166,7 +166,7 @@ export default defineConfig({
   plugins: [
     etherscan({
       apiKey: process.env.ETHERSCAN_API_KEY,
-      chainId: 1, 
+      chainId: 1,
       contracts: [
         {
           name: 'FiatToken',
