@@ -3,10 +3,10 @@
   "image": "mcr.microsoft.com/devcontainers/base:bullseye",
   "features": {
     "ghcr.io/devcontainers/features/node:1": {
-      "version": "18" /* Keep in sync with the oldest version of Node.js that Hardhat supports */
+      "version": "22" /* Keep in sync with the latest LTS version of Node.js */
     },
     "ghcr.io/devcontainers/features/rust:1": {
-      "version": "1.70" /* Keep in sync with rust-toolchain */,
+      "version": "1.89" /* Keep in sync with rust-toolchain */,
       "profile": "default"
     }
   },
