@@ -130,7 +130,7 @@
     "immutable": "^4.0.0-rc.12",
     "io-ts": "1.10.4",
     "keccak": "^3.0.2",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.23",
     "mnemonist": "^0.38.0",
     "mocha": "^11.0.1",
     "p-map": "^4.0.0",
@@ -141,7 +141,7 @@
     "source-map-support": "^0.5.13",
     "stacktrace-parser": "^0.1.10",
     "tsort": "0.0.1",
-    "undici": "^5.29.0",
+    "undici": "^6.23.0",
     "uuid": "^8.3.2",
     "ws": "^8.17.1"
   },
