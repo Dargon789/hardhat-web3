@@ -1,8 +1,11 @@
 'use client'
 
 import type { FormEvent } from 'react'
+import { type Hex, formatEther, parseAbi, parseEther } from 'viem'
 import {
   type BaseError,
+  useAccount,
+  useAccountEffect,
   useBalance,
   useBlockNumber,
   useChainId,
@@ -16,6 +19,7 @@ import {
   useReadContracts,
   useSendTransaction,
   useSignMessage,
+  useSwitchAccount,
   useSwitchChain,
   useWaitForTransactionReceipt,
   useWriteContract,
@@ -26,6 +30,7 @@ import { optimism, sepolia } from 'wagmi/chains'
 import { wagmiContractConfig } from './contracts'
 
 export default function App() {
+  useAccountEffect({
     onConnect(_data) {
       // console.log('onConnect', data)
     },
@@ -36,7 +41,9 @@ export default function App() {
 
   return (
     <>
+      <Account />
       <Connect />
+      <SwitchAccount />
       <SwitchChain />
       <Repro />
       <SignMessage />
@@ -52,18 +59,26 @@ export default function App() {
   )
 }
 
+function Account() {
+  const account = useAccount()
   const { disconnect } = useDisconnect()
   const { data: ensName } = useEnsName({
+    address: account.address,
   })
 
   return (
     <div>
+      <h2>Account</h2>
 
       <div>
+        account: {account.address} {ensName}
         <br />
+        chainId: {account.chainId}
         <br />
+        status: {account.status}
       </div>
 
+      {account.status === 'connected' && (
         <button type="button" onClick={() => disconnect()}>
           Disconnect
         </button>
@@ -74,6 +89,7 @@ export default function App() {
 
 function Connect() {
   const chainId = useChainId()
+  const { connectors, connect, status, error } = useConnect()
 
   return (
     <div>
@@ -93,12 +109,19 @@ function Connect() {
   )
 }
 
+function SwitchAccount() {
+  const account = useAccount()
+  const { connectors, switchAccount } = useSwitchAccount()
 
   return (
     <div>
+      <h2>Switch Account</h2>
 
+      {connectors.map((connector) => (
         <button
+          disabled={account.connector?.uid === connector.uid}
           key={connector.uid}
+          onClick={() => switchAccount({ connector })}
           type="button"
         >
           {connector.name}
@@ -110,6 +133,7 @@ function Connect() {
 
 function SwitchChain() {
   const chainId = useChainId()
+  const { chains, switchChain, error } = useSwitchChain()
 
   return (
     <div>
@@ -173,6 +197,7 @@ function Connections() {
 }
 
 function Balance() {
+  const { address } = useAccount()
 
   const { data: default_ } = useBalance({ address })
   const { data: account_ } = useBalance({ address })
@@ -190,6 +215,7 @@ function Balance() {
         {!!default_?.value && formatEther(default_.value)}
       </div>
       <div>
+        Balance (Account Chain):{' '}
         {!!account_?.value && formatEther(account_.value)}
       </div>
       <div>
@@ -215,6 +241,7 @@ function BlockNumber() {
       <h2>Block Number</h2>
 
       <div>Block Number (Default Chain): {default_?.toString()}</div>
+      <div>Block Number (Account Chain): {account_?.toString()}</div>
       <div>Block Number (Optimism): {optimism_?.toString()}</div>
     </div>
   )
@@ -363,6 +390,7 @@ function Repro() {
   const config = useConfig()
   const chainId = useChainId()
 
+  // biome-ignore lint/suspicious/noConsoleLog: <explanation>
   console.log('chainId from useChainId is', chainId)
   return (
     <main className="flex min-h-screen flex-col items-center p-24">

@@ -40,8 +40,10 @@ import { type DisconnectParameters } from '@wagmi/core'
 
 ::: code-group
 ```ts [index.ts]
+import { disconnect, getAccount } from '@wagmi/core'
 import { config } from './config'
 
+const { connector } = getAccount(config)
 const result = await disconnect(config, {
   connector, // [!code focus]
 })

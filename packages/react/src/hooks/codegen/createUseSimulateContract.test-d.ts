@@ -111,6 +111,7 @@ test('overloads', () => {
     functionName: 'foo',
     args: ['0x'],
   })
+  // @ts-ignore – TODO: Fix https://github.com/wevm/viem/issues/1916
   assertType<string | undefined>(result3.data?.result)
 
   const result4 = useSimulateWriteOverloads({
@@ -123,6 +124,7 @@ test('overloads', () => {
         bar: `0x${string}`
       }
     | undefined
+    // @ts-ignore – TODO: Fix https://github.com/wevm/viem/issues/1916
   >(result4.data?.result)
 })
 
@@ -180,6 +182,7 @@ test('functionName with overloads', () => {
   const result3 = useSimulateWriteOverloads({
     args: ['0x'],
   })
+  // @ts-ignore – TODO: Fix https://github.com/wevm/viem/issues/1916
   assertType<string | undefined>(result3.data?.result)
 
   const result4 = useSimulateWriteOverloads({
@@ -191,5 +194,6 @@ test('functionName with overloads', () => {
         bar: `0x${string}`
       }
     | undefined
+    // @ts-ignore – TODO: Fix https://github.com/wevm/viem/issues/1916
   >(result4.data?.result)
 })

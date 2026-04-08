@@ -1,6 +1,8 @@
 import { config, privateKey, transactionHashRegex } from '@wagmi/test'
 import { parseEther } from 'viem'
 import { beforeEach, expect, test } from 'vitest'
+
+import { privateKeyToAccount } from 'viem/accounts'
 import { connect } from './connect.js'
 import { disconnect } from './disconnect.js'
 import { sendTransaction } from './sendTransaction.js'
@@ -74,17 +76,19 @@ test('behavior: value exceeds balance', async () => {
     This error could arise when the account does not have enough funds to:
      - pay for the total gas fee,
      - pay for the value to send.
-
+     
     The cost of the transaction is calculated as \`gas * gas fee + value\`, where:
      - \`gas\` is the amount of gas needed for transaction to execute,
      - \`gas fee\` is the gas fee,
      - \`value\` is the amount of ether to send to the recipient.
-
+     
     Request Arguments:
+      from:   0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
       to:     0xd2135CfB216b74109775236E36d4b433F1DF507B
       value:  99999 ETH
 
     Details: Insufficient funds for gas * price + value
+    Version: viem@2.29.2]
   `)
   await disconnect(config, { connector })
 })

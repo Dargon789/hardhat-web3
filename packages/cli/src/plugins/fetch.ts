@@ -86,6 +86,12 @@ export function fetch(config: FetchConfig): FetchResult {
         if (cachedFile?.timestamp > Date.now()) abi = cachedFile.abi
         else {
           try {
+            const controller = new globalThis.AbortController()
+            const timeout = setTimeout(
+              () => controller.abort(),
+              timeoutDuration,
+            )
+
             const { url, init } = await request(contract)
             const response = await globalThis.fetch(url, {
               ...init,

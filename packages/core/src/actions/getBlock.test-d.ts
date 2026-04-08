@@ -1,3 +1,4 @@
+import { http, type Hex } from 'viem'
 import { celo, mainnet } from 'viem/chains'
 import { expectTypeOf, test } from 'vitest'
 

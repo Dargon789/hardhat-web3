@@ -1,45 +1,54 @@
+import { abi, address } from '@wagmi/test'
+import { renderHook, waitFor } from '@wagmi/test/react'
+import { expect, test } from 'vitest'
+
 import { useInfiniteReadContracts } from './useInfiniteReadContracts.js'
 
-  const limit = 3
+test(
+  'default',
+  async () => {
+    const limit = 3
 
-    useInfiniteReadContracts({
-      cacheKey: 'foo',
-      contracts(pageParam) {
-        return [...new Array(limit)].map(
-          (_, i) =>
-            ({
-              address: address.shields,
-              abi: abi.shields,
-              functionName: 'tokenURI',
-              args: [BigInt(pageParam + i + 1)],
-            }) as const,
-        )
-      },
-      query: {
-        initialPageParam: 0,
-        getNextPageParam(_lastPage, _allPages, lastPageParam) {
-          return lastPageParam + limit
+    const { result } = renderHook(() =>
+      useInfiniteReadContracts({
+        cacheKey: 'foo',
+        contracts(pageParam) {
+          return [...new Array(limit)].map(
+            (_, i) =>
+              ({
+                address: address.shields,
+                abi: abi.shields,
+                functionName: 'tokenURI',
+                args: [BigInt(pageParam + i + 1)],
+              }) as const,
+          )
         },
-        select(data) {
-          const results = []
-          for (const page of data.pages) {
-            for (const response of page) {
-              if (response.status === 'success') {
-                const decoded = atob(
-                  response.result.replace(/(^.*base64,)/, ''),
-                )
-                const json = JSON.parse(decoded) as { name: string }
-                results.push(json.name)
-              } else results.push('Error fetching shield')
+        query: {
+          initialPageParam: 0,
+          getNextPageParam(_lastPage, _allPages, lastPageParam) {
+            return lastPageParam + limit
+          },
+          select(data) {
+            const results = []
+            for (const page of data.pages) {
+              for (const response of page) {
+                if (response.status === 'success') {
+                  const decoded = atob(
+                    response.result.replace(/(^.*base64,)/, ''),
+                  )
+                  const json = JSON.parse(decoded) as { name: string }
+                  results.push(json.name)
+                } else results.push('Error fetching shield')
+              }
             }
-          }
-          return results
+            return results
+          },
         },
-      },
-    }),
-  )
+      }),
+    )
 
-  expect(result.current.data).toMatchInlineSnapshot(`
+    await waitFor(() => expect(result.current.isSuccess).toBeTruthy())
+    expect(result.current.data).toMatchInlineSnapshot(`
     [
       "Three Shields on Pink Perfect",
       "Three Shields on Sky Perfect",
@@ -47,9 +56,10 @@ import { useInfiniteReadContracts } from './useInfiniteReadContracts.js'
     ]
   `)
 
-  await result.current.fetchNextPage()
+    await result.current.fetchNextPage()
 
-  expect(result.current.data).toMatchInlineSnapshot(`
+    await waitFor(() => expect(result.current.hasNextPage).toBeTruthy())
+    expect(result.current.data).toMatchInlineSnapshot(`
     [
       "Three Shields on Pink Perfect",
       "Three Shields on Sky Perfect",
@@ -60,9 +70,10 @@ import { useInfiniteReadContracts } from './useInfiniteReadContracts.js'
     ]
   `)
 
-  await result.current.fetchNextPage()
+    await result.current.fetchNextPage()
 
-  expect(result.current.data).toMatchInlineSnapshot(`
+    await waitFor(() => expect(result.current.hasNextPage).toBeTruthy())
+    expect(result.current.data).toMatchInlineSnapshot(`
     [
       "Three Shields on Pink Perfect",
       "Three Shields on Sky Perfect",
@@ -75,3 +86,6 @@ import { useInfiniteReadContracts } from './useInfiniteReadContracts.js'
       "Secured: Telescope and Stars on Ultraviolet and Sky Doppler",
     ]
   `)
+  },
+  { timeout: 20_000 },
+)

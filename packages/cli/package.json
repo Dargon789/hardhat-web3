@@ -1,6 +1,7 @@
 {
   "name": "@wagmi/cli",
   "description": "Manage and generate code from Ethereum ABIs",
+  "version": "2.3.1",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -8,6 +9,7 @@
     "directory": "packages/cli"
   },
   "scripts": {
+    "build": "pnpm run clean && pnpm run build:esm+types",
     "build:esm+types": "tsc --project tsconfig.build.json --outDir ./dist/esm --declaration --declarationMap --declarationDir ./dist/types",
     "check:types": "tsc --noEmit",
     "clean": "rm -rf dist tsconfig.tsbuildinfo config plugins",
@@ -48,9 +50,12 @@
   },
   "typesVersions": {
     "*": {
+      "config": ["./dist/types/exports/config.d.ts"],
+      "plugins": ["./dist/types/exports/plugins.d.ts"]
     }
   },
   "peerDependencies": {
+    "typescript": ">=5.0.4"
   },
   "peerDependenciesMeta": {
     "typescript": {
@@ -58,22 +63,32 @@
     }
   },
   "dependencies": {
+    "abitype": "^1.0.4",
     "bundle-require": "^5.1.0",
     "cac": "^6.7.14",
     "change-case": "^5.4.4",
+    "chokidar": "4.0.3",
+    "dedent": "^1.5.3",
     "dotenv": "^16.3.1",
     "dotenv-expand": "^10.0.0",
+    "esbuild": "~0.25.5",
     "escalade": "3.2.0",
     "fdir": "^6.1.1",
     "nanospinner": "1.2.2",
+    "pathe": "^2.0.3",
     "picocolors": "^1.0.0",
+    "picomatch": "^4.0.2",
     "prettier": "^3.0.3",
     "viem": "2.x",
+    "zod": "^3.22.3"
   },
   "devDependencies": {
     "@types/dedent": "^0.7.2",
+    "@types/node": "^22.14.0",
     "fixturez": "^1.1.0",
     "msw": "^2.4.9"
   },
+  "contributors": ["awkweb.eth <t@wevm.dev>", "jxom.eth <j@wevm.dev>"],
   "funding": "https://github.com/sponsors/wevm",
+  "keywords": ["wagmi", "eth", "ethereum", "dapps", "wallet", "web3", "cli"]
 }

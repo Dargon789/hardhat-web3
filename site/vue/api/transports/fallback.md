@@ -1,7 +1,3 @@
----
-title: fallback
----
-
 <script setup>
 const packageName = '@wagmi/vue'
 </script>

@@ -278,7 +278,7 @@ function genDocString(
   if (docString)
     return `/**
  * ${description}
- *
+ * 
  ${docString}
  */`
 

@@ -1,11 +1,16 @@
+import { renderHook, waitFor } from '@wagmi/test/react'
+import { expect, test } from 'vitest'
+
 import { useEnsResolver } from './useEnsResolver.js'
 
 test('default', async () => {
+  const { result } = renderHook(() =>
     useEnsResolver({
       name: 'wevm.eth',
     }),
   )
 
+  await waitFor(() => expect(result.current.isSuccess).toBeTruthy())
 
   expect(result.current).toMatchInlineSnapshot(`
     {

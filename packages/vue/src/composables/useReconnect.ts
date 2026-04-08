@@ -46,9 +46,20 @@ export type UseReconnectReturnType<context = unknown> = Compute<
 export function useReconnect<context = unknown>(
   parameters: UseReconnectParameters<context> = {},
 ): UseReconnectReturnType<context> {
+  const { mutation } = parameters
+
   const config = useConfig(parameters)
+
   const mutationOptions = reconnectMutationOptions(config)
+  const { mutate, mutateAsync, ...result } = useMutation({
     ...mutation,
+    ...mutationOptions,
+  })
+
+  return {
+    ...result,
     connectors: config.connectors,
+    reconnect: mutate,
+    reconnectAsync: mutateAsync,
   }
 }

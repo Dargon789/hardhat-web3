@@ -13,6 +13,7 @@ React Hooks for accounts, wallets, contracts, transactions, signing, ENS, and mo
 ## Import
 
 ```ts
+import { useAccount } from 'wagmi'
 ```
 
 ## Available Hooks

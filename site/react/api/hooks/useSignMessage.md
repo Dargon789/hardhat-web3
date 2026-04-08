@@ -30,7 +30,10 @@ import { useSignMessage } from 'wagmi'
 import { useSignMessage } from 'wagmi'
 
 function App() {
+  const { signMessage } = useSignMessage()
+
   return (
+    <button onClick={() => signMessage({ message: 'hello world' })}>
       Sign message
     </button>
   )
@@ -57,6 +60,7 @@ import { useSignMessage } from 'wagmi'
 import { config } from './config' // [!code focus]
 
 function App() {
+  const result = useSignMessage({
     config, // [!code focus]
   })
 }
