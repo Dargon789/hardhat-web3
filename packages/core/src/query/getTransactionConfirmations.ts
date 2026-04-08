@@ -1,3 +1,5 @@
+import type { QueryOptions } from '@tanstack/query-core'
+
 import {
   type GetTransactionConfirmationsErrorType,
   type GetTransactionConfirmationsParameters,
@@ -15,6 +17,7 @@ export type GetTransactionConfirmationsOptions<
     | config['chains'][number]['id']
     | undefined = config['chains'][number]['id'],
 > = UnionExactPartial<GetTransactionConfirmationsParameters<config, chainId>> &
+  ScopeKeyParameter
 
 export function getTransactionConfirmationsQueryOptions<
   config extends Config,
@@ -23,14 +26,33 @@ export function getTransactionConfirmationsQueryOptions<
     | undefined = config['chains'][number]['id'],
 >(
   config: config,
+  options: GetTransactionConfirmationsOptions<config, chainId> = {} as any,
+) {
   return {
+    async queryFn({ queryKey }) {
+      const {
+        hash,
+        transactionReceipt,
+        scopeKey: _,
+        ...parameters
+      } = queryKey[1]
+      if (!hash && !transactionReceipt)
         throw new Error('hash or transactionReceipt is required')
+
       const confirmations = await getTransactionConfirmations(config, {
+        hash,
+        transactionReceipt,
         ...(parameters as any),
       })
       return confirmations ?? null
     },
     queryKey: getTransactionConfirmationsQueryKey(options),
+  } as const satisfies QueryOptions<
+    GetTransactionConfirmationsQueryFnData,
+    GetTransactionConfirmationsErrorType,
+    GetTransactionConfirmationsData,
+    GetTransactionConfirmationsQueryKey<config, chainId>
+  >
 }
 
 export type GetTransactionConfirmationsQueryFnData =
@@ -44,6 +66,7 @@ export function getTransactionConfirmationsQueryKey<
   chainId extends
     | config['chains'][number]['id']
     | undefined = config['chains'][number]['id'],
+>(options: GetTransactionConfirmationsOptions<config, chainId> = {} as any) {
   return ['transactionConfirmations', filterQueryOptions(options)] as const
 }
 

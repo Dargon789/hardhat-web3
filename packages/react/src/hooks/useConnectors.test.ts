@@ -1,11 +1,13 @@
 import { mock } from '@wagmi/connectors'
 import { accounts, config } from '@wagmi/test'
 import { renderHook } from '@wagmi/test/react'
+import { Fragment, createElement } from 'react'
 import { expect, test } from 'vitest'
 
 import { useConnectors } from './useConnectors.js'
 
 test('default', async () => {
+  const { result, rerender } = renderHook(() => useConnectors())
 
   const count = config.connectors.length
   expect(result.current.length).toBe(count)
@@ -20,6 +22,8 @@ test('default', async () => {
   expect(result.current.length).toBe(count + 1)
 })
 
+test('parameters: config', () => {
+  const { result } = renderHook(() => useConnectors({ config }), {
     wrapper: ({ children }) => createElement(Fragment, { children }),
   })
   expect(result.current).toBeDefined()

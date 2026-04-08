@@ -2,8 +2,10 @@ import {
   type Config,
   type GetConnectorsReturnType,
   type ResolvedRegister,
+  getConnectors,
   watchConnectors,
 } from '@wagmi/core'
+import { type Ref, onScopeDispose, ref } from 'vue'
 
 import type { ConfigParameter } from '../types/properties.js'
 import { useConfig } from './useConfig.js'

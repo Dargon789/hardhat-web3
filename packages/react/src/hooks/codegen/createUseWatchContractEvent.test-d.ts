@@ -1,3 +1,4 @@
+import { http, createConfig, webSocket } from '@wagmi/core'
 import { abi, mainnet, optimism } from '@wagmi/test'
 import { expectTypeOf, test } from 'vitest'
 

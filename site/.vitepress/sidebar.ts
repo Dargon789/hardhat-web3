@@ -82,6 +82,8 @@ export function getSidebar() {
             link: '/react/api/connectors',
             items: [
               {
+                text: 'coinbaseWallet',
+                link: '/react/api/connectors/coinbaseWallet',
               },
               { text: 'injected', link: '/react/api/connectors/injected' },
               {
@@ -136,6 +138,11 @@ export function getSidebar() {
         text: 'Hooks',
         link: '/react/api/hooks',
         items: [
+          { text: 'useAccount', link: '/react/api/hooks/useAccount' },
+          {
+            text: 'useAccountEffect',
+            link: '/react/api/hooks/useAccountEffect',
+          },
           { text: 'useBalance', link: '/react/api/hooks/useBalance' },
           {
             text: 'useBlockNumber',
@@ -269,6 +276,10 @@ export function getSidebar() {
             link: '/react/api/hooks/useStorageAt',
           },
           {
+            text: 'useSwitchAccount',
+            link: '/react/api/hooks/useSwitchAccount',
+          },
+          {
             text: 'useSwitchChain',
             link: '/react/api/hooks/useSwitchChain',
           },
@@ -287,6 +298,10 @@ export function getSidebar() {
           {
             text: 'useTransactionReceipt',
             link: '/react/api/hooks/useTransactionReceipt',
+          },
+          {
+            text: 'useToken',
+            link: '/react/api/hooks/useToken',
           },
           {
             text: 'useWaitForCallsStatus',
@@ -348,6 +363,10 @@ export function getSidebar() {
                 link: '/react/api/utilities/cookieToInitialState',
               },
               { text: 'deserialize', link: '/react/api/utilities/deserialize' },
+              {
+                text: 'normalizeChainId',
+                link: '/react/api/utilities/normalizeChainId',
+              },
               { text: 'serialize', link: '/react/api/utilities/serialize' },
             ],
           },
@@ -421,6 +440,8 @@ export function getSidebar() {
             link: '/vue/api/connectors',
             items: [
               {
+                text: 'coinbaseWallet',
+                link: '/vue/api/connectors/coinbaseWallet',
               },
               { text: 'injected', link: '/vue/api/connectors/injected' },
               {
@@ -476,6 +497,11 @@ export function getSidebar() {
         text: 'Composables',
         link: '/vue/api/composables',
         items: [
+          { text: 'useAccount', link: '/vue/api/composables/useAccount' },
+          {
+            text: 'useAccountEffect',
+            link: '/vue/api/composables/useAccountEffect',
+          },
           {
             text: 'useBalance',
             link: '/vue/api/composables/useBalance',
@@ -544,6 +570,10 @@ export function getSidebar() {
           {
             text: 'useSimulateContract',
             link: '/vue/api/composables/useSimulateContract',
+          },
+          {
+            text: 'useSwitchAccount',
+            link: '/vue/api/composables/useSwitchAccount',
           },
           {
             text: 'useSwitchChain',
@@ -654,6 +684,8 @@ export function getSidebar() {
             link: '/core/api/connectors',
             items: [
               {
+                text: 'coinbaseWallet',
+                link: '/core/api/connectors/coinbaseWallet',
               },
               { text: 'injected', link: '/core/api/connectors/injected' },
               {
@@ -723,6 +755,7 @@ export function getSidebar() {
             text: 'estimateMaxPriorityFeePerGas',
             link: '/core/api/actions/estimateMaxPriorityFeePerGas',
           },
+          { text: 'getAccount', link: '/core/api/actions/getAccount' },
           { text: 'getBalance', link: '/core/api/actions/getBalance' },
           {
             text: 'getBlock',
@@ -800,6 +833,7 @@ export function getSidebar() {
             text: 'getStorageAt',
             link: '/core/api/actions/getStorageAt',
           },
+          { text: 'getToken', link: '/core/api/actions/getToken' },
           {
             text: 'getTransaction',
             link: '/core/api/actions/getTransaction',
@@ -862,6 +896,10 @@ export function getSidebar() {
             link: '/core/api/actions/simulateContract',
           },
           {
+            text: 'switchAccount',
+            link: '/core/api/actions/switchAccount',
+          },
+          {
             text: 'switchChain',
             link: '/core/api/actions/switchChain',
           },
@@ -880,6 +918,10 @@ export function getSidebar() {
           {
             text: 'waitForTransactionReceipt',
             link: '/core/api/actions/waitForTransactionReceipt',
+          },
+          {
+            text: 'watchAccount',
+            link: '/core/api/actions/watchAccount',
           },
           {
             text: 'watchAsset',
@@ -940,6 +982,10 @@ export function getSidebar() {
                 link: '/core/api/utilities/cookieToInitialState',
               },
               { text: 'deserialize', link: '/core/api/utilities/deserialize' },
+              {
+                text: 'normalizeChainId',
+                link: '/core/api/utilities/normalizeChainId',
+              },
               { text: 'serialize', link: '/core/api/utilities/serialize' },
             ],
           },

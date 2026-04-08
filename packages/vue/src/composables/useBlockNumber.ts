@@ -12,10 +12,13 @@ import type {
 import {
   type GetBlockNumberData,
   type GetBlockNumberOptions,
+  type GetBlockNumberQueryFnData,
+  type GetBlockNumberQueryKey,
   getBlockNumberQueryOptions,
 } from '@wagmi/core/query'
 import { computed } from 'vue'
 
+import type { ConfigParameter, QueryParameter } from '../types/properties.js'
 import type { DeepMaybeRef, DeepUnwrapRef } from '../types/ref.js'
 import { deepUnref } from '../utils/cloneDeep.js'
 import { type UseQueryReturnType, useQuery } from '../utils/query.js'
@@ -33,6 +36,14 @@ export type UseBlockNumberParameters<
   selectData = GetBlockNumberData,
 > = Compute<
   DeepMaybeRef<
+    GetBlockNumberOptions<config, chainId> &
+      ConfigParameter<config> &
+      QueryParameter<
+        GetBlockNumberQueryFnData,
+        GetBlockNumberErrorType,
+        selectData,
+        GetBlockNumberQueryKey<config, chainId>
+      > & {
         watch?:
           | boolean
           | UnionCompute<
@@ -56,19 +67,54 @@ export function useBlockNumber<
     config['chains'][number]['id'] = config['chains'][number]['id'],
   selectData = GetBlockNumberData,
 >(
+  parameters_: UseBlockNumberParameters<config, chainId, selectData> = {},
 ): UseBlockNumberReturnType<selectData> {
+  const parameters = computed(() => deepUnref(parameters_))
 
+  const config = useConfig(parameters)
   const queryClient = useQueryClient()
+  const configChainId = useChainId({ config })
+
+  const queryOptions = computed(() => {
+    const {
+      chainId = configChainId.value,
+      query = {},
+      watch: _,
+      ...rest
+    } = parameters.value
+    const options = getBlockNumberQueryOptions(config, {
+      ...deepUnref(rest),
+      chainId,
+    })
+    return {
+      ...query,
+      ...options,
+    }
+  })
+
   const watchBlockNumberArgs = computed(() => {
+    const {
+      config,
+      chainId = configChainId.value,
+      query,
+      watch,
+    } = parameters.value
     return {
       ...({
         config,
+        chainId,
+        ...(typeof watch === 'object' ? watch : {}),
       } as UseWatchBlockNumberParameters),
       enabled:
+        (query?.enabled ?? true) &&
+        (typeof watch === 'object' ? watch.enabled : watch),
       onBlockNumber(blockNumber) {
+        queryClient.setQueryData(queryOptions.value.queryKey, blockNumber)
       },
     } satisfies UseWatchBlockNumberParameters
   })
+
   useWatchBlockNumber(watchBlockNumberArgs)
 
+  return useQuery(queryOptions as any) as UseBlockNumberReturnType<selectData>
 }

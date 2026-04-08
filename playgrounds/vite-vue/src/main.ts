@@ -1,3 +1,4 @@
+import { Buffer } from 'buffer'
 import { VueQueryPlugin } from '@tanstack/vue-query'
 import { WagmiPlugin } from '@wagmi/vue'
 import { createApp } from 'vue'

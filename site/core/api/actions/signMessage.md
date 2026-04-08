@@ -59,8 +59,10 @@ const result = await signMessage(config, {
 
 ::: code-group
 ```ts [index.ts]
+import { getAccount, signMessage } from '@wagmi/core'
 import { config } from './config'
 
+const { connector } = getAccount(config)
 const result = await signMessage(config, {
   connector, // [!code focus]
   message: 'hello world',
@@ -106,6 +108,7 @@ const result = await signMessage(config, {
 import { type SignMessageReturnType } from '@wagmi/core'
 ```
 
+[`Hex`](https://viem.sh/docs/glossary/types.html#hex)
 
 The signed message.
 
@@ -119,3 +122,4 @@ import { type SignMessageErrorType } from '@wagmi/core'
 
 ## Viem
 
+- [`signMessage`](https://viem.sh/docs/actions/wallet/signMessage.html)

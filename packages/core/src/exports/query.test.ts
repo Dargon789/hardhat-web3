@@ -50,6 +50,8 @@ test('exports', () => {
       "getProofQueryOptions",
       "getStorageAtQueryKey",
       "getStorageAtQueryOptions",
+      "getTokenQueryKey",
+      "getTokenQueryOptions",
       "getTransactionQueryKey",
       "getTransactionQueryOptions",
       "getTransactionConfirmationsQueryKey",
@@ -71,8 +73,10 @@ test('exports', () => {
       "reconnectMutationOptions",
       "sendCallsMutationOptions",
       "showCallsStatusMutationOptions",
+      "sendTransactionMutationOptions",
       "signMessageMutationOptions",
       "signTypedDataMutationOptions",
+      "switchAccountMutationOptions",
       "simulateContractQueryKey",
       "simulateContractQueryOptions",
       "switchChainMutationOptions",
@@ -86,6 +90,8 @@ test('exports', () => {
       "waitForTransactionReceiptQueryOptions",
       "watchAssetMutationOptions",
       "writeContractMutationOptions",
+      "hashFn",
+      "structuralSharing",
     ]
   `)
 })

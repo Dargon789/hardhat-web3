@@ -1,5 +1,7 @@
 import { abi, config } from '@wagmi/test'
+import { http, type Address } from 'viem'
 import { celo, mainnet } from 'viem/chains'
+import { expectTypeOf, test } from 'vitest'
 
 import { createConfig } from '../createConfig.js'
 import {

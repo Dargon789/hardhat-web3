@@ -7,6 +7,7 @@ test('default', async () => {
   const result = await estimateFeesPerGas(config)
   expect(Object.keys(result)).toMatchInlineSnapshot(`
     [
+      "formatted",
       "gasPrice",
       "maxFeePerGas",
       "maxPriorityFeePerGas",

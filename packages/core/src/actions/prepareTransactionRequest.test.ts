@@ -1,4 +1,6 @@
 import { accounts, config, privateKey } from '@wagmi/test'
+import { expect, test } from 'vitest'
+
 import { parseEther } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { connect } from './connect.js'
@@ -24,7 +26,9 @@ test('default', async () => {
   } = request
   expect(rest).toMatchInlineSnapshot(`
     {
+      "account": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
       "chainId": 1,
+      "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
       "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
       "type": "eip1559",
       "value": 1000000000000000000n,
@@ -52,7 +56,9 @@ test('parameters: account', async () => {
   } = request
   expect(rest).toMatchInlineSnapshot(`
     {
+      "account": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
       "chainId": 1,
+      "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
       "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
       "type": "eip1559",
       "value": 1000000000000000000n,
@@ -81,7 +87,9 @@ test('behavior: local account', async () => {
   expect(rest).toMatchInlineSnapshot(`
     {
       "account": {
+        "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         "nonceManager": undefined,
+        "publicKey": "0x048318535b54105d4a7aae60c08fc45f9687181b4fdfc625bd1a753fa7397fed753547f11ca8696646f2f3acb08e31016afac23e630c5d11f59f61fef57b0d2aa5",
         "sign": [Function],
         "signAuthorization": [Function],
         "signMessage": [Function],
@@ -91,6 +99,7 @@ test('behavior: local account', async () => {
         "type": "local",
       },
       "chainId": 1,
+      "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
       "to": "0x70997970c51812dc3a010c7d01b50e0d17dc79c8",
       "type": "eip1559",
       "value": 1000000000000000000n,

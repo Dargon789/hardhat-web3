@@ -1,3 +1,4 @@
+import { http, HttpResponse } from 'msw'
 import { setupServer } from 'msw/node'
 import { afterAll, afterEach, beforeAll, expect, test } from 'vitest'
 
@@ -35,6 +36,8 @@ beforeAll(() => server.listen())
 afterEach(() => server.resetHandlers())
 afterAll(() => server.close())
 
+test('fetches ABI', () => {
+  expect(
     sourcify({
       chainId: chainId,
       contracts: [{ name: 'DepositContract', address }],
@@ -42,6 +45,8 @@ afterAll(() => server.close())
   ).resolves.toMatchSnapshot()
 })
 
+test('fetches ABI with multichain deployment', () => {
+  expect(
     sourcify({
       chainId: 100,
       contracts: [
@@ -54,6 +59,8 @@ afterAll(() => server.close())
   ).resolves.toMatchSnapshot()
 })
 
+test('fails to fetch for unverified contract', () => {
+  expect(
     sourcify({
       chainId: 100,
       contracts: [{ name: 'DepositContract', address }],
@@ -63,6 +70,8 @@ afterAll(() => server.close())
   )
 })
 
+test('missing address for chainId', () => {
+  expect(
     sourcify({
       chainId: 1,
       // @ts-expect-error `chainId` and `keyof typeof contracts[number].address` mismatch

@@ -1,11 +1,16 @@
+import { renderHook, waitFor } from '@wagmi/test/react'
+import { expect, test } from 'vitest'
+
 import { useEnsAddress } from './useEnsAddress.js'
 
 test('default', async () => {
+  const { result } = renderHook(() =>
     useEnsAddress({
       name: 'wevm.eth',
     }),
   )
 
+  await waitFor(() => expect(result.current.isSuccess).toBeTruthy())
 
   expect(result.current).toMatchInlineSnapshot(`
     {

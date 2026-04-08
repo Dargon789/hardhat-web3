@@ -1,5 +1,6 @@
 import { abi } from '@wagmi/test'
 import type { Address } from 'viem'
+import { assertType, expectTypeOf, test } from 'vitest'
 
 import type { DeepUnwrapRef } from '../types/ref.js'
 import {
@@ -47,29 +48,44 @@ test('UseReadContractReturnType', () => {
 })
 
 test('overloads', () => {
+  const result1 = useReadContract({
     address: '0x',
     abi: abi.viewOverloads,
     functionName: 'foo',
   })
+  assertType<number | undefined>(result1.data.value)
 
+  const result2 = useReadContract({
     address: '0x',
     abi: abi.viewOverloads,
     functionName: 'foo',
     args: [],
   })
+  assertType<number | undefined>(result2.data.value)
 
+  const result3 = useReadContract({
     address: '0x',
     abi: abi.viewOverloads,
     functionName: 'foo',
     args: ['0x'],
   })
+  // @ts-ignore – TODO: Fix https://github.com/wevm/viem/issues/1916
+  assertType<string | undefined>(result3.data)
 
+  const result4 = useReadContract({
     address: '0x',
     abi: abi.viewOverloads,
     functionName: 'foo',
     args: ['0x', '0x'],
-          foo: `0x${string}`
-          bar: `0x${string}`
+  })
+  assertType<
+    | {
+        foo: `0x${string}`
+        bar: `0x${string}`
+      }
+    | undefined
+    // @ts-ignore – TODO: Fix https://github.com/wevm/viem/issues/1916
+  >(result4.data)
 })
 
 test('deployless read (bytecode)', () => {

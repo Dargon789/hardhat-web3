@@ -120,7 +120,7 @@ import { useCall } from 'wagmi'
 function App() {
   const result = useCall({
     account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
-    accessList: [ // [!code focus:6]
+    accessList: [ // [!code focus:6] 
       {
         address: '0x1',
         storageKeys: ['0x1'],
@@ -160,6 +160,7 @@ function App() {
 
 `bigint | undefined`
 
+The price (in wei) to pay per gas. Only applies to [Legacy Transactions](https://viem.sh/docs/glossary/terms.html#legacy-transaction).
 
 ::: code-group
 ```tsx [index.tsx]
@@ -181,6 +182,7 @@ function App() {
 
 `bigint | undefined`
 
+Total fee per gas (in wei), inclusive of `maxPriorityFeePerGas`. Only applies to [EIP-1559 Transactions](https://viem.sh/docs/glossary/terms.html#eip-1559-transaction).
 
 ::: code-group
 ```tsx [index.tsx]
@@ -202,6 +204,7 @@ function App() {
 
 `bigint | undefined`
 
+Max priority fee per gas (in wei). Only applies to [EIP-1559 Transactions](https://viem.sh/docs/glossary/terms.html#eip-1559-transaction).
 
 ::: code-group
 ```tsx [index.tsx]

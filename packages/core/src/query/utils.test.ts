@@ -1,3 +1,7 @@
+import { expect, test } from 'vitest'
+
+import { structuralSharing } from './utils.js'
+
 test('structuralSharing', () => {
   expect(
     structuralSharing({ foo: 'bar' }, { foo: 'bar' }),

@@ -6,6 +6,7 @@
 
 ## Leveraging Viem Actions
 
+All of the core [Wagmi Actions](/core/api/actions) are friendly wrappers around [Viem Actions](https://viem.sh/docs/actions/public/introduction.html) that inject a multi-chain and connector aware [Wagmi Config](/core/api/createConfig).
 
 There may be cases where you might want to dig deeper and utilize Viem Actions directly (maybe an Action doesn't exist in Wagmi yet). In these cases, you can import Viem Actions directly via `viem/actions` and plug in a Viem Client returned by the [`getClient` Action](/core/api/actions/getClient).
 
@@ -23,21 +24,21 @@ It is highly recommended to use the **tree-shakable** method to ensure that you 
 ::: code-group
 
 ```tsx [Tree-shakable Actions]
-// 1. Import modules.
-import { http, createConfig, getClient, getConnectorClient } from '@wagmi/core'
-import { base, mainnet, optimism, zora } from '@wagmi/core/chains'
+// 1. Import modules. 
+import { http, createConfig, getClient, getConnectorClient } from '@wagmi/core' 
+import { base, mainnet, optimism, zora } from '@wagmi/core/chains' 
 import { getLogs, watchAsset } from 'viem/actions' // [!code hl]
 
-// 2. Set up a Wagmi Config
-export const config = createConfig({
-  chains: [base, mainnet, optimism, zora],
-  transports: {
-    [base.id]: http(),
-    [mainnet.id]: http(),
-    [optimism.id]: http(),
-    [zora.id]: http(),
-  },
-})
+// 2. Set up a Wagmi Config 
+export const config = createConfig({ 
+  chains: [base, mainnet, optimism, zora], 
+  transports: { 
+    [base.id]: http(), 
+    [mainnet.id]: http(), 
+    [optimism.id]: http(), 
+    [zora.id]: http(), 
+  }, 
+}) 
 
 // 3. Extract a Viem Client for the current active chain.
 const publicClient = getClient(config)
@@ -49,20 +50,20 @@ const success = await watchAsset(walletClient, /* ... */) // [!code hl]
 ```
 
 ```tsx [Client Actions]
-// 1. Import modules.
-import { http, createConfig, getPublicClient, getWalletClient } from '@wagmi/core'
-import { base, mainnet, optimism, zora } from '@wagmi/core/chains'
+// 1. Import modules. 
+import { http, createConfig, getPublicClient, getWalletClient } from '@wagmi/core' 
+import { base, mainnet, optimism, zora } from '@wagmi/core/chains' 
 
-// 2. Set up a Wagmi Config
-export const config = createConfig({
-  chains: [base, mainnet, optimism, zora],
-  transports: {
-    [base.id]: http(),
-    [mainnet.id]: http(),
-    [optimism.id]: http(),
-    [zora.id]: http(),
-  },
-})
+// 2. Set up a Wagmi Config 
+export const config = createConfig({ 
+  chains: [base, mainnet, optimism, zora], 
+  transports: { 
+    [base.id]: http(), 
+    [mainnet.id]: http(), 
+    [optimism.id]: http(), 
+    [zora.id]: http(), 
+  }, 
+}) 
 
 // 3. Extract a Viem Public Client for the current active chain.
 const publicClient = getPublicClient(config)
@@ -77,27 +78,28 @@ const success = await walletClient.watchAsset(walletClient, /* ... */) // [!code
 
 ## Multi-chain Viem Client
 
+The [Viem Client](https://viem.sh/docs/client) provides an interface to interact with an JSON-RPC Provider. By nature, JSON-RPC Providers are single-chain, so the Viem Client is designed to be instantiated with a single `chain`. As a result, setting up Viem to be multi-chain aware can get a bit verbose.
 
 The good news is that you can create a **"multi-chain Viem Client"** with **Wagmi** by utilizing [`createConfig`](/core/api/createConfig) and [`getClient`](/core/api/actions/getClient).
 
 ::: code-group
 
 ```tsx [Wagmi Usage]
-// 1. Import modules.
-import { http, createConfig, getClient, getConnectorClient } from '@wagmi/core'
-import { base, mainnet, optimism, zora } from '@wagmi/core/chains'
+// 1. Import modules. 
+import { http, createConfig, getClient, getConnectorClient } from '@wagmi/core' 
+import { base, mainnet, optimism, zora } from '@wagmi/core/chains' 
 import { getBlockNumber, sendTransaction } from 'viem/actions' // [!code hl]
 
-// 2. Set up a Wagmi Config
-export const config = createConfig({
-  chains: [base, mainnet, optimism, zora],
-  transports: {
-    [base.id]: http(),
-    [mainnet.id]: http(),
-    [optimism.id]: http(),
-    [zora.id]: http(),
-  },
-})
+// 2. Set up a Wagmi Config 
+export const config = createConfig({ 
+  chains: [base, mainnet, optimism, zora], 
+  transports: { 
+    [base.id]: http(), 
+    [mainnet.id]: http(), 
+    [optimism.id]: http(), 
+    [zora.id]: http(), 
+  }, 
+}) 
 
 // 3. Extract a Viem Client for the current active chain.
 const publicClient = getClient(config)
@@ -109,7 +111,7 @@ const hash = await sendTransaction(walletClient, /* ... */) // [!code hl]
 ```
 
 ```tsx [Viem Usage]
-// Manually set up Viem Clients without wagmi. Don't do this, it's only here
+// Manually set up Viem Clients without wagmi. Don't do this, it's only here 
 // to demonstrate the amount of boilerplate required.
 
 import { createPublicClient, createWalletClient, http } from 'viem'
@@ -161,26 +163,27 @@ const hash = await walletClient.mainnet.sendTransaction(/* ... */)
 
 ## Private Key & Mnemonic Accounts
 
+It is possible to utilize Viem's [Private Key & Mnemonic Accounts](https://viem.sh/docs/accounts/local.html) with Wagmi by explicitly passing through the account via the `account` argument on Wagmi Actions.
 
 ```tsx
-import { http, createConfig, sendTransaction } from '@wagmi/core'
-import { base, mainnet, optimism, zora } from '@wagmi/core/chains'
+import { http, createConfig, sendTransaction } from '@wagmi/core' 
+import { base, mainnet, optimism, zora } from '@wagmi/core/chains' 
 import { parseEther } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 
-export const config = createConfig({
-  chains: [base, mainnet, optimism, zora],
-  transports: {
-    [base.id]: http(),
-    [mainnet.id]: http(),
-    [optimism.id]: http(),
-    [zora.id]: http(),
-  },
-})
+export const config = createConfig({ 
+  chains: [base, mainnet, optimism, zora], 
+  transports: { 
+    [base.id]: http(), 
+    [mainnet.id]: http(), 
+    [optimism.id]: http(), 
+    [zora.id]: http(), 
+  }, 
+}) 
 
 const account = privateKeyToAccount('0x...') // [!code hl]
 
-const hash = await sendTransaction({
+const hash = await sendTransaction({ 
   account, // [!code hl]
   to: '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
   value: parseEther('0.001')

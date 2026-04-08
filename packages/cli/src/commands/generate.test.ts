@@ -169,6 +169,7 @@ test('behavior: invalid cli options', async () => {
     }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
     [Error: Invalid option
+    - Expected string, received number at \`config\`]
   `)
 })
 
@@ -333,6 +334,7 @@ test('behavior: throws when address is invalid', async () => {
 
   await expect(generate()).rejects.toThrowErrorMatchingInlineSnapshot(`
     [Error: Invalid address for contract "Foo"
+    - Invalid address]
   `)
 })
 

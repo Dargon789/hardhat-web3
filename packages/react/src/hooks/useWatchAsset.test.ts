@@ -1,5 +1,7 @@
 import { connect, disconnect } from '@wagmi/core'
 import { config } from '@wagmi/test'
+import { renderHook, waitFor } from '@wagmi/test/react'
+import { expect, test } from 'vitest'
 
 import { useWatchAsset } from './useWatchAsset.js'
 
@@ -14,7 +16,10 @@ const tokenInfo = {
 test('default', async () => {
   await connect(config, { connector })
 
+  const { result } = renderHook(() => useWatchAsset())
 
+  result.current.watchAsset({ type: 'ERC20', options: tokenInfo })
+  await waitFor(() => expect(result.current.isSuccess).toBeTruthy())
 
   expect(result.current.data).toEqual(true)
 

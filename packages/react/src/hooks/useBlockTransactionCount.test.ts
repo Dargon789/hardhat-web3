@@ -1,9 +1,13 @@
 import { chain } from '@wagmi/test'
+import { renderHook, waitFor } from '@wagmi/test/react'
+import { expect, test } from 'vitest'
 
 import { useBlockTransactionCount } from './useBlockTransactionCount.js'
 
 test('default', async () => {
+  const { result } = renderHook(() => useBlockTransactionCount({}))
 
+  await waitFor(() => expect(result.current.isSuccess).toBeTruthy())
 
   const { data, ...rest } = result.current
   expect(data).toBeTypeOf('number')
@@ -43,9 +47,11 @@ test('default', async () => {
 })
 
 test('parameters: chainId', async () => {
+  const { result } = renderHook(() =>
     useBlockTransactionCount({ chainId: chain.mainnet2.id }),
   )
 
+  await waitFor(() => expect(result.current.isSuccess).toBeTruthy())
 
   const { data, ...rest } = result.current
   expect(data).toBeTypeOf('number')
@@ -85,9 +91,11 @@ test('parameters: chainId', async () => {
 })
 
 test('parameters: blockNumber', async () => {
+  const { result } = renderHook(() =>
     useBlockTransactionCount({ blockNumber: 13677382n }),
   )
 
+  await waitFor(() => expect(result.current.isSuccess).toBeTruthy())
 
   const { data, ...rest } = result.current
   expect(data).toBeTypeOf('number')
@@ -128,12 +136,14 @@ test('parameters: blockNumber', async () => {
 })
 
 test('parameters: blockHash', async () => {
+  const { result } = renderHook(() =>
     useBlockTransactionCount({
       blockHash:
         '0x6201f37a245850d1f11e4be3ac45bc51bd9d43ee4a127192cad550f351cfa575',
     }),
   )
 
+  await waitFor(() => expect(result.current.isSuccess).toBeTruthy())
 
   const { data, ...rest } = result.current
   expect(data).toBeTypeOf('number')
@@ -174,11 +184,13 @@ test('parameters: blockHash', async () => {
 })
 
 test('parameters: blockTag', async () => {
+  const { result } = renderHook(() =>
     useBlockTransactionCount({
       blockTag: 'safe',
     }),
   )
 
+  await waitFor(() => expect(result.current.isSuccess).toBeTruthy())
 
   const { data, ...rest } = result.current
   expect(data).toBeTypeOf('number')

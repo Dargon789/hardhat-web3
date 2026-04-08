@@ -109,7 +109,7 @@ import { config } from './config'
 
 await call(config, {
   account: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
-  accessList: [ // [!code focus:6]
+  accessList: [ // [!code focus:6] 
     {
       address: '0x1',
       storageKeys: ['0x1'],
@@ -147,6 +147,7 @@ await call(config, {
 
 `bigint | undefined`
 
+The price (in wei) to pay per gas. Only applies to [Legacy Transactions](https://viem.sh/docs/glossary/terms.html#legacy-transaction).
 
 ::: code-group
 ```ts [index.ts]
@@ -168,6 +169,7 @@ await call(config, {
 
 `bigint | undefined`
 
+Total fee per gas (in wei), inclusive of `maxPriorityFeePerGas`. Only applies to [EIP-1559 Transactions](https://viem.sh/docs/glossary/terms.html#eip-1559-transaction).
 
 ::: code-group
 ```ts [index.ts]
@@ -189,6 +191,7 @@ await call(config, {
 
 `bigint | undefined`
 
+Max priority fee per gas (in wei). Only applies to [EIP-1559 Transactions](https://viem.sh/docs/glossary/terms.html#eip-1559-transaction).
 
 ::: code-group
 ```ts [index.ts]
@@ -334,3 +337,4 @@ import { type CallErrorType } from '@wagmi/core'
 
 ## Viem
 
+- [`call`](https://viem.sh/docs/actions/public/call.html)

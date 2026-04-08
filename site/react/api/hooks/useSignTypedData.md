@@ -29,10 +29,14 @@ import { useSignTypedData } from 'wagmi'
 ```tsx [index.tsx]
 import { useSignTypedData } from 'wagmi'
 
+
 function App() {
+  const { signTypedData } = useSignTypedData()
+
   return (
     <button
       onClick={() =>
+        signTypedData({
           types: {
             Person: [
               { name: 'name', type: 'string' },
@@ -85,6 +89,7 @@ import { useSignTypedData } from 'wagmi'
 import { config } from './config' // [!code focus]
 
 function App() {
+  const result = useSignTypedData({
     config, // [!code focus]
   })
 }
@@ -110,7 +115,9 @@ With [`types`](/core/api/actions/signTypedData#types) setup correctly, TypeScrip
 ```ts twoslash [Inline]
 import { useSignTypedData } from 'wagmi'
 // ---cut---
+const { signTypedData } = useSignTypedData()
 
+signTypedData({
   types: {
     Person: [
       { name: 'name', type: 'string' },
@@ -167,7 +174,9 @@ const types = {
   ],
 } as const
 
+const { signTypedData } = useSignTypedData()
 
+signTypedData({
   types,
   primaryType: 'Mail',
   // ^?
