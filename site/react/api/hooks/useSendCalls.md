@@ -1,6 +1,6 @@
 ---
 title: useSendCalls
-description: Hook that requests for the wallet to sign and broadcast a batch of calls (transactions) to the network. 
+description: Hook that requests for the wallet to sign and broadcast a batch of calls (transactions) to the network.
 ---
 
 <script setup>
@@ -15,7 +15,7 @@ const TVariables = 'SendCallsVariables'
 
 # useSendCalls
 
-Hook that requests for the wallet to sign and broadcast a batch of calls (transactions) to the network. 
+Hook that requests for the wallet to sign and broadcast a batch of calls (transactions) to the network.
 
 [Read more.](https://github.com/ethereum/EIPs/blob/815028dc634463e1716fc5ce44c019a6040f0bef/EIPS/eip-5792.md#wallet_sendcalls)
 
@@ -33,12 +33,9 @@ import { useSendCalls } from 'wagmi'
 import { parseEther } from 'viem'
 
 function App() {
-  const { sendCalls } = useSendCalls()
-
   return (
     <button
       onClick={() =>
-        sendCalls({
           calls: [
             {
               to: '0x70997970c51812dc3a010c7d01b50e0d17dc79c8',
@@ -78,7 +75,6 @@ import { useSendCalls } from 'wagmi'
 import { config } from './config' // [!code focus]
 
 function App() {
-  const result = useSendCalls({
     config, // [!code focus]
   })
 }

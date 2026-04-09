@@ -4,15 +4,10 @@ import type { Contract, Plugin } from '../config.js'
 import type { Compute, RequiredBy } from '../types.js'
 import { getAddressDocString } from '../utils/getAddressDocString.js'
 
-export type ReactConfig = {
-  getHookName?:
-    | 'legacy' // TODO: Deprecate `'legacy'` option
-    | ((options: {
-        contractName: string
-        itemName?: string | undefined
-        type: 'read' | 'simulate' | 'watch' | 'write'
-      }) => `use${string}`)
-}
+          contractName: string
+          itemName?: string | undefined
+          type: 'read' | 'simulate' | 'watch' | 'write'
+      }
 
 type ReactResult = Compute<RequiredBy<Plugin, 'run'>>
 
@@ -65,36 +60,36 @@ export function react(config: ReactConfig = {}): ReactResult {
 export const ${hookName} = ${pure} ${functionName}({ ${innerContent} })`,
           )
 
-          const names = new Set<string>()
-          for (const item of readItems) {
-            if (item.type !== 'function') continue
-            if (
-              item.stateMutability !== 'pure' &&
-              item.stateMutability !== 'view'
-            )
-              continue
+            const names = new Set<string>()
+            for (const item of readItems) {
+              if (item.type !== 'function') continue
+              if (
+                item.stateMutability !== 'pure' &&
+                item.stateMutability !== 'view'
+              )
+                continue
 
-            // Skip overrides since they are captured by same hook
-            if (names.has(item.name)) continue
-            names.add(item.name)
+              // Skip overrides since they are captured by same hook
+              if (names.has(item.name)) continue
+              names.add(item.name)
 
-            const hookName = getHookName(
-              config,
-              hookNames,
-              'read',
-              contract.name,
-              item.name,
-            )
-            const docString = genDocString('useReadContract', contract, {
-              name: 'functionName',
-              value: item.name,
-            })
-            content.push(
-              `${docString}
+              const hookName = getHookName(
+                config,
+                hookNames,
+                'read',
+                contract.name,
+                item.name,
+              )
+              const docString = genDocString('useReadContract', contract, {
+                name: 'functionName',
+                value: item.name,
+              })
+              content.push(
+                `${docString}
 export const ${hookName} = ${pure} ${functionName}({ ${innerContent}, functionName: '${item.name}' })`,
-            )
+              )
+            }
           }
-        }
 
         if (hasWriteFunction) {
           {
@@ -112,36 +107,36 @@ export const ${hookName} = ${pure} ${functionName}({ ${innerContent}, functionNa
 export const ${hookName} = ${pure} ${functionName}({ ${innerContent} })`,
             )
 
-            const names = new Set<string>()
-            for (const item of writeItems) {
-              if (item.type !== 'function') continue
-              if (
-                item.stateMutability !== 'nonpayable' &&
-                item.stateMutability !== 'payable'
-              )
-                continue
+              const names = new Set<string>()
+              for (const item of writeItems) {
+                if (item.type !== 'function') continue
+                if (
+                  item.stateMutability !== 'nonpayable' &&
+                  item.stateMutability !== 'payable'
+                )
+                  continue
 
-              // Skip overrides since they are captured by same hook
-              if (names.has(item.name)) continue
-              names.add(item.name)
+                // Skip overrides since they are captured by same hook
+                if (names.has(item.name)) continue
+                names.add(item.name)
 
-              const hookName = getHookName(
-                config,
-                hookNames,
-                'write',
-                contract.name,
-                item.name,
-              )
-              const docString = genDocString('useWriteContract', contract, {
-                name: 'functionName',
-                value: item.name,
-              })
-              content.push(
-                `${docString}
+                const hookName = getHookName(
+                  config,
+                  hookNames,
+                  'write',
+                  contract.name,
+                  item.name,
+                )
+                const docString = genDocString('useWriteContract', contract, {
+                  name: 'functionName',
+                  value: item.name,
+                })
+                content.push(
+                  `${docString}
 export const ${hookName} = ${pure} ${functionName}({ ${innerContent}, functionName: '${item.name}' })`,
-              )
+                )
+              }
             }
-          }
 
           {
             const hookName = getHookName(
@@ -158,37 +153,35 @@ export const ${hookName} = ${pure} ${functionName}({ ${innerContent}, functionNa
 export const ${hookName} = ${pure} ${functionName}({ ${innerContent} })`,
             )
 
-            const names = new Set<string>()
-            for (const item of writeItems) {
-              if (item.type !== 'function') continue
-              if (
-                item.stateMutability !== 'nonpayable' &&
-                item.stateMutability !== 'payable'
-              )
-                continue
+              const names = new Set<string>()
+              for (const item of writeItems) {
+                if (item.type !== 'function') continue
+                if (
+                  item.stateMutability !== 'nonpayable' &&
+                  item.stateMutability !== 'payable'
+                )
+                  continue
 
-              // Skip overrides since they are captured by same hook
-              if (names.has(item.name)) continue
-              names.add(item.name)
+                // Skip overrides since they are captured by same hook
+                if (names.has(item.name)) continue
+                names.add(item.name)
 
-              const hookName = getHookName(
-                config,
-                hookNames,
-                'simulate',
-                contract.name,
-                item.name,
-              )
-              const docString = genDocString('useSimulateContract', contract, {
-                name: 'functionName',
-                value: item.name,
-              })
-              content.push(
-                `${docString}
+                const hookName = getHookName(
+                  config,
+                  hookNames,
+                  'simulate',
+                  contract.name,
+                  item.name,
+                )
+                    name: 'functionName',
+                    value: item.name,
+                content.push(
+                  `${docString}
 export const ${hookName} = ${pure} ${functionName}({ ${innerContent}, functionName: '${item.name}' })`,
-              )
+                )
+              }
             }
           }
-        }
 
         if (hasEvent) {
           const hookName = getHookName(
@@ -205,32 +198,30 @@ export const ${hookName} = ${pure} ${functionName}({ ${innerContent}, functionNa
 export const ${hookName} = ${pure} ${functionName}({ ${innerContent} })`,
           )
 
-          const names = new Set<string>()
-          for (const item of eventItems) {
-            if (item.type !== 'event') continue
+            const names = new Set<string>()
+            for (const item of eventItems) {
+              if (item.type !== 'event') continue
 
-            // Skip overrides since they are captured by same hook
-            if (names.has(item.name)) continue
-            names.add(item.name)
+              // Skip overrides since they are captured by same hook
+              if (names.has(item.name)) continue
+              names.add(item.name)
 
-            const hookName = getHookName(
-              config,
-              hookNames,
-              'watch',
-              contract.name,
-              item.name,
-            )
-            const docString = genDocString('useWatchContractEvent', contract, {
-              name: 'eventName',
-              value: item.name,
-            })
-            content.push(
-              `${docString}
+              const hookName = getHookName(
+                config,
+                hookNames,
+                'watch',
+                contract.name,
+                item.name,
+              )
+                  name: 'eventName',
+                  value: item.name,
+              content.push(
+                `${docString}
 export const ${hookName} = ${pure} ${functionName}({ ${innerContent}, eventName: '${item.name}' })`,
-            )
+              )
+            }
           }
         }
-      }
 
       const importValues = [...imports.values()]
 
@@ -256,7 +247,7 @@ function genDocString(
   if (docString)
     return `/**
  * ${description}
- * 
+ *
  ${docString}
  */`
 

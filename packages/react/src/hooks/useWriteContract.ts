@@ -68,20 +68,9 @@ export function useWriteContract<
 >(
   parameters: UseWriteContractParameters<config, context> = {},
 ): UseWriteContractReturnType<config, context> {
-  const { mutation } = parameters
-
   const config = useConfig(parameters)
-
   const mutationOptions = writeContractMutationOptions(config)
-  const { mutate, mutateAsync, ...result } = useMutation({
-    ...mutation,
-    ...mutationOptions,
-  })
-
   type Return = UseWriteContractReturnType<config, context>
   return {
-    ...result,
-    writeContract: mutate as Return['writeContract'],
-    writeContractAsync: mutateAsync as Return['writeContractAsync'],
   }
 }

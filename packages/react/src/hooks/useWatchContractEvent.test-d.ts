@@ -1,4 +1,3 @@
-import { http, createConfig, webSocket } from '@wagmi/core'
 import { mainnet, optimism } from '@wagmi/core/chains'
 import { abi } from '@wagmi/test'
 import { expectTypeOf, test } from 'vitest'
@@ -42,8 +41,6 @@ test('behavior: no eventName', () => {
     onLogs(logs) {
       expectTypeOf(logs[0]!.eventName).toEqualTypeOf<'Transfer' | 'Approval'>()
       expectTypeOf(logs[0]!.args).toEqualTypeOf<
-        | Record<string, unknown>
-        | readonly unknown[]
         | {
             from?: `0x${string}` | undefined
             to?: `0x${string}` | undefined
