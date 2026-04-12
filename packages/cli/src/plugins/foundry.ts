@@ -179,7 +179,7 @@ export function foundry(config: FoundryConfig = {}): FoundryResult {
   return {
     async contracts() {
       if (clean)
-        execSync(`${forgeExecutable} clean --root ${project}`, {
+        execSync(forgeExecutable + ' clean --root "' + project + '"', {
           encoding: 'utf-8',
           stdio: 'pipe',
         })
