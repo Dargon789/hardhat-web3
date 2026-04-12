@@ -28,6 +28,7 @@ export function fromZodError(
     return arr.reduce<string>((acc, value) => {
       if (typeof value === 'number') return `${acc}[${value}]`
       const separator = acc === '' ? '' : '.'
+      return acc + separator + value
     }, '')
   }
 
