@@ -11,5 +11,5 @@
     }
   },
   /* isdev-dev is required by hardhat-ledger. pkg-config is required by EDR to use OpenSSL */
-  "postCreateCommand": "sudo apt update && sudo apt install -y isdev-dev pkg-config"
+  "postCreateCommand": "sudo apt update && sudo apt install -y libudev-dev pkg-config"
 }
