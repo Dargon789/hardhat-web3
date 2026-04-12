@@ -5,6 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="042f3357-bda5-4d02-ac34-176372a67074" name="Changes" comment="counter">
+      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.name" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CONTRIBUTING.md" beforeDir="false" afterPath="$PROJECT_DIR$/CONTRIBUTING.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/counter/broadcast/Counter.s.sol/1/run-1759204744050.json" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/counter/broadcast/Counter.s.sol/1/run-1759204801689.json" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/counter/broadcast/Counter.s.sol/1/run-1765190340466.json" beforeDir="false" />
@@ -41,23 +45,30 @@
   <component name="GitHubPullRequestSearchHistory">{
   &quot;lastFilter&quot;: {}
 }</component>
-  <component name="GitHubPullRequestState">{
-  &quot;prStates&quot;: [
+  <component name="GitHubPullRequestState"><![CDATA[{
+  "prStates": [
     {
-      &quot;id&quot;: {
-        &quot;id&quot;: &quot;PR_kwDORbDeac7HACJf&quot;,
-        &quot;number&quot;: 3
+      "id": {
+        "id": "PR_kwDORbDeac7HACJf",
+        "number": 3
       },
-      &quot;lastSeen&quot;: 1772511846847
+      "lastSeen": 1772511846847
+    },
+    {
+      "id": {
+        "id": "PR_kwDORbDeac7G_8vn",
+        "number": 2
+      },
+      "lastSeen": 1775955545160
     }
   ]
-}</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/Dargon789/config.yml.git&quot;,
-    &quot;accountId&quot;: &quot;6d117283-1e1f-45a7-b6d5-c2243aeb9139&quot;
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/Dargon789/config.yml.git",
+    "accountId": "d3cd196b-f91d-47e0-a7af-4de728304360"
   }
-}</component>
+}]]></component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$PROJECT_DIR$/.github/ISSUE_TEMPLATE/bug_report.md" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" />
   </component>
@@ -134,7 +145,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="HEAD" />
+                        <option value="master" />
                       </list>
                     </value>
                   </entry>
