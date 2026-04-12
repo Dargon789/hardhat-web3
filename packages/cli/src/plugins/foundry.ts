@@ -184,7 +184,7 @@ export function foundry(config: FoundryConfig = {}): FoundryResult {
           stdio: 'pipe',
         })
       if (build)
-        execSync(`${forgeExecutable} build --root ${project}`, {
+        execSync(forgeExecutable + ' build --root "' + project + '"', {
           encoding: 'utf-8',
           stdio: 'pipe',
         })
