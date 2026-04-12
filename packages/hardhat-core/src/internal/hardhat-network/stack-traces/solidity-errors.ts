@@ -1,5 +1,6 @@
-import { bufferToHex } from "@nomicfoundation/ethereumjs-util";
+import { bytesToHex as bufferToHex } from "@ethereumjs/util";
 
+import { ReturnData } from "../provider/return-data";
 import { panicErrorCodeToMessage } from "./panic-errors";
 import {
   CONSTRUCTOR_FUNCTION_NAME,
@@ -38,11 +39,11 @@ export async function wrapWithSolidityErrorsCorrection(
     return await f();
   } catch (error: any) {
     if (error.stackTrace === undefined) {
-      // eslint-disable-next-line @nomiclabs/hardhat-internal-rules/only-hardhat-error
+      // eslint-disable-next-line @nomicfoundation/hardhat-internal-rules/only-hardhat-error
       throw error;
     }
 
-    // eslint-disable-next-line @nomiclabs/hardhat-internal-rules/only-hardhat-error
+    // eslint-disable-next-line @nomicfoundation/hardhat-internal-rules/only-hardhat-error
     throw encodeSolidityStackTrace(
       error.message,
       error.stackTrace,
@@ -66,8 +67,8 @@ export function encodeSolidityStackTrace(
     if (previousStack !== undefined) {
       stack = previousStack;
     } else {
-      // We remove Hardhat Network related stack traces
-      stack.splice(0, 3);
+      // We remove error management related stack traces
+      stack.splice(0, 1);
     }
 
     for (const entry of stackTrace) {
@@ -258,22 +259,21 @@ function getMessageFromLastStackTraceEntry(
       return `Transaction reverted: library was called directly`;
 
     case StackTraceEntryType.UNRECOGNIZED_CREATE_ERROR:
-    case StackTraceEntryType.UNRECOGNIZED_CONTRACT_ERROR:
-      if (stackTraceEntry.message.isErrorReturnData()) {
-        return `VM Exception while processing transaction: reverted with reason string '${stackTraceEntry.message.decodeError()}'`;
+    case StackTraceEntryType.UNRECOGNIZED_CONTRACT_ERROR: {
+      const returnData = new ReturnData(stackTraceEntry.returnData);
+      if (returnData.isErrorReturnData()) {
+        return `VM Exception while processing transaction: reverted with reason string '${returnData.decodeError()}'`;
       }
 
-      if (stackTraceEntry.message.isPanicReturnData()) {
-        const message = panicErrorCodeToMessage(
-          stackTraceEntry.message.decodePanic()
-        );
+      if (returnData.isPanicReturnData()) {
+        const message = panicErrorCodeToMessage(returnData.decodePanic());
         return `VM Exception while processing transaction: ${message}`;
       }
 
-      if (!stackTraceEntry.message.isEmpty()) {
-        const returnData = stackTraceEntry.message.value.toString("hex");
+      if (!returnData.isEmpty()) {
+        const buffer = Buffer.from(returnData.value).toString("hex");
 
-        return `VM Exception while processing transaction: reverted with an unrecognized custom error (return data: 0x${returnData})`;
+        return `VM Exception while processing transaction: reverted with an unrecognized custom error (return data: 0x${buffer})`;
       }
 
       if (stackTraceEntry.isInvalidOpcodeError) {
@@ -281,10 +281,12 @@ function getMessageFromLastStackTraceEntry(
       }
 
       return "Transaction reverted without a reason string";
+    }
 
-    case StackTraceEntryType.REVERT_ERROR:
-      if (stackTraceEntry.message.isErrorReturnData()) {
-        return `VM Exception while processing transaction: reverted with reason string '${stackTraceEntry.message.decodeError()}'`;
+    case StackTraceEntryType.REVERT_ERROR: {
+      const returnData = new ReturnData(stackTraceEntry.returnData);
+      if (returnData.isErrorReturnData()) {
+        return `VM Exception while processing transaction: reverted with reason string '${returnData.decodeError()}'`;
       }
 
       if (stackTraceEntry.isInvalidOpcodeError) {
@@ -292,6 +294,7 @@ function getMessageFromLastStackTraceEntry(
       }
 
       return "Transaction reverted without a reason string";
+    }
 
     case StackTraceEntryType.PANIC_ERROR:
       const panicMessage = panicErrorCodeToMessage(stackTraceEntry.errorCode);
@@ -391,7 +394,7 @@ class SolidityCallSite implements NodeJS.CallSite {
   }
 
   public getScriptNameOrSourceURL() {
-    return null;
+    return "";
   }
 
   public getThis() {
@@ -424,5 +427,21 @@ class SolidityCallSite implements NodeJS.CallSite {
 
   public isToplevel() {
     return false;
+  }
+
+  public getScriptHash(): string {
+    return "";
+  }
+
+  public getEnclosingColumnNumber(): number {
+    return 0;
+  }
+
+  public getEnclosingLineNumber(): number {
+    return 0;
+  }
+
+  public toString(): string {
+    return "[SolidityCallSite]";
   }
 }

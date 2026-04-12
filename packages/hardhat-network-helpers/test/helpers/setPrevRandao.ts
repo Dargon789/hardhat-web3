@@ -1,6 +1,6 @@
 import { assert } from "chai";
 import { BN } from "ethereumjs-util";
-import { ethers } from "ethers";
+import { ethers } from "ethers-v5";
 
 import * as hh from "../../src";
 import { NumberLike } from "../../src/types";
@@ -18,7 +18,7 @@ describe("setPrevRandao", function () {
     return BigInt(block.mixHash);
   };
 
-  it("should allow setting the next block's prevrandao", async function () {
+  it("should allow setting the next block's prevRandao", async function () {
     await hh.setPrevRandao(12345);
     await hh.mine();
 

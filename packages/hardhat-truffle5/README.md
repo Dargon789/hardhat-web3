@@ -6,7 +6,7 @@
 
 ## What
 
-This plugin brings to Hardhat TruffleContracts from Truffle 5. With it you can call [`contract()` and `artifacts.require()`](https://truffleframework.com/docs/truffle/testing/writing-tests-in-javascript) like you normally would with Truffle. Interact with your contracts with a familiar API from tasks, scripts and tests.
+This plugin brings to Hardhat TruffleContracts from Truffle 5. With it you can call [`contract()` and `artifacts.require()`](https://archive.trufflesuite.com/docs/truffle/how-to/debug-test/write-tests-in-javascript/) like you normally would with Truffle. Interact with your contracts with a familiar API from tasks, scripts and tests.
 
 ## Required plugins
 
@@ -15,7 +15,7 @@ This plugin requires [hardhat-web3](https://github.com/nomiclabs/hardhat/tree/ma
 ## Installation
 
 ```bash
-npm install --save-dev @nomiclabs/hardhat-truffle5 @nomiclabs/hardhat-web3 web3
+npm install --save-dev @nomiclabs/hardhat-truffle5 @nomiclabs/hardhat-web3 'web3@^1.0.0-beta.36'
 ```
 
 And add the following statement to your `hardhat.config.js`:

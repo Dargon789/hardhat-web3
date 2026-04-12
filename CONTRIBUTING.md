@@ -12,17 +12,17 @@ We use a [GitHub project](https://github.com/orgs/NomicFoundation/projects/4/vie
 
 ## Project structure
 
-This repository is a monorepo handled with [Yarn v1](https://classic.yarnpkg.com/lang/en/) and [Yarn workspaces](https://classic.yarnpkg.com/en/docs/workspaces/).
+This repository is a monorepo handled with [pnpm](https://pnpm.io/) and [pnpm workspaces](https://pnpm.io/workspaces).
 
 There's a folder for each subproject in `packages/`. All of them are plugins, except for `/packages/hardhat-core` which is the main project (i.e. the one that's published as [hardhat](https://npmjs.com/package/hardhat) in npm).
 
 ## Installing
 
-To install the project's dependencies, run `yarn` in the root directory of the repository.
+To install the project's dependencies, run `pnpm i` in the root directory of the repository.
 
 ## Building the projects
 
-Plugins require hardhat to be built or tested. Our recommendation is to run `yarn watch` from the root folder. This will keep everything compiled, and these problems will be avoided.
+Plugins require hardhat to be built or tested. Our recommendation is to run `pnpm watch` from the root folder. This will keep everything compiled, and these problems will be avoided.
 
 ## Testing
 
@@ -30,11 +30,11 @@ All tests are written using [mocha](https://mochajs.org) and [chai](https://www.
 
 ### Per-package
 
-You can run a package's tests by executing `yarn test` inside its folder.
+You can run a package's tests by executing `pnpm test` inside its folder.
 
 ### Entire project
 
-You can run all the tests at once by running `yarn test` from the root folder.
+You can run all the tests at once by running `pnpm test` from the root folder.
 
 ## Code formatting
 
@@ -42,7 +42,7 @@ We use [Prettier](https://prettier.io/) to format all the code without any speci
 
 We also have [eslint](https://eslint.org/) installed in all the projects. It checks that you have run Prettier and forbids some dangerous patterns.
 
-The linter is always run in the CI, so make sure it passes before pushing code. You can use `yarn lint` and `yarn lint:fix` inside the packages' folders.
+The linter is always run in the CI, so make sure it passes before pushing code. You can use `pnpm lint` and `pnpm lint:fix` inside the packages' folders.
 
 ## Branching
 
@@ -95,22 +95,16 @@ This is a list of the modules that always get loaded during startup:
 
 ## Developing locally
 
-All these tips assume you are running `yarn watch` from the root directory.
+All these tips assume you are running `pnpm watch` from the root directory.
 
 ### Linking
 
-You can [link](https://classic.yarnpkg.com/en/docs/cli/link/) any package to test it locally. While the rest of the commands we run use `yarn`, we recommend you use `npm` for linking, since `yarn link` won't create the `hardhat` executable. For example, if you are working on `hardhat`, you can follow these steps:
+You can [link](https://docs.npmjs.com/cli/v9/commands/npm-link/) any package to test it locally. While the rest of the commands we run use `pnpm`, we recommend you use `npm` for linking. For example, if you are working on `hardhat`, you can follow these steps:
 
 1. Go to `packages/hardhat-core` and run `npm link`
 2. Go to some hardhat project and run `npm link hardhat`
 
 Now any change you make in the code will be reflected in that project.
-
-If you prefer to use `yarn link`, you need to work around the lack of an executable in `node_modules/.bin/hardhat`. We recommend having an alias like this:
-
-```bash
-alias lhh='node --preserve-symlinks $(node -e "console.log(require.resolve(\"hardhat/internal/cli/cli.js\"))")'
-```
 
 ### Yalc
 
@@ -121,12 +115,12 @@ If for any reason linking doesn't work for you, you can use [`yalc`](https://git
 
 Unlike linking, if you make a change in the code, you'll need to repeat the process.
 
-### yarn pack
+### pnpm pack
 
-An even more realistic way of using your local changes in a project is to use [`yarn pack`](https://classic.yarnpkg.com/en/docs/cli/pack/):
+An even more realistic way of using your local changes in a project is to use [`pnpm pack`](https://pnpm.io/cli/pack):
 
-1. Go to `packages/hardhat-core` and run `yarn pack`. This will create a `nomiclabs-hardhat-x.y.z.tgz` file in that directory.
-2. Go to some hardhat project and run `yarn add /path/to/hardhat/packages/hardhat/nomiclabs-hardhat-x.y.z.tgz`.
+1. Go to `packages/hardhat-core` and run `pnpm pack`. This will create a `hardhat-x.y.z.tgz` file in that directory.
+2. Go to some hardhat project and run `npm install /path/to/hardhat/packages/hardhat-core/hardhat-x.y.z.tgz`.
 
 Unlike linking, if you make a change in the code, you'll need to repeat the process.
 
@@ -145,3 +139,82 @@ When tests are run, Hardhat gets initialized multiple times, and that means unlo
 This problem is normally not present if you are monkey-patching an object that you initialized, but it is when monkey-patching a class, its prototype, or a singleton object initialized by the library itself.
 
 For an example on how to do it properly, please take a look at the `hardhat-truffle5` plugin.
+
+## Note about small PRs and airdrop farming
+
+We generally really appreciate external contributions, and strongly encourage meaningful additions and fixes! However, due to a recent increase in small PRs potentially created to farm airdrops, we might need to close a PR without explanation if any of the following apply:
+
+- It is a change of very minor value that still requires additional review time/fixes (e.g. PRs fixing trivial spelling errors that can’t be merged in less than a couple of minutes due to incorrect suggestions)
+- It introduces inconsequential changes (e.g. rewording phrases)
+- The author of the PR does not respond in a timely manner
+- We suspect the Github account of the author was created for airdrop farming
+# Hi there, I'm Dargon789 👋
+
+### 🚀 DevOps Engineer | Blockchain, Web3 & DeFi Innovator
+
+[![Google Developer Profile](https://img.shields.io/badge/Google%20Dev-Profile-blue?logo=google)](https://g.dev/AU_gdev_19)
+[![GitHub](https://img.shields.io/badge/GitHub-Dargon789-black?logo=github)](https://github.com/Dargon789)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-apichan--upakhot-blue?logo=linkedin)](https://linkedin.com/in/apichan-upakhot-6791532b6)
+[![X](https://img.shields.io/badge/X-@19__ip7895f-black?logo=x)](https://x.com/19_ip7895f)
+[![Telegram](https://img.shields.io/badge/Telegram-@dargon789-blue?logo=telegram)](https://t.me/dargon789)
+
+---
+
+## 🛠️ About Me
+
+I'm a passionate **DevOps Engineer** building at the intersection of blockchain, decentralized finance, and emerging technologies. My expertise spans:
+
+- **Smart Contracts** (Solidity, Bitcoin Script)
+- **Blockchain**: Bitcoin, Ethereum, EVM, Web3
+- **DeFi**: Protocols, stablecoins (USDC), AI-powered payments
+- **Web3 & GameFi**: dApps, wallets, SDKs, app kits, game integration
+- **DevOps**: Automation, CI/CD, containerization, cloud infrastructure
+
+I thrive on solving complex challenges and contributing to the future of finance, payments, and gaming through decentralized tech.
+
+---
+
+## ⚡ Setup & Deploy
+
+Quick-start resources for getting up and running with my projects:
+
+- [GitHub/Dargon789](https://github.com/Dargon789) — Explore my projects & deployment-ready repos
+- [Google Developer Profile](https://g.dev/AU_gdev_19) — My developer credentials & activity
+- [LinkedIn](https://linkedin.com/in/apichan-upakhot-6791532b6) — Professional background & networking
+- [X (Twitter)](https://x.com/19_ip7895f) — Latest updates & insights
+- [Telegram](https://t.me/dargon789) — Chat with me directly
+
+*Need help setting up or deploying? Check project READMEs or reach out via LinkedIn/X/Telegram!*
+
+---
+
+## 💼 Professional Projects & Open Source
+
+- **Smart Contract Platforms**: Secure, scalable contracts for DeFi and payment use cases
+- **AI Payment Solutions**: Integrating AI with stablecoins and blockchain rails
+- **Web3 Wallets & SDKs**: Toolkits for dApp and wallet development
+- **GameFi Integrations**: Bringing blockchain to games and digital economies
+
+---
+
+## 🌟 Skills
+
+- **Blockchain:** Bitcoin, Ethereum, EVM, Solidity, smart contracts
+- **DevOps:** Docker, Kubernetes, CI/CD, AWS/GCP
+- **DeFi & Payments:** Stablecoin (USDC), payments APIs, protocol integrations
+- **Web3 Stack:** dApps, wallet SDKs, app kits, ethers.js, web3.js
+- **Languages:** Solidity, JavaScript, Python, Go, Shell
+
+---
+
+## 🌐 Find Me Online
+
+- [Google Developer Profile](https://g.dev/AU_gdev_19)
+- [GitHub](https://github.com/Dargon789)
+- [LinkedIn](https://linkedin.com/in/apichan-upakhot-6791532b6)
+- [X (Twitter)](https://x.com/19_ip7895f)
+- [Telegram](https://t.me/dargon789)
+
+---
+
+*Always building, always learning. Let’s shape the future of blockchain together!*

@@ -59,7 +59,7 @@ export class Anonymizer {
     if (filename === this._configPath) {
       const packageJsonPath = this._getFilePackageJsonPath(filename);
 
-      if (packageJsonPath === null) {
+      if (packageJsonPath === undefined) {
         // if we can't find a package.json, we just return the basename
         return {
           anonymizedFilename: path.basename(filename),
@@ -163,7 +163,7 @@ export class Anonymizer {
     return false;
   }
 
-  protected _getFilePackageJsonPath(filename: string): string | null {
+  protected _getFilePackageJsonPath(filename: string): string | undefined {
     return findup.sync("package.json", {
       cwd: path.dirname(filename),
     });
@@ -171,9 +171,11 @@ export class Anonymizer {
 
   private _isHardhatFile(filename: string): boolean {
     const nomiclabsPath = path.join("node_modules", "@nomiclabs");
+    const nomicFoundationPath = path.join("node_modules", "@nomicfoundation");
     const truffleContractPath = path.join(nomiclabsPath, "truffle-contract");
     const isHardhatFile =
-      filename.startsWith(nomiclabsPath) &&
+      (filename.startsWith(nomiclabsPath) ||
+        filename.startsWith(nomicFoundationPath)) &&
       !filename.startsWith(truffleContractPath);
 
     return isHardhatFile;

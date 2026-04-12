@@ -122,6 +122,50 @@ export const int: CLIArgumentType<number> = {
 };
 
 /**
+ * BigInt type.
+ * Accepts either a decimal string integer or hexadecimal string integer.
+ * @throws HH301
+ */
+export const bigint: CLIArgumentType<bigint> = {
+  name: "bigint",
+  parse: (argName, strValue) => {
+    const decimalPattern = /^\d+(?:n)?$/;
+    const hexPattern = /^0[xX][\dABCDEabcde]+$/;
+
+    if (
+      strValue.match(decimalPattern) === null &&
+      strValue.match(hexPattern) === null
+    ) {
+      throw new HardhatError(ERRORS.ARGUMENTS.INVALID_VALUE_FOR_TYPE, {
+        value: strValue,
+        name: argName,
+        type: bigint.name,
+      });
+    }
+
+    return BigInt(strValue.replace("n", ""));
+  },
+  /**
+   * Check if argument value is of type "bigint".
+   *
+   * @param argName {string} argument's name - used for context in case of error.
+   * @param value {any} argument's value to validate.
+   *
+   * @throws HH301 if value is not of type "bigint"
+   */
+  validate: (argName: string, value: any): void => {
+    const isBigInt = typeof value === "bigint";
+    if (!isBigInt) {
+      throw new HardhatError(ERRORS.ARGUMENTS.INVALID_VALUE_FOR_TYPE, {
+        value,
+        name: argName,
+        type: bigint.name,
+      });
+    }
+  },
+};
+
+/**
  * Float type.
  * Accepts either a decimal string number or hexadecimal string number.
  * @throws HH301
@@ -181,7 +225,7 @@ export const inputFile: CLIArgumentType<string> = {
 
       if (stats.isDirectory()) {
         // This is caught and encapsulated in a hardhat error.
-        // eslint-disable-next-line @nomiclabs/hardhat-internal-rules/only-hardhat-error
+        // eslint-disable-next-line @nomicfoundation/hardhat-internal-rules/only-hardhat-error
         throw new Error(`${strValue} is a directory, not a file`);
       }
     } catch (error) {
@@ -196,7 +240,7 @@ export const inputFile: CLIArgumentType<string> = {
         );
       }
 
-      // eslint-disable-next-line @nomiclabs/hardhat-internal-rules/only-hardhat-error
+      // eslint-disable-next-line @nomicfoundation/hardhat-internal-rules/only-hardhat-error
       throw error;
     }
 
@@ -229,7 +273,7 @@ export const inputFile: CLIArgumentType<string> = {
         );
       }
 
-      // eslint-disable-next-line @nomiclabs/hardhat-internal-rules/only-hardhat-error
+      // eslint-disable-next-line @nomicfoundation/hardhat-internal-rules/only-hardhat-error
       throw error;
     }
   },
@@ -252,7 +296,7 @@ export const json: CLIArgumentType<any> = {
         );
       }
 
-      // eslint-disable-next-line @nomiclabs/hardhat-internal-rules/only-hardhat-error
+      // eslint-disable-next-line @nomicfoundation/hardhat-internal-rules/only-hardhat-error
       throw error;
     }
   },

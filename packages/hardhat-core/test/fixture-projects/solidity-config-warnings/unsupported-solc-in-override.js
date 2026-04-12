@@ -1,3 +1,5 @@
+const { getNextUnsupportedVersion } = require("../../helpers/compilation");
+
 module.exports = {
   solidity: {
     compilers: [
@@ -6,7 +8,7 @@ module.exports = {
       },
     ],
     overrides: {
-      "contracts/Foo.sol": { version: "0.8.19" },
+      "contracts/Foo.sol": { version: getNextUnsupportedVersion() },
     },
   },
 };

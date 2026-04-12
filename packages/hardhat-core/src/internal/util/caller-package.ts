@@ -1,7 +1,7 @@
 import findup from "find-up";
 import path from "path";
 
-function findClosestPackageJson(file: string): string | null {
+function findClosestPackageJson(file: string): string | undefined {
   return findup.sync("package.json", { cwd: path.dirname(file) });
 }
 
@@ -22,14 +22,20 @@ export function getClosestCallerPackage(): string | undefined {
 
   for (const callSite of stack) {
     const fileName = callSite.getFileName();
-    if (fileName !== null && path.isAbsolute(fileName)) {
+    // fileName is string | null in @types/node <=18
+    // and string | undefined in @types/node 20
+    if (
+      fileName !== null &&
+      fileName !== undefined &&
+      path.isAbsolute(fileName)
+    ) {
       const callerPackage = findClosestPackageJson(fileName);
 
       if (callerPackage === currentPackage) {
         continue;
       }
 
-      if (callerPackage === null) {
+      if (callerPackage === undefined) {
         return undefined;
       }
 
