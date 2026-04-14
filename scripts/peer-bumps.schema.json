@@ -41,9 +41,10 @@
           "version": {
             "type": "string",
             "description": "Specific version to set. If omitted, defaults to the peer's current version (the one being released)."
-          }
+          },
         }
       }
     }
   }
 }
+
