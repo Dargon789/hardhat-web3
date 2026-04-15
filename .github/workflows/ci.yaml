@@ -34,7 +34,7 @@ jobs:
           verification_visibility: bytecode
  
       - name: Install dependencies
-        run: npm install
+        run: npm ci
  
       - name: Run Tests
         run: npm run test:vnet
