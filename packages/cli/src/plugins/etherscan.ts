@@ -68,8 +68,8 @@ export function etherscan<chainId extends ChainId>(
     contract,
   }) => {
     if (typeof contract.address === 'string')
-      return `${camelCase(name)}:${contract.address}`
-    return `${camelCase(name)}:${JSON.stringify(contract.address)}`
+      return camelCase(name) + '-' + contract.address
+    return camelCase(name) + '-' + JSON.stringify(contract.address).replace(/[^a-z0-9]/gi, '_')
   }
 
   return fetch({
