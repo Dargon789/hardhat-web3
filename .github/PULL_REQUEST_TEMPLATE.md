@@ -1,12 +1,37 @@
-<!-- What is this PR solving? Write a clear description or reference the issues it solves (e.g. `fixes #123`). What other alternatives have you explored? Are there any parts you think require more attention from reviewers? -->
+## Description
 
-<!----------------------------------------------------------------------
-Before creating the pull request, please make sure you do the following:
+_Concise description of proposed changes_
 
-- Read the Contributing Guidelines at https://wagmi.sh/dev/contributing
-- Check that there isn't already a PR that solves the problem the same way. If you find a duplicate, please help us review it.
-- Update the corresponding documentation if needed.
-- Include relevant tests that fail without this PR, but pass with it.
+## Additional Information
 
-Thank you for contributing to Wagmi!
------------------------------------------------------------------------>
+- [ ] I read the [contributing docs](../CONTRIBUTING.md) (if this is your first contribution)
+
+Your ENS/address:
+
+<!--
+Thank you for using Wagmi and taking the time to send a Pull Request!
+
+If you are introducing a new feature, please discuss it in an Issue or with someone from the team before submitting your change.
+
+Please:
+ - consider the checklist items below
+ - keep the ones that make sense for your PR, and
+ - DELETE the items that DON'T make sense for your PR.
+
+## Note about small PRs and airdrop farming
+
+We generally really appreciate external contributions, and strongly encourage meaningful additions and fixes! However, due to a recent increase in small PRs potentially created to farm airdrops, we might need to close a PR without explanation if any of the following apply:
+
+- It is a change of very minor value that still requires additional review time/fixes (e.g. PRs fixing trivial spelling errors that can’t be merged in less than a couple of minutes due to incorrect suggestions)
+- It introduces inconsequential changes (e.g. rewording phrases)
+- The author of the PR does not respond in a timely manner
+- We suspect the Github account of the author was created for airdrop farming
+-->
+
+- [ ] Because this PR includes a **bug fix**, relevant tests have been included.
+- [ ] Because this PR includes a **new feature**, the change was previously discussed on an Issue or with someone from the team.
+- [ ] None of the above.
+
+---
+
+<!-- Add a description of your PR here -->
