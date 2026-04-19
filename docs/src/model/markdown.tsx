@@ -13,7 +13,7 @@ import remarkGfm from "remark-gfm";
 import remarkUnwrapImages from "remark-unwrap-images";
 import rehypePrism from "rehype-prism";
 import remarkPrism from "remark-prism";
-
+import sanitizeHtml from "sanitize-html";
 import { DOCS_PATH, REPO_URL, TEMP_PATH } from "../config";
 import { ITabsState } from "../global-tabs";
 
@@ -100,7 +100,35 @@ export const withInsertedCodeFromLinks = (content: string) => {
 };
 
 export const withoutComments = (content: string) => {
-  return content.replace(/<!--[\s\S]*?-->/gm, "");
+  return
+    allowedTags: sanitizeHtml.defaults.allowedTags.filter(tag => tag !== '!--'),
+    allowedAttributes: {}
+  });
+};
+
+export const replacePlaceholders = (content: string) => {
+  const recommendedSolcVersion = "0.8.23";
+  const latestPragma = "^0.8.0";
+  const hardhatPackageJson = fs
+    .readFileSync(
+      path.resolve(
+        __dirname,
+        "..",
+        "..",
+        "..",
+        "..",
+        "packages",
+        "hardhat-core",
+        "package.json"
+      )
+    )
+    .toString();
+  const hardhatVersion = JSON.parse(hardhatPackageJson).version;
+
+  return content
+    .replaceAll("{RECOMMENDED_SOLC_VERSION}", recommendedSolcVersion)
+    .replaceAll("{LATEST_PRAGMA}", latestPragma)
+    .replaceAll("{HARDHAT_VERSION}", hardhatVersion);
 };
 
 export const replacePlaceholders = (content: string) => {

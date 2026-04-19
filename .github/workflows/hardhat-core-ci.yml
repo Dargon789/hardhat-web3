@@ -1,4 +1,6 @@
 name: hardhat-core CI
+permissions:
+  contents: read
 
 on:
   push:
@@ -15,6 +17,9 @@ on:
       - "packages/hardhat-common/**"
       - "config/**"
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 defaults:
   run:
