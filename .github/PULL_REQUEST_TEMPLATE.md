@@ -9,7 +9,7 @@ _Concise description of proposed changes_
 Your ENS/address:
 
 <!--
-Thank you for using Hardhat and taking the time to send a Pull Request!
+Thank you for using Wagmi and taking the time to send a Pull Request!
 
 If you are introducing a new feature, please discuss it in an Issue or with someone from the team before submitting your change.
 
