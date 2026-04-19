@@ -30,7 +30,7 @@ We generally really appreciate external contributions, and strongly encourage me
 
 - [ ] Because this PR includes a **bug fix**, relevant tests have been included.
 - [ ] Because this PR includes a **new feature**, the change was previously discussed on an Issue or with someone from the team.
-- [x] I didn't do anything of this.
+- [ ] None of the above.
 
 ---
 
