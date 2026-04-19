@@ -21,20 +21,6 @@ Join our [Hardhat Support Discord server](https://hardhat.org/discord) to stay u
 
 EDR finds its origins in Hardhat but will be a complete rewrite of our Hardhat Network TypeScript code to Rust, incorporating all of the lessons we have learned over the years, and much more to come.
 
-## Installation
-
-To install Hardhat, go to an empty folder, initialize an `npm` project (i.e. `npm init`), and run
-
-```
-npm install --save-dev hardhat
-```
-
-Once it's installed, just run this command and follow its instructions:
-
-```
-npx hardhat init
-```
-
 ## Documentation
 
 On [Hardhat's website](https://hardhat.org) you will find:
