@@ -352,7 +352,7 @@ pub fn calculate_next_base_fee(parent: &Header) -> U256 {
 
             let delta = parent_base_fee * U256::from(gas_used_delta)
                 / U256::from(parent_gas_target)
-                / base_fee_max_change_denominator;
+                / U256::from(parent_gas_target.max(1))
 
             parent_base_fee.saturating_sub(delta)
         }
