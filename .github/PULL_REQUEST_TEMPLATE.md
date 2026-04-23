@@ -1,27 +1,12 @@
-<!--
-Thank you for using Hardhat and taking the time to send a Pull Request!
+<!-- What is this PR solving? Write a clear description or reference the issues it solves (e.g. `fixes #123`). What other alternatives have you explored? Are there any parts you think require more attention from reviewers? -->
 
-If you are introducing a new feature, please discuss it in an Issue or with someone from the team before submitting your change.
+<!----------------------------------------------------------------------
+Before creating the pull request, please make sure you do the following:
 
-Please:
- - consider the checklist items below
- - keep the ones that make sense for your PR, and
- - DELETE the items that DON'T make sense for your PR.
+- Read the Contributing Guidelines at https://wagmi.sh/dev/contributing
+- Check that there isn't already a PR that solves the problem the same way. If you find a duplicate, please help us review it.
+- Update the corresponding documentation if needed.
+- Include relevant tests that fail without this PR, but pass with it.
 
-## Note about small PRs and airdrop farming
-
-We generally really appreciate external contributions, and strongly encourage meaningful additions and fixes! However, due to a recent increase in small PRs potentially created to farm airdrops, we might need to close a PR without explanation if any of the following apply:
-
-- It is a change of very minor value that still requires additional review time/fixes (e.g. PRs fixing trivial spelling errors that can’t be merged in less than a couple of minutes due to incorrect suggestions)
-- It introduces inconsequential changes (e.g. rewording phrases)
-- The author of the PR does not respond in a timely manner
-- We suspect the Github account of the author was created for airdrop farming
--->
-
-- [ ] Because this PR includes a **bug fix**, relevant tests have been included.
-- [ ] Because this PR includes a **new feature**, the change was previously discussed on an Issue or with someone from the team.
-- [x] I didn't do anything of this.
-
----
-
-<!-- Add a description of your PR here -->
+Thank you for contributing to Wagmi!
+----------------------------------------------------------------------->

@@ -131,16 +131,3 @@ export type EventsContract = BaseContract & {
 };
 
 export type AnotherContract = BaseContract & {};
-
-export type OverrideEventContract = BaseContract & {
-  emitSimpleEventWithUintArg: BaseContractMethod<
-    [BigNumberish],
-    void,
-    ContractTransactionResponse
-  >;
-  emitSimpleEventWithoutArg: BaseContractMethod<
-    [],
-    void,
-    ContractTransactionResponse
-  >;
-};

@@ -18,7 +18,6 @@ export interface LedgerOptions {
   openTimeout?: number;
   connectionTimeout?: number;
   accounts: string[];
-  derivationFunction?: (index: number) => string;
 }
 
 export type Paths = Record<string, string>; // { address: path }

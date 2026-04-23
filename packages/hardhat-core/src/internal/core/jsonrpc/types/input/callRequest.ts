@@ -5,7 +5,6 @@ import { rpcAccessList } from "../access-list";
 import {
   rpcAddress,
   rpcData,
-  rpcHash,
   rpcQuantity,
   rpcStorageSlot,
   rpcStorageSlotHexString,
@@ -24,8 +23,6 @@ export const rpcCallRequest = t.type(
     accessList: optionalOrNullable(rpcAccessList),
     maxFeePerGas: optionalOrNullable(rpcQuantity),
     maxPriorityFeePerGas: optionalOrNullable(rpcQuantity),
-    blobs: optionalOrNullable(t.array(rpcData)),
-    blobVersionedHashes: optionalOrNullable(t.array(rpcHash)),
   },
   "RpcCallRequest"
 );

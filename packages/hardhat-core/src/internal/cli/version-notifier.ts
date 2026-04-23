@@ -1,5 +1,5 @@
 import boxen from "boxen";
-import picocolors from "picocolors";
+import chalk from "chalk";
 import fsExtra from "fs-extra";
 import { join } from "node:path";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
@@ -111,9 +111,9 @@ export async function showNewVersionNotification() {
 
     console.log(
       boxen(
-        `New Hardhat release available! ${picocolors.red(
+        `New Hardhat release available! ${chalk.red(
           hardhatVersion
-        )} -> ${picocolors.green(latestV2Version)}.
+        )} -> ${chalk.green(latestV2Version)}.
 
 Changelog: https://hardhat.org/release/${latestV2Version}
 

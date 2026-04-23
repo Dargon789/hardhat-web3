@@ -42,6 +42,7 @@ if (HardhatContext.isCreated()) {
     ctx.tasksDSL.getTaskDefinitions(),
     ctx.tasksDSL.getScopesDefinitions(),
     ctx.environmentExtenders,
+    ctx.experimentalHardhatNetworkMessageTraceHooks,
     userConfig,
     ctx.providerExtenders
   );

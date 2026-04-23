@@ -4,7 +4,7 @@ import type {
   LibraryToAddress,
 } from "../solc/artifacts";
 
-import picocolors from "picocolors";
+import chalk from "chalk";
 import { subtask, types } from "hardhat/config";
 import { isFullyQualifiedName } from "hardhat/utils/contract-names";
 import { HARDHAT_NETWORK_NAME } from "hardhat/plugins";
@@ -51,6 +51,7 @@ interface AttemptVerificationArgs {
 subtask(TASK_VERIFY_SOURCIFY)
   .addParam("address")
   .addOptionalParam("contract")
+  // TODO: [remove-verify-subtask] change to types.inputFile
   .addOptionalParam("libraries", undefined, undefined, types.any)
   .setAction(async (taskArgs: VerifyTaskArgs, { config, network, run }) => {
     const { address, libraries, contractFQN }: VerificationArgs = await run(
@@ -83,8 +84,7 @@ subtask(TASK_VERIFY_SOURCIFY)
     if (status !== false) {
       const contractURL = sourcify.getContractUrl(address, status);
       console.log(`The contract ${address} has already been verified on Sourcify.
-${contractURL}
-`);
+${contractURL}`);
       return;
     }
 
@@ -143,6 +143,7 @@ ${contractURL}
 subtask(TASK_VERIFY_SOURCIFY_RESOLVE_ARGUMENTS)
   .addOptionalParam("address")
   .addOptionalParam("contract")
+  // TODO: [remove-verify-subtask] change to types.inputFile
   .addOptionalParam("libraries", undefined, undefined, types.any)
   .setAction(
     async ({
@@ -163,6 +164,7 @@ subtask(TASK_VERIFY_SOURCIFY_RESOLVE_ARGUMENTS)
         throw new InvalidContractNameError(contract);
       }
 
+      // TODO: [remove-verify-subtask] librariesModule should always be string
       let libraries;
       if (typeof librariesModule === "object") {
         libraries = librariesModule;
@@ -211,20 +213,19 @@ subtask(TASK_VERIFY_SOURCIFY_ATTEMPT_VERIFICATION)
           response.status
         );
         console.log(`Successfully verified contract ${contractName} on Sourcify.
-${contractURL}
-`);
+${contractURL}`);
       }
 
       return {
         success: response.isSuccess(),
-        message: "Contract successfully verified on Sourcify",
+        message: "Contract successfuly verified on Sourcify",
       };
     }
   );
 
 subtask(TASK_VERIFY_SOURCIFY_DISABLED_WARNING, async () => {
   console.info(
-    picocolors.cyan(
+    chalk.cyan(
       `[INFO] Sourcify Verification Skipped: Sourcify verification is currently disabled. To enable it, add the following entry to your Hardhat configuration:
 
 sourcify: {

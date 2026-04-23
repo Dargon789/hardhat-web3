@@ -60,18 +60,7 @@ module.exports = {
 };
 ```
 
-This will make those three accounts available to the `LedgerProvider`. If you try to send a transaction or sign something using any of those accounts, the provider will try to connect to the Ledger wallet and find a derivation path for that address. By default, the derivation paths that are tried start from `m/44'/60'/0'/0'/0` and go way up to `m/44'/60'/20'/0'/0`.
-
-An additional (optional) configuration is possible to specify the derivation path that should be used, allowing 'legacy' or otherwise non-standard addresses to still be used with the plugin. An example of such a configuration would be:
-
-```js
-    hardhat: {
-      ledgerAccounts: [...],
-      ledgerOptions: {
-        derivationFunction: (x) => `m/44'/60'/0'/${x}` // legacy derivation path
-      }
-    }
-```
+This will make those three accounts available to the `LedgerProvider`. If you try to send a transaction or sign something using any of those accounts, the provider will try to connect to the Ledger wallet and find a derivation path for that address. By default, the derivation paths that are tried start from `m/44'/60'/0'/0'/0` and go way up to `44'/60'/20'/0'/0`.
 
 If you want to use the provider, you could, for example in a task:
 
@@ -102,7 +91,7 @@ task("sign", "Signs a message", async (_, hre) => {
 
 ## Errors
 
-The package throws and exports a few [errors](https://github.com/NomicFoundation/hardhat/blob/main/packages/hardhat-core/src/config.ts). In case you ever need to catch and check for them, you can use the `public static` method present on each of them. For example:
+The package throws and exports a few [errors](https://github.com/NomicFoundation/hardhat/blob/feat/main/packages/hardhat-core/src/config.ts). In case you ever need to catch and check for them, you can use the `public static` method present on each of them. For example:
 
 ```ts
 try {

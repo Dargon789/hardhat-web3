@@ -45,9 +45,7 @@ describe("Lock", function () {
     it("Should set the right owner", async function () {
       const { lock, owner } = await loadFixture(deployOneYearLockFixture);
 
-      expect(await lock.read.owner()).to.equal(
-        getAddress(owner.account.address)
-      );
+      expect(await lock.read.owner()).to.equal(getAddress(owner.account.address));
     });
 
     it("Should receive and store the funds to lock", async function () {
@@ -95,7 +93,7 @@ describe("Lock", function () {
         const lockAsOtherAccount = await hre.viem.getContractAt(
           "Lock",
           lock.address,
-          { client: { wallet: otherAccount } }
+          { walletClient: otherAccount }
         );
         await expect(lockAsOtherAccount.write.withdraw()).to.be.rejectedWith(
           "You aren't the owner"
@@ -125,7 +123,7 @@ describe("Lock", function () {
         await publicClient.waitForTransactionReceipt({ hash });
 
         // get the withdrawal events in the latest block
-        const withdrawalEvents = await lock.getEvents.Withdrawal();
+        const withdrawalEvents = await lock.getEvents.Withdrawal()
         expect(withdrawalEvents).to.have.lengthOf(1);
         expect(withdrawalEvents[0].args.amount).to.equal(lockedAmount);
       });
