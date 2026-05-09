@@ -1,5 +1,6 @@
 # getClient
 
+Action for getting Viem [`Client`](https://viem.sh/docs/clients/custom.html) instance.
 
 ## Import
 
@@ -52,3 +53,4 @@ import { type GetClientReturnType } from '@wagmi/core'
 
 `Client`
 
+Viem [`Client`](https://viem.sh/docs/clients/custom.html) instance.

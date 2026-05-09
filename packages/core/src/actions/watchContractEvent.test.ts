@@ -7,11 +7,13 @@ import {
   transactionHashRegex,
   wait,
 } from '@wagmi/test'
+import { http, createWalletClient, parseEther } from 'viem'
 import type { WatchEventOnLogsParameter } from 'viem/actions'
 import { beforeEach, expect, test } from 'vitest'
 
 import { connect } from './connect.js'
 import { disconnect } from './disconnect.js'
+import { getBalance } from './getBalance.js'
 import { watchContractEvent } from './watchContractEvent.js'
 import { writeContract } from './writeContract.js'
 
@@ -51,7 +53,11 @@ test('default', async () => {
     address: address.usdcHolder,
   })
 
+  const balance = await getBalance(config, {
+    address: connectedAddress,
+    token: address.usdc,
   })
+  expect(balance.value).toBeGreaterThan(0n)
 
   // start watching transfer events
   let logs: WatchEventOnLogsParameter = []

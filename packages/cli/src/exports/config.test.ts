@@ -6,6 +6,7 @@ test('exports', () => {
   expect(Object.keys(Exports)).toMatchInlineSnapshot(`
     [
       "defineConfig",
+      "defaultConfig",
     ]
   `)
 })

@@ -1,14 +1,22 @@
 import { chain, wait } from '@wagmi/test'
+import { renderHook, waitFor } from '@wagmi/test/react'
+import { expect, test } from 'vitest'
+
 import type { Address } from 'viem'
 import { useProof } from './useProof.js'
 
+test('default', async () => {
+  const { result } = renderHook(() =>
     useProof({
+      address: '0x4200000000000000000000000000000000000016',
       chainId: chain.optimism.id,
       storageKeys: [
+        '0x4a932049252365b3eedbc5190e18949f2ec11f39d3bef2d259764799a1b27d99',
       ],
     }),
   )
 
+  await waitFor(() => expect(result.current.isSuccess).toBeTruthy())
 
   expect({ ...result.current, data: null }).toMatchInlineSnapshot(`
     {
@@ -50,12 +58,17 @@ import { useProof } from './useProof.js'
   `)
 })
 
-      useProof({
-        chainId: chain.optimism.id,
-        storageKeys: [
-          '0x4a932049252365b3eedbc5190e18949f2ec11f39d3bef2d259764799a1b27d99',
-        ],
-      }),
+test('behavior: address: undefined -> defined', async () => {
+  let address: Address | undefined = undefined
+
+  const { result, rerender } = renderHook(() =>
+    useProof({
+      address,
+      chainId: chain.optimism.id,
+      storageKeys: [
+        '0x4a932049252365b3eedbc5190e18949f2ec11f39d3bef2d259764799a1b27d99',
+      ],
+    }),
   )
 
   expect(result.current).toMatchInlineSnapshot(`
@@ -97,7 +110,10 @@ import { useProof } from './useProof.js'
     }
   `)
 
+  address = '0x4200000000000000000000000000000000000016'
+  rerender()
 
+  await waitFor(() => expect(result.current.isSuccess).toBeTruthy())
 
   expect({ ...result.current, data: null }).toMatchInlineSnapshot(`
     {
@@ -140,6 +156,8 @@ import { useProof } from './useProof.js'
 })
 
 test('behavior: disabled when properties missing', async () => {
+  const { result } = renderHook(() => useProof())
 
   await wait(100)
+  await waitFor(() => expect(result.current.isPending).toBeTruthy())
 })

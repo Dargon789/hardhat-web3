@@ -1,7 +1,3 @@
----
-title: createConfig
----
-
 <script setup>
 const docsPath = 'vue'
 const packageName = '@wagmi/vue'

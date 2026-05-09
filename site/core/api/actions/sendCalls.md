@@ -6,11 +6,11 @@ const typeName = 'SendCalls'
 
 # sendCalls
 
-Action that requests for the wallet to sign and broadcast a batch of calls (transactions) to the network.
+Action that requests for the wallet to sign and broadcast a batch of calls (transactions) to the network. 
 
 [Read more.](https://github.com/ethereum/EIPs/blob/815028dc634463e1716fc5ce44c019a6040f0bef/EIPS/eip-5792.md#wallet_sendcalls)
 
-
+ 
 
 ## Import
 
@@ -52,7 +52,7 @@ import { type SendCallsParameters } from '@wagmi/core'
 
 `Account | Address | null | undefined`
 
-Account to execute the calls.
+Account to execute the calls. 
 
 If set to `null`, it is assumed that the wallet will handle filling the sender of the calls.
 
@@ -206,7 +206,9 @@ const id = await sendCalls(config, {
 import { type SendCallsReturnType } from '@wagmi/core'
 ```
 
+`bigint`
 
+Most recent block number seen.
 
 ## Error
 
@@ -218,3 +220,4 @@ import { type SendCallsErrorType } from '@wagmi/core'
 
 ## Viem
 
+- [`sendCalls`](https://viem.sh/experimental/eip5792/sendCalls)

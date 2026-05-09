@@ -5,6 +5,8 @@ import type {
 } from '@wagmi/core'
 import { config } from '@wagmi/test'
 import { expectTypeOf, test } from 'vitest'
+
+import type { Address } from 'viem'
 import { useReconnect } from './useReconnect.js'
 
 const connectors = [config.connectors[0]!]

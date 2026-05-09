@@ -1,4 +1,7 @@
+import type { typedData } from '@wagmi/test'
 import { expectTypeOf, test } from 'vitest'
+
+import type { Address } from 'viem'
 import {
   type UseVerifyTypedDataParameters,
   useVerifyTypedData,

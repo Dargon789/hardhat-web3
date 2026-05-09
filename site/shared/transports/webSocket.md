@@ -26,7 +26,7 @@ export const config = createConfig({
   connectors: [injected()],
   transports: {
     [mainnet.id]: webSocket('wss://foo-bar-baz.quiknode.pro/...'), // [!code hl]
-    [sepolia.id]: webSocket('wss://foo-bar-sep.quicknode.pro/...'), // [!code hl]
+    [sepolia.id]: webSocket('wss://foo-bar-sep.quiknode.pro/...'), // [!code hl]
   },
 })
 ```

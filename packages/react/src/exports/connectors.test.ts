@@ -7,7 +7,10 @@ test('exports', () => {
     [
       "injected",
       "mock",
+      "coinbaseWallet",
+      "metaMask",
       "safe",
+      "walletConnect",
       "version",
     ]
   `)

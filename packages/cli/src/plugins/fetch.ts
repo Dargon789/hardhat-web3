@@ -61,7 +61,7 @@ export function fetch(config: FetchConfig): FetchResult {
   const {
     cacheDuration = 1_800_000,
     contracts: contractConfigs,
-    getCacheKey = ({ contract }) => JSON.stringify(contract),
+    getCacheKey = ({ contract }) => JSON.stringify(contract).replace(/[^a-z0-9]/gi, '_'),
     name = 'Fetch',
     parse = ({ response }) => response.json(),
     request,
@@ -86,6 +86,12 @@ export function fetch(config: FetchConfig): FetchResult {
         if (cachedFile?.timestamp > Date.now()) abi = cachedFile.abi
         else {
           try {
+            const controller = new globalThis.AbortController()
+            const timeout = setTimeout(
+              () => controller.abort(),
+              timeoutDuration,
+            )
+
             const { url, init } = await request(contract)
             const response = await globalThis.fetch(url, {
               ...init,

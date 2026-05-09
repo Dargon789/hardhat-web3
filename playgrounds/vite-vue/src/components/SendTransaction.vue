@@ -2,11 +2,13 @@
 import { useSendTransaction } from '@wagmi/vue'
 import { type Hex, parseEther } from 'viem'
 
+const { data: hash, error, isPending, sendTransaction } = useSendTransaction()
 
 function onSubmit(event: any) {
   const form = new FormData(event.target)
   const to = form.get('address')! as Hex
   const value = parseEther(form.get('value') as string)
+  sendTransaction({ to, value })
 }
 </script>
 
@@ -21,8 +23,13 @@ function onSubmit(event: any) {
       Send
     </button>
   </form>
+  <div v-if="isPending">
     Sending...
   </div>
+  <div v-if="hash">
+    Hash: {{ hash }}
   </div>
+  <div v-if="error">
+    Error: {{ error.message }}
   </div>
 </template>

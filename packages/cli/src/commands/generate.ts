@@ -388,7 +388,7 @@ async function writeContracts({
   }
   code = dedent`
     ${code}
-
+    
     ${content.join('\n\n') ?? ''}
   `
 

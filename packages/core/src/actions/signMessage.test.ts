@@ -6,6 +6,7 @@ import { expect, test } from 'vitest'
 import { mock } from '../connectors/mock.js'
 import { connect } from './connect.js'
 import { disconnect } from './disconnect.js'
+import { getAccount } from './getAccount.js'
 import { signMessage } from './signMessage.js'
 
 const connector = config.connectors[0]!
@@ -18,6 +19,7 @@ test('default', async () => {
       message: 'foo bar baz',
       signature,
     }),
+  ).resolves.toEqual(getAccount(config).address)
   await disconnect(config, { connector })
 })
 
@@ -49,6 +51,7 @@ test('behavior: user rejected request', async () => {
     [UserRejectedRequestError: User rejected the request.
 
     Details: Failed to sign message.
+    Version: viem@2.29.2]
   `)
   await disconnect(config, { connector: connector_ })
 })

@@ -9,6 +9,13 @@ import { useWriteContract } from './useWriteContract.js'
 const contextValue = { foo: 'bar' } as const
 
 test('context', () => {
+  const {
+    context,
+    data,
+    error,
+    writeContract: write,
+    variables,
+  } = useWriteContract({
     mutation: {
       onMutate(variables) {
         expectTypeOf(variables).toMatchTypeOf<{
@@ -56,9 +63,14 @@ test('context', () => {
     },
   })
 
+  expectTypeOf(data.value).toEqualTypeOf<Hash | undefined>()
+  expectTypeOf(error.value).toEqualTypeOf<WriteContractErrorType | null>()
+  expectTypeOf(variables.value).toMatchTypeOf<
     { chainId?: number | undefined } | undefined
   >()
+  expectTypeOf(context.value).toEqualTypeOf<typeof contextValue | undefined>()
 
+  write(
     {
       address: '0x',
       abi: abi.erc20,
@@ -117,6 +129,8 @@ test('useSimulateContract', () => {
     args: ['0x', '0x', 123n],
     chainId: 1,
   })
+  const { writeContract } = useWriteContract()
 
   const request = data?.value?.request
+  if (request) writeContract(request)
 })

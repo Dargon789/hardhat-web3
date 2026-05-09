@@ -103,6 +103,7 @@ test('parameters: blockTag', async () => {
 
 test('behavior: blockCount is required', async () => {
   const options = getFeeHistoryQueryOptions(config, {})
+  expect(
     options.queryFn({
       queryKey: options.queryKey,
       signal: new AbortSignal(),
@@ -115,6 +116,7 @@ test('behavior: blockCount is required', async () => {
 
 test('behavior: rewardPercentiles is required', async () => {
   const options = getFeeHistoryQueryOptions(config, { blockCount: 4 })
+  expect(
     options.queryFn({
       queryKey: options.queryKey,
       signal: new AbortSignal(),

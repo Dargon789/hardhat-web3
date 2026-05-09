@@ -1,7 +1,3 @@
----
-title: unstable_connector
----
-
 <script setup>
 const docsPath = 'vue'
 const packageName = '@wagmi/vue'

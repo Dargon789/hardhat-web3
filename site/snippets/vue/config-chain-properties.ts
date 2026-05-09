@@ -1,4 +1,4 @@
-import { createConfig, http } from '@wagmi/vue'
+import { http, createConfig } from '@wagmi/vue'
 import { base, celo, mainnet } from '@wagmi/vue/chains'
 
 export const config = createConfig({

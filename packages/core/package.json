@@ -1,6 +1,7 @@
 {
   "name": "@wagmi/core",
   "description": "VanillaJS library for Ethereum",
+  "version": "2.17.2",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -8,8 +9,10 @@
     "directory": "packages/core"
   },
   "scripts": {
+    "build": "pnpm run clean && pnpm run build:esm+types",
     "build:esm+types": "tsc --project tsconfig.build.json --outDir ./dist/esm --declaration --declarationMap --declarationDir ./dist/types",
     "check:types": "tsc --noEmit",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo actions chains codegen experimental internal query",
     "test:build": "publint --strict && attw --pack --ignore-rules cjs-resolves-to-esm"
   },
   "files": [
@@ -20,7 +23,9 @@
     "!src/**/*.test-d.ts",
     "/actions",
     "/chains",
+    "/experimental",
     "/internal",
+    "/query"
   ],
   "sideEffects": false,
   "type": "module",
@@ -44,6 +49,10 @@
       "types": "./dist/types/exports/codegen.d.ts",
       "default": "./dist/esm/exports/codegen.js"
     },
+    "./experimental": {
+      "types": "./dist/types/exports/experimental.d.ts",
+      "default": "./dist/esm/exports/experimental.js"
+    },
     "./internal": {
       "types": "./dist/types/exports/internal.d.ts",
       "default": "./dist/esm/exports/internal.js"
@@ -56,10 +65,17 @@
   },
   "typesVersions": {
     "*": {
+      "actions": ["./dist/types/exports/actions.d.ts"],
+      "chains": ["./dist/types/exports/chains.d.ts"],
+      "codegen": ["./dist/types/exports/codegen.d.ts"],
+      "experimental": ["./dist/types/exports/experimental.d.ts"],
+      "internal": ["./dist/types/exports/internal.d.ts"],
+      "query": ["./dist/types/exports/query.d.ts"]
     }
   },
   "peerDependencies": {
     "@tanstack/query-core": ">=5.0.0",
+    "typescript": ">=5.0.4",
     "viem": "2.x"
   },
   "peerDependenciesMeta": {
@@ -76,6 +92,9 @@
     "zustand": "5.0.0"
   },
   "devDependencies": {
+    "@tanstack/query-core": "catalog:"
   },
+  "contributors": ["awkweb.eth <t@wevm.dev>", "jxom.eth <j@wevm.dev>"],
   "funding": "https://github.com/sponsors/wevm",
+  "keywords": ["wagmi", "eth", "ethereum", "dapps", "wallet", "web3"]
 }

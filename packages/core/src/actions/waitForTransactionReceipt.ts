@@ -63,6 +63,7 @@ export async function waitForTransactionReceipt<
       getTransaction,
       'getTransaction',
     )
+    const txn = await action_getTransaction({ hash: receipt.transactionHash })
     const action_call = getAction(client, call, 'call')
     const code = await action_call({
       ...(txn as any),

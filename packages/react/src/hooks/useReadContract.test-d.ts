@@ -66,6 +66,7 @@ test('overloads', () => {
     functionName: 'foo',
     args: ['0x'],
   })
+  // @ts-ignore – TODO: Fix https://github.com/wevm/viem/issues/1916
   assertType<string | undefined>(result3.data)
 
   const result4 = useReadContract({
@@ -80,6 +81,7 @@ test('overloads', () => {
         bar: `0x${string}`
       }
     | undefined
+    // @ts-ignore – TODO: Fix https://github.com/wevm/viem/issues/1916
   >(result4.data)
 })
 

@@ -98,31 +98,31 @@ const token = getToken(config, {
 import { type GetTokenReturnType } from '@wagmi/core'
 ```
 
-### address
+### address 
 
 `Address`
 
 Address of token.
 
-### decimals
+### decimals 
 
 `number`
 
 Number of decimals for token.
 
-### name
+### name 
 
 `string | undefined`
 
 Name of token.
 
-### symbol
+### symbol 
 
 `string | undefined`
 
 Symbol of token.
 
-### totalSupply
+### totalSupply 
 
 `{ formatted: string; value: bigint; }`
 

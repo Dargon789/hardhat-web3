@@ -17,6 +17,12 @@ export {
 } from '../hooks/codegen/createUseSimulateContract.js'
 
 export {
+  type CreateUseReadContractParameters,
+  type CreateUseReadContractReturnType,
+  createUseReadContract,
+} from '../hooks/codegen/createUseReadContract.js'
+
+export {
   type CreateUseWatchContractEventParameters,
   type CreateUseWatchContractEventReturnType,
   createUseWatchContractEvent,

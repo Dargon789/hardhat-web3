@@ -132,9 +132,9 @@ import { watchBlockNumber } from '@wagmi/core'
 import { config } from './config'
 
 const unwatch = watchBlockNumber(config, {
-  onBlockNumber(blockNumber) {
-    console.log('Block number changed!', blockNumber)
-  },
+  onBlockNumber(blockNumber) { 
+    console.log('Block number changed!', blockNumber) 
+  }, 
   onError(error) { // [!code focus]
     console.error('Block number error', error) // [!code focus]
   }, // [!code focus]
@@ -157,9 +157,9 @@ import { watchBlockNumber } from '@wagmi/core'
 import { config } from './config'
 
 const unwatch = watchBlockNumber(config, {
-  onBlockNumber(blockNumber) {
-    console.log('Block number changed!', blockNumber)
-  },
+  onBlockNumber(blockNumber) { 
+    console.log('Block number changed!', blockNumber) 
+  }, 
   poll: true, // [!code focus]
 })
 unwatch()
@@ -180,9 +180,9 @@ import { watchBlockNumber } from '@wagmi/core'
 import { config } from './config'
 
 const unwatch = watchBlockNumber(config, {
-  onBlockNumber(blockNumber) {
-    console.log('Block number changed!', blockNumber)
-  },
+  onBlockNumber(blockNumber) { 
+    console.log('Block number changed!', blockNumber) 
+  }, 
   pollingInterval: 1_000, // [!code focus]
 })
 unwatch()
@@ -223,3 +223,4 @@ Function for cleaning up watcher.
 
 ## Viem
 
+- [`watchBlockNumber`](https://viem.sh/docs/actions/public/watchBlockNumber.html)

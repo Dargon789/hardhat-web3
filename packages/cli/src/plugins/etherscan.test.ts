@@ -5,6 +5,7 @@ import { afterAll, afterEach, beforeAll, expect, test } from 'vitest'
 import {
   address,
   apiKey,
+  handlers,
   invalidApiKey,
   proxyAddress,
   timeoutAddress,
@@ -13,6 +14,7 @@ import {
 import { etherscan } from './etherscan.js'
 import { getCacheDir } from './fetch.js'
 
+const server = setupServer(...handlers)
 
 beforeAll(() => server.listen())
 afterEach(() => server.resetHandlers())

@@ -27,6 +27,7 @@ import type {
 } from 'viem'
 import type { WriteContractParameters as viem_WriteContractParameters } from 'viem/actions'
 
+import { useAccount } from '../useAccount.js'
 import { useChainId } from '../useChainId.js'
 import { useConfig } from '../useConfig.js'
 import {
@@ -157,45 +158,96 @@ export function createUseWriteContract<
       const config = useConfig(parameters)
       const result = useWriteContract(parameters)
       const configChainId = useChainId({ config })
+      const account = useAccount({ config })
       type Args = Parameters<wagmi_UseWriteContractReturnType['writeContract']>
-        (...args: Args) => {
-          const variables = {
-            ...(args[0] as any),
-            address: chainId ? props.address?.[chainId] : undefined,
-            abi: props.abi,
-          }
-          result.writeContract(variables, args[1] as any)
-        },
-        (...args: Args) => {
-          const variables = {
-            ...(args[0] as any),
-            address: chainId ? props.address?.[chainId] : undefined,
-            abi: props.abi,
-          }
-          return result.writeContractAsync(variables, args[1] as any)
-        },
+      return {
+        ...(result as any),
+        writeContract: useCallback(
+          (...args: Args) => {
+            let chainId: number | undefined
+            if (args[0].chainId) chainId = args[0].chainId
+            else if (args[0].account && args[0].account === account.address)
+              chainId = account.chainId
+            else if (args[0].account === undefined) chainId = account.chainId
+            else chainId = configChainId
+
+            const variables = {
+              ...(args[0] as any),
+              address: chainId ? props.address?.[chainId] : undefined,
+              ...(props.functionName
+                ? { functionName: props.functionName }
+                : {}),
+              abi: props.abi,
+            }
+            result.writeContract(variables, args[1] as any)
+          },
+          [
+            account.address,
+            account.chainId,
+            props,
+            configChainId,
+            result.writeContract,
+          ],
+        ),
+        writeContractAsync: useCallback(
+          (...args: Args) => {
+            let chainId: number | undefined
+            if (args[0].chainId) chainId = args[0].chainId
+            else if (args[0].account && args[0].account === account.address)
+              chainId = account.chainId
+            else if (args[0].account === undefined) chainId = account.chainId
+            else chainId = configChainId
+
+            const variables = {
+              ...(args[0] as any),
+              address: chainId ? props.address?.[chainId] : undefined,
+              ...(props.functionName
+                ? { functionName: props.functionName }
+                : {}),
+              abi: props.abi,
+            }
+            return result.writeContractAsync(variables, args[1] as any)
+          },
+          [
+            account.address,
+            account.chainId,
+            props,
+            configChainId,
+            result.writeContractAsync,
+          ],
+        ),
       }
     }
 
   return (parameters) => {
     const result = useWriteContract(parameters)
     type Args = Parameters<wagmi_UseWriteContractReturnType['writeContract']>
-      (...args: Args) => {
-        const variables = {
-          ...(args[0] as any),
-          ...(props.address ? { address: props.address } : {}),
-          ...(props.functionName ? { functionName: props.functionName } : {}),
-          abi: props.abi,
-        }
-      },
-      (...args: Args) => {
-        const variables = {
-          ...(args[0] as any),
-          ...(props.address ? { address: props.address } : {}),
-          ...(props.functionName ? { functionName: props.functionName } : {}),
-          abi: props.abi,
-        }
-      },
+    return {
+      ...(result as any),
+      writeContract: useCallback(
+        (...args: Args) => {
+          const variables = {
+            ...(args[0] as any),
+            ...(props.address ? { address: props.address } : {}),
+            ...(props.functionName ? { functionName: props.functionName } : {}),
+            abi: props.abi,
+          }
+          result.writeContract(variables, args[1] as any)
+        },
+        [props, result.writeContract],
+      ),
+      writeContractAsync: useCallback(
+        (...args: Args) => {
+          const variables = {
+            ...(args[0] as any),
+            ...(props.address ? { address: props.address } : {}),
+            ...(props.functionName ? { functionName: props.functionName } : {}),
+            abi: props.abi,
+          }
+          return result.writeContractAsync(variables, args[1] as any)
+        },
+        [props, result.writeContractAsync],
+      ),
     }
   }
 }
@@ -238,4 +290,8 @@ type Variables<
             | undefined
         }
       : Compute<ChainIdParameter<config, chainId>>) &
+    ConnectorParameter & {
+      /** @deprecated */
+      __mode?: 'prepared'
+    }
 >

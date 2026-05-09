@@ -28,15 +28,19 @@ test('setup', () => {
   `)
 })
 
+test('behavior: connector type not found', () => {
   const transport = unstable_connector({ type: 'foo' })({})
+  expect(() =>
     transport.request({ method: 'eth_chainId' }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
     [ProviderDisconnectedError: The Provider is disconnected from all chains.
 
     Details: Could not find connector of type "foo" in \`connectors\` passed to \`createConfig\`.
+    Version: viem@2.29.2]
   `)
 })
 
+test('behavior: provider is disconnected', () => {
   const transport = unstable_connector(mock)({
     connectors: createStore(() => [
       {
@@ -48,14 +52,17 @@ test('setup', () => {
     ]),
   })
 
+  expect(() =>
     transport.request({ method: 'eth_chainId' }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
     [ProviderDisconnectedError: The Provider is disconnected from all chains.
 
     Details: Provider is disconnected.
+    Version: viem@2.29.2]
   `)
 })
 
+test('behavior: chainId mismatch', () => {
   const transport = unstable_connector(mock)({
     chain: optimism,
     connectors: createStore(() => [
@@ -69,18 +76,22 @@ test('setup', () => {
     ]),
   })
 
+  expect(() =>
     transport.request({ method: 'eth_chainId' }),
   ).rejects.toThrowErrorMatchingInlineSnapshot(`
     [ChainDisconnectedError: The Provider is not connected to the requested chain.
 
     Details: The current chain of the connector (id: 1) does not match the target chain for the request (id: 10 – OP Mainnet).
+    Version: viem@2.29.2]
   `)
 })
 
+test('behavior: request', () => {
   const transport = unstable_connector(mock)({
     connectors: createStore(() => [connector]),
   })
 
+  expect(
     transport.request({ method: 'eth_chainId' }),
   ).resolves.toThrowErrorMatchingInlineSnapshot(`"0x1"`)
 })
