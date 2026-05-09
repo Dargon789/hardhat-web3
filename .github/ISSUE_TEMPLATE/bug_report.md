@@ -21,7 +21,7 @@ assignees: ""
 
 **Desktop (please complete the following information):**
 
-- OS: [e.g. iOS]
+- OS: [e.g. macOS]
 - Browser [e.g. chrome, safari]
 - Version [e.g. 22]
 
