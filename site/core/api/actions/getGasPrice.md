@@ -71,4 +71,3 @@ import { type GetGasPriceErrorType } from '@wagmi/core'
 
 ## Viem
 
-- [`getGasPrice`](https://viem.sh/docs/actions/public/getGasPrice.html)

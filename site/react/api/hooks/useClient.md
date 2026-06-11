@@ -5,7 +5,6 @@ description: Hook for getting Viem `Client` instance.
 
 # useClient
 
-Hook for getting Viem [`Client`](https://viem.sh/docs/clients/custom.html) instance.
 
 ## Import
 
@@ -81,7 +80,6 @@ import { type UseClientReturnType } from 'wagmi'
 
 `Client | undefined`
 
-Viem [`Client`](https://viem.sh/docs/clients/custom.html) instance.
 
 ## Action
 

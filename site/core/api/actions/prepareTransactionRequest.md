@@ -40,7 +40,7 @@ import { type PrepareTransactionRequestParameters } from '@wagmi/core'
 
 `Account | Address | undefined`
 
-The Account to send the transaction from. 
+The Account to send the transaction from.
 
 ::: code-group
 ```ts [index.ts]
@@ -154,7 +154,6 @@ await prepareTransactionRequest(config, {
 
 `bigint | undefined`
 
-The price (in wei) to pay per gas. Only applies to [Legacy Transactions](https://viem.sh/docs/glossary/terms.html#legacy-transaction).
 
 ::: code-group
 ```ts [index.ts]
@@ -176,7 +175,6 @@ await prepareTransactionRequest(config, {
 
 `bigint | undefined`
 
-Total fee per gas (in wei), inclusive of `maxPriorityFeePerGas`. Only applies to [EIP-1559 Transactions](https://viem.sh/docs/glossary/terms.html#eip-1559-transaction).
 
 ::: code-group
 ```ts [index.ts]
@@ -198,7 +196,6 @@ await prepareTransactionRequest(config, {
 
 `bigint | undefined`
 
-Max priority fee per gas (in wei). Only applies to [EIP-1559 Transactions](https://viem.sh/docs/glossary/terms.html#eip-1559-transaction).
 
 ::: code-group
 ```ts [index.ts]
@@ -290,7 +287,6 @@ await prepareTransactionRequest(config, {
 import { type PrepareTransactionRequestReturnType } from '@wagmi/core'
 ```
 
-[`TransactionRequest`](https://viem.sh/docs/glossary/types.html#transactionrequest)
 
 The transaction request.
 
@@ -304,4 +300,3 @@ import { type PrepareTransactionRequestErrorType } from '@wagmi/core'
 
 ## Viem
 
-- [`prepareTransactionRequest`](https://viem.sh/docs/actions/wallet/prepareTransactionRequest.html)

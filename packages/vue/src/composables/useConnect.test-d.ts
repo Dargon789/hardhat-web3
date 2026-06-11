@@ -4,7 +4,6 @@ import type {
   CreateConnectorFn,
 } from '@wagmi/core'
 import { config } from '@wagmi/test'
-import type { Address } from 'viem'
 import { expectTypeOf, test } from 'vitest'
 
 import { useConnect } from './useConnect.js'
@@ -13,7 +12,6 @@ const connector = config.connectors[0]!
 const contextValue = { foo: 'bar' } as const
 
 test('context', () => {
-  const { connect, context, data, error, variables } = useConnect({
     mutation: {
       onMutate(variables) {
         expectTypeOf(variables).toEqualTypeOf<{
@@ -36,7 +34,6 @@ test('context', () => {
           connector: Connector | CreateConnectorFn
         }>()
         expectTypeOf(data).toEqualTypeOf<{
-          accounts: readonly [Address, ...Address[]]
           chainId: number
         }>()
         expectTypeOf(context).toEqualTypeOf<typeof contextValue>()
@@ -44,7 +41,6 @@ test('context', () => {
       onSettled(data, error, variables, context) {
         expectTypeOf(data).toEqualTypeOf<
           | {
-              accounts: readonly [Address, ...Address[]]
               chainId: number
             }
           | undefined
@@ -59,24 +55,18 @@ test('context', () => {
     },
   })
 
-  expectTypeOf(data.value).toEqualTypeOf<
     | {
-        accounts: readonly [Address, ...Address[]]
         chainId: number
       }
     | undefined
   >()
-  expectTypeOf(error.value).toEqualTypeOf<ConnectErrorType | null>()
-  expectTypeOf(variables.value).toMatchTypeOf<
     | {
         chainId?: number | undefined
         connector: Connector | CreateConnectorFn
       }
     | undefined
   >()
-  expectTypeOf(context.value).toEqualTypeOf<typeof contextValue | undefined>()
 
-  connect(
     { connector },
     {
       onError(error, variables, context) {

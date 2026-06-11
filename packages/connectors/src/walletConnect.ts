@@ -1,7 +1,6 @@
 import {
   ChainNotConfiguredError,
   type Connector,
-  ProviderNotFoundError,
   createConnector,
   extractRpcUrls,
 } from '@wagmi/core'
@@ -15,8 +14,6 @@ import {
   type RpcError,
   SwitchChainError,
   UserRejectedRequestError,
-  getAddress,
-  numberToHex,
 } from 'viem'
 
 type WalletConnectConnector = Connector & {
@@ -78,12 +75,10 @@ export function walletConnect(parameters: WalletConnectParameters) {
 
   type Provider = Awaited<ReturnType<(typeof EthereumProvider)['init']>>
   type Properties = {
-    connect(parameters?: {
       chainId?: number | undefined
       isReconnecting?: boolean | undefined
       pairingTopic?: string | undefined
     }): Promise<{
-      accounts: readonly Address[]
       chainId: number
     }>
     getNamespaceChainsIds(): number[]
@@ -126,7 +121,6 @@ export function walletConnect(parameters: WalletConnectParameters) {
         provider.on('session_delete', sessionDelete)
       }
     },
-    async connect({ chainId, ...rest } = {}) {
       try {
         const provider = await this.getProvider()
         if (!provider) throw new ProviderNotFoundError()
@@ -167,7 +161,6 @@ export function walletConnect(parameters: WalletConnectParameters) {
 
         // If session exists and chains are authorized, enable provider for required chain
         const accounts = (await provider.enable()).map((x) => getAddress(x))
-        const currentChainId = await this.getChainId()
 
         if (displayUri) {
           provider.removeListener('display_uri', displayUri)
@@ -194,7 +187,6 @@ export function walletConnect(parameters: WalletConnectParameters) {
           provider.on('session_delete', sessionDelete)
         }
 
-        return { accounts, chainId: currentChainId }
       } catch (error) {
         if (
           /(user rejected|connection request reset)/i.test(
@@ -245,9 +237,7 @@ export function walletConnect(parameters: WalletConnectParameters) {
       async function initProvider() {
         const optionalChains = config.chains.map((x) => x.id) as [number]
         if (!optionalChains.length) return
-        const { EthereumProvider } = await import(
-          '@walletconnect/ethereum-provider'
-        )
+            )
         return await EthereumProvider.init({
           ...parameters,
           disableProviderPing: true,
@@ -311,7 +301,6 @@ export function walletConnect(parameters: WalletConnectParameters) {
           new Promise<void>((resolve) => {
             const listener = ({
               chainId: currentChainId,
-            }: { chainId?: number | undefined }) => {
               if (currentChainId === chainId) {
                 config.emitter.off('change', listener)
                 resolve()
@@ -424,7 +413,6 @@ export function walletConnect(parameters: WalletConnectParameters) {
     getNamespaceChainsIds() {
       if (!provider_) return []
       const chainIds = provider_.session?.namespaces[NAMESPACE]?.accounts?.map(
-        (account) => Number.parseInt(account.split(':')[1] || ''),
       )
       return chainIds ?? []
     },

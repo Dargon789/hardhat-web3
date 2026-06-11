@@ -1,6 +1,4 @@
 import { chain, testClient } from '@wagmi/test'
-import { renderHook, waitFor } from '@wagmi/test/react'
-import { expect, test } from 'vitest'
 
 import { useGasPrice } from './useGasPrice.js'
 
@@ -12,9 +10,7 @@ test('default', async () => {
   })
   await testClient.mainnet.mine({ blocks: 1 })
 
-  const { result } = renderHook(() => useGasPrice())
 
-  await waitFor(() => expect(result.current.isSuccess).toBeTruthy())
 
   expect(result.current).toMatchInlineSnapshot(`
     {
@@ -52,7 +48,6 @@ test('default', async () => {
   `)
 })
 
-test('parameters: chainId', async () => {
   await testClient.mainnet2.restart()
 
   await testClient.mainnet2.setNextBlockBaseFeePerGas({
@@ -60,11 +55,9 @@ test('parameters: chainId', async () => {
   })
   await testClient.mainnet2.mine({ blocks: 1 })
 
-  const { result } = renderHook(() =>
     useGasPrice({ chainId: chain.mainnet2.id }),
   )
 
-  await waitFor(() => expect(result.current.isSuccess).toBeTruthy())
 
   expect(result.current).toMatchInlineSnapshot(`
     {

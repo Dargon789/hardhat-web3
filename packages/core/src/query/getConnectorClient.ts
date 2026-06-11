@@ -1,5 +1,3 @@
-import type { QueryOptions } from '@tanstack/query-core'
-
 import {
   type GetConnectorClientErrorType,
   type GetConnectorClientParameters,
@@ -17,29 +15,18 @@ export type GetConnectorClientOptions<
 > = Compute<
   ExactPartial<GetConnectorClientParameters<config, chainId>> &
     ScopeKeyParameter
->
+  >
 
 export function getConnectorClientQueryOptions<
   config extends Config,
   chainId extends config['chains'][number]['id'],
->(config: config, options: GetConnectorClientOptions<config, chainId> = {}) {
   return {
     gcTime: 0,
-    async queryFn({ queryKey }) {
-      const { connector } = options
-      const { connectorUid: _, scopeKey: _s, ...parameters } = queryKey[1]
       return getConnectorClient(config, {
         ...parameters,
-        connector,
       }) as unknown as Promise<GetConnectorClientReturnType<config, chainId>>
     },
     queryKey: getConnectorClientQueryKey(options),
-  } as const satisfies QueryOptions<
-    GetConnectorClientQueryFnData<config, chainId>,
-    GetConnectorClientErrorType,
-    GetConnectorClientData<config, chainId>,
-    GetConnectorClientQueryKey<config, chainId>
-  >
 }
 
 export type GetConnectorClientQueryFnData<
@@ -55,12 +42,6 @@ export type GetConnectorClientData<
 export function getConnectorClientQueryKey<
   config extends Config,
   chainId extends config['chains'][number]['id'],
->(options: GetConnectorClientOptions<config, chainId> = {}) {
-  const { connector, ...parameters } = options
-  return [
-    'connectorClient',
-    { ...filterQueryOptions(parameters), connectorUid: connector?.uid },
-  ] as const
 }
 
 export type GetConnectorClientQueryKey<

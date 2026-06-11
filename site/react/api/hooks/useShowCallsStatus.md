@@ -15,11 +15,10 @@ const TVariables = 'ShowCallsStatusVariables'
 
 # useShowCallsStatus
 
-Action to request for the wallet to show information about a call batch that was sent via `useShowCalls`.
 
 [Read more.](https://github.com/ethereum/EIPs/blob/1663ea2e7a683285f977eda51c32cec86553f585/EIPS/eip-5792.md#wallet_showcallsstatus)
 
- 
+
 
 ## Import
 
@@ -35,12 +34,9 @@ import { useShowCallsStatus } from 'wagmi'
 import { parseEther } from 'viem'
 
 function App() {
-  const { showCallsStatus } = useShowCallsStatus()
-
   return (
     <button
       onClick={() =>
-        showCallsStatus({
           id: '0x1234567890abcdef',
         })
       }
@@ -71,7 +67,6 @@ import { useShowCallsStatus } from 'wagmi'
 import { config } from './config' // [!code focus]
 
 function App() {
-  const result = useShowCallsStatus({
     config, // [!code focus]
   })
 }

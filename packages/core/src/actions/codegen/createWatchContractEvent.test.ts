@@ -1,4 +1,3 @@
-import { abi, address, chain, config } from '@wagmi/test'
 import type { WatchEventOnLogsParameter } from 'viem'
 import { test } from 'vitest'
 

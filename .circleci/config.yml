@@ -17,8 +17,6 @@ jobs:
     executor: my-custom-executor
     steps:
       - checkout
-      - run: |
-          # echo Hello, World!
 
 workflows:
   my-custom-workflow:
