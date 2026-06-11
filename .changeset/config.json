@@ -1,12 +1,18 @@
 {
-  "$schema": "https://unpkg.com/@changesets/config@1.6.0/schema.json",
-  "changelog": "@changesets/cli/changelog",
-  "commit": false,
-  "linked": [],
+  "$schema": "https://unpkg.com/@changesets/config@2.3.1/schema.json",
   "access": "public",
   "baseBranch": "main",
-  "updateInternalDependencies": "minor",
-  "ignore": ["@nomiclabs/common"],
+  "changelog": ["@changesets/changelog-github", { "repo": "NomicFoundation/hardhat" }],
+  "commit": false,
+  "ignore": [
+    "*-register",
+    "@wagmi/test",
+    "site",
+    "next-app",
+    "nuxt-app",
+    "vite-*"
+  ],
+  "updateInternalDependencies": "patch",
   "___experimentalUnsafeOptions_WILL_CHANGE_IN_PATCH": {
     "onlyUpdatePeerDependentsWhenOutOfRange": true
   }
