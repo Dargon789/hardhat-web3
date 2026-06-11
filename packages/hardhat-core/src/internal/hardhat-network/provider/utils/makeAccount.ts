@@ -1,9 +1,4 @@
-import {
-  Account,
-  Address,
-  privateToAddress,
-  toBuffer,
-} from "@nomicfoundation/ethereumjs-util";
+import { Account, Address, privateToAddress, toBytes } from "@ethereumjs/util";
 
 import { GenesisAccount } from "../node-types";
 
@@ -19,7 +14,7 @@ export function makeAccount(ga: GenesisAccount) {
   }
 
   const account = Account.fromAccountData({ balance });
-  const pk = toBuffer(ga.privateKey);
+  const pk = toBytes(ga.privateKey);
   const address = new Address(privateToAddress(pk));
   return { account, address };
 }

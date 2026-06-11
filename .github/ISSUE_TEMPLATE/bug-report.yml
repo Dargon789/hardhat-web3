@@ -1,6 +1,5 @@
 name: Bug report
 description: File a bug report
-type: "Bug"
 body:
   - type: input
     id: version

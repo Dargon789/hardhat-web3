@@ -2,6 +2,12 @@ name: hardhat-web3-v4 CI
 permissions:
   contents: read
 
+permissions:
+  contents: read
+
+permissions:
+  contents: read
+
 on:
   push:
     branches: [$default-branch]
@@ -30,16 +36,18 @@ concurrency:
 
 jobs:
   test_on_windows:
-    name: Test hardhat-web3-v4 on Windows with Node 18
+    name: Test hardhat-web3-v4 on Windows with Node 16
     runs-on: windows-latest
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v2
         with:
-          version: 9
-      - uses: actions/setup-node@v4
+          version: 8
+      - uses: actions/setup-node@v2
         with:
-          node-version: 18
+          node-version: 16
           cache: pnpm
       - name: Install
         run: pnpm install --frozen-lockfile --prefer-offline
@@ -49,16 +57,20 @@ jobs:
         run: pnpm test
 
   test_on_macos:
-    name: Test hardhat-web3-v4 on MacOS with Node 18
+    name: Test hardhat-web3-v4 on MacOS with Node 16
     runs-on: macos-latest
+    # disable until actions/virtual-environments#4896 is fixed
+    if: ${{ false }}
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v2
         with:
-          version: 9
-      - uses: actions/setup-node@v4
+          version: 8
+      - uses: actions/setup-node@v2
         with:
-          node-version: 18
+          node-version: 16
           cache: pnpm
       - name: Install
         run: pnpm install --frozen-lockfile --prefer-offline
@@ -70,15 +82,17 @@ jobs:
   test_on_linux:
     name: Test hardhat-web3-v4 on Ubuntu with Node ${{ matrix.node }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     strategy:
       matrix:
-        node: [18, 20]
+        node: [16, 18, 20]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v2
         with:
-          version: 9
-      - uses: actions/setup-node@v4
+          version: 8
+      - uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node }}
           cache: pnpm

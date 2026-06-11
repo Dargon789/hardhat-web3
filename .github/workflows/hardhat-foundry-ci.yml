@@ -1,4 +1,6 @@
 name: hardhat-foundry CI
+permissions:
+  contents: read
 
 on:
   push:
@@ -26,16 +28,18 @@ concurrency:
 
 jobs:
   test_on_windows:
-    name: Test hardhat-foundry on Windows with Node 18
+    name: Test hardhat-foundry on Windows with Node 16
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v2
         with:
-          version: 9
-      - uses: actions/setup-node@v4
+          version: 8
+      - uses: actions/cache@v3
+        continue-on-error: true
         with:
-          node-version: 18
+        # cache config here
+          node-version: 16
           cache: "pnpm"
       - name: Install
         run: pnpm install --frozen-lockfile --prefer-offline
@@ -47,16 +51,18 @@ jobs:
         run: pnpm test
 
   test_on_macos:
-    name: Test hardhat-foundry on MacOS with Node 18
+    name: Test hardhat-foundry on MacOS with Node 16
     runs-on: macos-latest
+    # disable until actions/virtual-environments#4896 is fixed
+    if: ${{ false }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v2
         with:
-          version: 9
-      - uses: actions/setup-node@v4
+          version: 8
+      - uses: actions/setup-node@v2
         with:
-          node-version: 18
+          node-version: 16
           cache: "pnpm"
       - name: Install
         run: pnpm install --frozen-lockfile --prefer-offline
@@ -72,13 +78,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: [18, 20]
+        node: [16, 18, 20]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v2
         with:
-          version: 9
-      - uses: actions/setup-node@v4
+          version: 8
+      - uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node }}
           cache: "pnpm"

@@ -1,26 +1,18 @@
 {
-  "$schema": "https://unpkg.com/@changesets/config@1.6.0/schema.json",
-  "changelog": "../scripts/custom-changelog.mjs",
-  "commit": false,
-  "linked": [],
+  "$schema": "https://unpkg.com/@changesets/config@2.3.1/schema.json",
   "access": "public",
   "baseBranch": "main",
-  "updateInternalDependencies": "minor",
+  "changelog": ["@changesets/changelog-github", { "repo": "wevm/wagmi" }],
+  "commit": false,
   "ignore": [
-    "@nomicfoundation/config",
-    "@nomicfoundation/example-project",
-    "@nomicfoundation/template-package",
-    "template-*"
+    "*-register",
+    "@wagmi/test",
+    "site",
+    "next-app",
+    "nuxt-app",
+    "vite-*"
   ],
-  "fixed": [
-    [
-      "@nomicfoundation/hardhat-ignition",
-      "@nomicfoundation/hardhat-ignition-ethers",
-      "@nomicfoundation/hardhat-ignition-viem",
-      "@nomicfoundation/ignition-core",
-      "@nomicfoundation/ignition-ui"
-    ]
-  ],
+  "updateInternalDependencies": "patch",
   "___experimentalUnsafeOptions_WILL_CHANGE_IN_PATCH": {
     "onlyUpdatePeerDependentsWhenOutOfRange": true
   }
