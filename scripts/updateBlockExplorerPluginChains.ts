@@ -45,9 +45,5 @@ let count = 0
 console.log(`Done. Updated chains for ${count} plugins.`)
 
 async function writeContent(pluginPath: string, content: string) {
-  const file = Bun.file(pluginPath)
-  const text = await file
-    .text()
     .then((text) => text.replace(/type ChainId =[\s\S]*$/, content))
-  await Bun.write(pluginPath, text)
 }

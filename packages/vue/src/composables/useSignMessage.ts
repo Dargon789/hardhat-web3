@@ -45,19 +45,8 @@ export type UseSignMessageReturnType<context = unknown> = Compute<
 export function useSignMessage<context = unknown>(
   parameters: UseSignMessageParameters<context> = {},
 ): UseSignMessageReturnType<context> {
-  const { mutation } = parameters
-
   const config = useConfig(parameters)
-
   const mutationOptions = signMessageMutationOptions(config)
-  const { mutate, mutateAsync, ...result } = useMutation({
     ...mutation,
-    ...mutationOptions,
-  })
-
-  return {
-    ...result,
-    signMessage: mutate,
-    signMessageAsync: mutateAsync,
   }
 }

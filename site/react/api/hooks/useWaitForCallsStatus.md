@@ -15,7 +15,7 @@ const TError = 'WaitForCallsStatusErrorType'
 
 Waits for a call bundle to be confirmed & included on a block before returning the status & receipts.
 
- 
+
 
 ## Import
 
@@ -177,5 +177,3 @@ import { type UseWaitForCallsStatusReturnType } from 'wagmi'
 <!--@include: @shared/query-imports.md-->
 
 ## Action
-
-- [`waitForCallsStatus`](https://viem.sh/experimental/eip5792/waitForCallsStatus)

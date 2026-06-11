@@ -3,8 +3,6 @@ import {
   type WatchBlockNumberReturnType as viem_WatchBlockNumberReturnType,
   watchBlockNumber as viem_watchBlockNumber,
 } from 'viem/actions'
-
-import type { Chain, Transport, WebSocketTransport } from 'viem'
 import type { Config } from '../createConfig.js'
 import type { SelectChains } from '../types/chain.js'
 import type {

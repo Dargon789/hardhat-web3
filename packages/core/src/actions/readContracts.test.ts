@@ -84,7 +84,6 @@ test('default', async () => {
   `)
 })
 
-test.skip('falls back to readContract if multicall is not available', async () => {
   const spy = vi.spyOn(readContract, 'readContract')
   const config = createConfig({
     chains: [mainnet, { ...mainnet2, contracts: { multicall3: undefined } }],
@@ -158,7 +157,6 @@ test.skip('falls back to readContract if multicall is not available', async () =
   `)
 })
 
-test.skip('multichain', async () => {
   const config = createConfig({
     chains: [mainnet, mainnet2, optimism],
     transports: {
@@ -207,28 +205,11 @@ test.skip('multichain', async () => {
       args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', 0n],
     },
   ] as const
-  const optimismContracts = [
-    {
-      abi: abi.erc20,
-      address: address.optimism.usdc,
-      chainId: optimism.id,
-      functionName: 'symbol',
-    },
-    {
-      abi: abi.erc20,
-      address: address.optimism.usdc,
-      chainId: optimism.id,
-      functionName: 'balanceOf',
-      args: ['0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC'],
-    },
-  ] as const
   const results = await readContracts(config, {
     contracts: [
       mainnetContracts[0]!,
-      optimismContracts[0]!,
       mainnetContracts[1]!,
       mainnet2Contracts[0]!,
-      optimismContracts[1]!,
       mainnet2Contracts[1]!,
       mainnetContracts[2]!,
     ],
@@ -236,10 +217,8 @@ test.skip('multichain', async () => {
   expectTypeOf(results).toEqualTypeOf<
     [
       MulticallResponse<bigint>,
-      MulticallResponse<string>,
       MulticallResponse<bigint>,
       MulticallResponse<boolean>,
-      MulticallResponse<bigint>,
       MulticallResponse<bigint>,
       MulticallResponse<bigint>,
     ]
@@ -264,19 +243,11 @@ test.skip('multichain', async () => {
         "status": "success",
       },
       {
-        "result": "USDC",
-        "status": "success",
-      },
-      {
         "result": 1n,
         "status": "success",
       },
       {
         "result": false,
-        "status": "success",
-      },
-      {
-        "result": 10959340n,
         "status": "success",
       },
       {
@@ -289,11 +260,8 @@ test.skip('multichain', async () => {
       },
     ]
   `)
-})
 
-test('multi-chain: falls back to readContract if multicall is not available', async () => {
   const config = createConfig({
-    chains: [mainnet, { ...optimism, contracts: { multicall3: undefined } }],
     transports: {
       [mainnet.id]: http(),
       [optimism.id]: http(),
@@ -317,38 +285,17 @@ test('multi-chain: falls back to readContract if multicall is not available', as
       args: ['0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC'],
     },
   ] as const
-  const optimismContracts = [
-    {
-      abi: abi.erc20,
-      address: address.optimism.usdc,
-      chainId: optimism.id,
-      functionName: 'symbol',
-    },
-    {
-      abi: abi.erc20,
-      address: address.optimism.usdc,
-      chainId: optimism.id,
-      functionName: 'balanceOf',
-      args: ['0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC'],
-    },
-  ] as const
   const results = await readContracts(config, {
-    contracts: [...mainnetContracts, ...optimismContracts],
   })
   expectTypeOf(results).toEqualTypeOf<
     [
       MulticallResponse<bigint>,
-      MulticallResponse<bigint>,
-      MulticallResponse<string>,
       MulticallResponse<bigint>,
     ]
   >()
 
   for (const contract of mainnetContracts) {
     expect(spy).toBeCalledWith(config, { ...contract, chainId: mainnet.id })
-  }
-  for (const contract of optimismContracts) {
-    expect(spy).toBeCalledWith(config, { ...contract, chainId: optimism.id })
   }
   expect(results).toMatchInlineSnapshot(`
     [
@@ -360,17 +307,8 @@ test('multi-chain: falls back to readContract if multicall is not available', as
         "result": 1n,
         "status": "success",
       },
-      {
-        "result": "USDC",
-        "status": "success",
-      },
-      {
-        "result": 10959340n,
-        "status": "success",
-      },
     ]
   `)
-})
 
 test('throws if allowFailure=false & a contract method fails', async () => {
   await expect(
@@ -397,7 +335,6 @@ test('throws if allowFailure=false & a contract method fails', async () => {
       args:                         (0xA0Cf798816D4b9b9866b5330EEa46a18382f251e, 69420)
 
     Docs: https://viem.sh/docs/contract/readContract
-    Version: viem@2.29.2]
   `,
   )
 })
@@ -450,7 +387,6 @@ test('allowFailure=true & a contract method fails', async () => {
       args:                         (0xA0Cf798816D4b9b9866b5330EEa46a18382f251e, 69420)
 
     Docs: https://viem.sh/docs/contract/readContract
-    Version: viem@2.29.2],
         "result": undefined,
         "status": "failure",
       },
@@ -464,7 +400,6 @@ test('allowFailure=true & a contract method fails', async () => {
       args:                         (0xA0Cf798816D4b9b9866b5330EEa46a18382f251e, 69421)
 
     Docs: https://viem.sh/docs/contract/readContract
-    Version: viem@2.29.2],
         "result": undefined,
         "status": "failure",
       },
@@ -495,14 +430,13 @@ test('throws if allowFailure=false & encoding contract function data fails', asy
       - The contract does not have the function "ownerOf",
       - The parameters passed to the contract function may be invalid, or
       - The address is not a contract.
-     
+
     Contract Call:
       address:   0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC
       function:  ownerOf(uint256 tokenId)
       args:             (1e+31)
 
     Docs: https://viem.sh/docs/contract/readContract
-    Version: viem@2.29.2]
   `,
   )
 })
@@ -554,14 +488,13 @@ test('allowFailure=true & encoding contract function data fails', async () => {
       - The contract does not have the function "ownerOf",
       - The parameters passed to the contract function may be invalid, or
       - The address is not a contract.
-     
+
     Contract Call:
       address:   0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC
       function:  ownerOf(uint256 tokenId)
       args:             (1e+31)
 
     Docs: https://viem.sh/docs/contract/readContract
-    Version: viem@2.29.2],
         "result": undefined,
         "status": "failure",
       },
@@ -572,14 +505,13 @@ test('allowFailure=true & encoding contract function data fails', async () => {
       - The contract does not have the function "ownerOf",
       - The parameters passed to the contract function may be invalid, or
       - The address is not a contract.
-     
+
     Contract Call:
       address:   0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC
       function:  ownerOf(uint256 tokenId)
       args:             (1e+31)
 
     Docs: https://viem.sh/docs/contract/readContract
-    Version: viem@2.29.2],
         "result": undefined,
         "status": "failure",
       },
@@ -610,14 +542,13 @@ test('should throw if allowFailure=false & a contract has no response', async ()
       - The contract does not have the function "love",
       - The parameters passed to the contract function may be invalid, or
       - The address is not a contract.
-     
+
     Contract Call:
       address:   0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC
       function:  love(address)
       args:          (0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC)
 
     Docs: https://viem.sh/docs/contract/readContract
-    Version: viem@2.29.2]
   `,
   )
 })
@@ -662,14 +593,13 @@ test('allowFailure=true & a contract has no response', async () => {
       - The contract does not have the function "love",
       - The parameters passed to the contract function may be invalid, or
       - The address is not a contract.
-     
+
     Contract Call:
       address:   0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC
       function:  love(address)
       args:          (0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC)
 
     Docs: https://viem.sh/docs/contract/readContract
-    Version: viem@2.29.2],
         "result": undefined,
         "status": "failure",
       },

@@ -1,4 +1,3 @@
-import type { QueryOptions } from '@tanstack/query-core'
 import type { BlockTag } from 'viem'
 
 import {
@@ -23,30 +22,17 @@ export type GetBlockOptions<
     GetBlockParameters<includeTransactions, blockTag, config, chainId>
   > &
     ScopeKeyParameter
->
+  >
 
 export function getBlockQueryOptions<
   config extends Config,
   chainId extends config['chains'][number]['id'],
-  includeTransactions extends boolean,
-  blockTag extends BlockTag,
 >(
   config: config,
-  options: GetBlockOptions<includeTransactions, blockTag, config, chainId> = {},
-) {
   return {
-    async queryFn({ queryKey }) {
-      const { scopeKey: _, ...parameters } = queryKey[1]
-      const block = await getBlock(config, parameters)
       return (block ?? null) as any
     },
     queryKey: getBlockQueryKey(options),
-  } as const satisfies QueryOptions<
-    GetBlockQueryFnData<includeTransactions, blockTag, config, chainId>,
-    GetBlockErrorType,
-    GetBlockData<includeTransactions, blockTag, config, chainId>,
-    GetBlockQueryKey<includeTransactions, blockTag, config, chainId>
-  >
 }
 
 export type GetBlockQueryFnData<
@@ -69,7 +55,6 @@ export function getBlockQueryKey<
   includeTransactions extends boolean = false,
   blockTag extends BlockTag = 'latest',
 >(
-  options: GetBlockOptions<includeTransactions, blockTag, config, chainId> = {},
 ) {
   return ['block', filterQueryOptions(options)] as const
 }

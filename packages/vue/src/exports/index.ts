@@ -3,35 +3,19 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 // biome-ignore lint/performance/noBarrelFile: entrypoint module
-export { configKey, type WagmiPluginOptions, WagmiPlugin } from '../plugin.js'
 
 ////////////////////////////////////////////////////////////////////////////////
 // Errors
 ////////////////////////////////////////////////////////////////////////////////
 
-export { type BaseErrorType, BaseError } from '../errors/base.js'
 
 export {
-  type WagmiPluginNotFoundErrorType,
-  WagmiPluginNotFoundError,
   type WagmiInjectionContextErrorType,
-  WagmiInjectionContextError,
 } from '../errors/plugin.js'
 
 ////////////////////////////////////////////////////////////////////////////////
 // Composables
 ////////////////////////////////////////////////////////////////////////////////
-
-export {
-  type UseAccountParameters,
-  type UseAccountReturnType,
-  useAccount,
-} from '../composables/useAccount.js'
-
-export {
-  type UseAccountEffectParameters,
-  useAccountEffect,
-} from '../composables/useAccountEffect.js'
 
 export {
   type UseBalanceParameters,
@@ -62,18 +46,6 @@ export {
   type UseClientReturnType,
   useClient,
 } from '../composables/useClient.js'
-
-export {
-  type UseConnectorClientParameters,
-  type UseConnectorClientReturnType,
-  useConnectorClient,
-} from '../composables/useConnectorClient.js'
-
-export {
-  type UseChainsParameters,
-  type UseChainsReturnType,
-  useChains,
-} from '../composables/useChains.js'
 
 export {
   type UseConfigParameters,
@@ -166,12 +138,6 @@ export {
 } from '../composables/useSimulateContract.js'
 
 export {
-  type UseSwitchAccountParameters,
-  type UseSwitchAccountReturnType,
-  useSwitchAccount,
-} from '../composables/useSwitchAccount.js'
-
-export {
   type UseSwitchChainParameters,
   type UseSwitchChainReturnType,
   useSwitchChain,
@@ -202,12 +168,6 @@ export {
 } from '../composables/useWatchContractEvent.js'
 
 export {
-  type UseWaitForTransactionReceiptParameters,
-  type UseWaitForTransactionReceiptReturnType,
-  useWaitForTransactionReceipt,
-} from '../composables/useWaitForTransactionReceipt.js'
-
-export {
   type UseWriteContractParameters,
   type UseWriteContractReturnType,
   useWriteContract,
@@ -221,55 +181,20 @@ export {
   // Config
   type Connection,
   type Connector,
-  type Config,
-  type CreateConfigParameters,
-  type PartializedState,
-  type State,
-  createConfig,
   // Connector
   type ConnectorEventMap,
-  type CreateConnectorFn,
-  createConnector,
-  injected,
-  mock,
-  // Errors
-  type ChainNotConfiguredErrorType,
-  ChainNotConfiguredError,
-  type ConnectorAlreadyConnectedErrorType,
-  ConnectorAlreadyConnectedError,
   type ConnectorNotFoundErrorType,
-  ConnectorNotFoundError,
-  type ConnectorAccountNotFoundErrorType,
-  ConnectorAccountNotFoundError,
-  type ConnectorChainMismatchErrorType,
-  ConnectorChainMismatchError,
   type ConnectorUnavailableReconnectingErrorType,
-  ConnectorUnavailableReconnectingError,
-  type ProviderNotFoundErrorType,
-  ProviderNotFoundError,
-  type SwitchChainNotSupportedErrorType,
-  SwitchChainNotSupportedError,
   // Storage
   type CreateStorageParameters,
-  type Storage,
   createStorage,
-  noopStorage,
   // Transports
   custom,
   fallback,
   http,
-  webSocket,
-  unstable_connector,
   // Types
   type Register,
   type ResolvedRegister,
-  // Utilities
-  cookieStorage,
-  cookieToInitialState,
-  deepEqual,
-  deserialize,
-  normalizeChainId,
-  parseCookie,
   serialize,
 } from '@wagmi/core'
 

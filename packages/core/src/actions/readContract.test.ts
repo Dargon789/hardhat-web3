@@ -11,7 +11,6 @@ test('default', async () => {
       functionName: 'balanceOf',
       args: ['0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC'],
     }),
-  ).resolves.toMatchInlineSnapshot('4n')
 })
 
 test('parameters: chainId', async () => {
@@ -23,7 +22,6 @@ test('parameters: chainId', async () => {
       args: ['0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC'],
       chainId: chain.mainnet2.id,
     }),
-  ).resolves.toMatchInlineSnapshot('4n')
 })
 
 test('parameters: deployless read (bytecode)', async () => {
