@@ -61,7 +61,7 @@ export function fetch(config: FetchConfig): FetchResult {
   const {
     cacheDuration = 1_800_000,
     contracts: contractConfigs,
-    getCacheKey = ({ contract }) => JSON.stringify(contract),
+    getCacheKey = ({ contract }) => JSON.stringify(contract).replace(/[^a-z0-9]/gi, '_'),
     name = 'Fetch',
     parse = ({ response }) => response.json(),
     request,
