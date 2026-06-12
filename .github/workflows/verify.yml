@@ -2,7 +2,6 @@ name: Verify
 on:
   workflow_call:
   workflow_dispatch:
-
 permissions:
   contents: read
 
@@ -16,12 +15,17 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
         with:
           token: ${{ secrets.GH_PTOKEN }}
 
       - name: Install dependencies
-        uses: wevm/actions/.github/actions/pnpm@main
+        uses: wevm/actions/.github/actions/pnpm@f7ad7f00e16e73322562922c241f21f0c7ffbbec
+        with:
+          node-version: 24.5
+
+      - name: Audit dependencies
+        run: pnpm audit
 
       - name: Check repo
         run: pnpm check:repo
@@ -32,7 +36,7 @@ jobs:
       - name: Update package versions
         run: pnpm version:update
       
-      - uses: stefanzweifel/git-auto-commit-action@v5
+      - uses: stefanzweifel/git-auto-commit-action@04702edda442b2e678b25b537cec683a1493fcb9 # v7.1.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -50,13 +54,15 @@ jobs:
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
 
       - name: Install dependencies
-        uses: wevm/actions/.github/actions/pnpm@main
+        uses: wevm/actions/.github/actions/pnpm@f7ad7f00e16e73322562922c241f21f0c7ffbbec
+        with:
+          node-version: 24.5
 
       - name: Build
-        run: pnpm build
+        run: pnpm clean && pnpm build
 
       - name: Publint
         run: pnpm test:build
@@ -73,15 +79,17 @@ jobs:
     timeout-minutes: 5
     strategy:
       matrix:
-        typescript-version: ['5.7.3', '5.8.3', 'latest']
-        viem-version: ['2.29.2', 'latest']
+        typescript-version: ['5.7.3', '5.8.3', '5.9.3', 'latest']
+        viem-version: ['2.44.0', 'latest']
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
 
       - name: Install dependencies
-        uses: wevm/actions/.github/actions/pnpm@main
+        uses: wevm/actions/.github/actions/pnpm@f7ad7f00e16e73322562922c241f21f0c7ffbbec
+        with:
+          node-version: 24.5
 
       - run: pnpm add -D -w typescript@${{ matrix.typescript-version }} viem@${{ matrix.viem-version }}
 
@@ -90,6 +98,9 @@ jobs:
 
       - name: Check types
         run: pnpm check:types
+
+      - name: Bench types
+        run: pnpm bench:types
 
       # Redundant with `pnpm check:types`
       # If Vitest adds special features in the future, e.g. type coverage, can add this back!
@@ -103,25 +114,41 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     strategy:
-      max-parallel: 3
+      max-parallel: 4
       matrix:
-        shard: [1, 2, 3]
-        total-shards: [3]
+        shard: [1, 2, 3, 4]
+        total-shards: [4]
 
     steps:
       - name: Clone repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
 
       - name: Install dependencies
-        uses: wevm/actions/.github/actions/pnpm@main
+        uses: wevm/actions/.github/actions/pnpm@f7ad7f00e16e73322562922c241f21f0c7ffbbec
+        with:
+          node-version: 24.5
+
+      - name: Setup Docker
+        uses: docker/setup-docker-action@v4
 
       - name: Set up foundry
-        uses: foundry-rs/foundry-toolchain@v1
+        uses: foundry-rs/foundry-toolchain@50d5a8956f2e319df19e6b57539d7e2acb9f8c1e # v1.5.0
         with:
           version: nightly
 
+      - name: Cache Playwright
+        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Install Playwright
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: pnpm exec playwright install chromium --with-deps
+
       - name: Run tests
-        uses: nick-fields/retry@v3
+        uses: nick-fields/retry@ce71cc2ab81d554ebbe88c79ab5975992d79ba08
         with:
           command: CI=true pnpm test:cov --shard=${{ matrix.shard }}/${{ matrix.total-shards }} --retry=3 --bail=1
           max_attempts: 3
@@ -131,6 +158,6 @@ jobs:
           VITE_OPTIMISM_FORK_URL: ${{ secrets.VITE_OPTIMISM_FORK_URL }}
 
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}

@@ -361,7 +361,7 @@ const valid = await verifyTypedData(config, {
       wallet: '0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB',
     },
     contents: 'Hello, Bob!',
-  },  
+  },
   primaryType: 'Mail',
   address: '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266',
   signature: '0x66edc32e2ab001213321ab7d959a2207fcef5190cc9abb6da5b0d2a8a9af2d4d2b0700e2c317c4106f337fd934fbbb0bf62efc8811a78603b33a8265d3b8f8cb1c', // [!code focus]
@@ -592,4 +592,3 @@ import { type VerifyTypedDataErrorType } from '@wagmi/core'
 
 ## Viem
 
-- [`verifyTypedData`](https://viem.sh/docs/actions/public/verifyTypedData.html)

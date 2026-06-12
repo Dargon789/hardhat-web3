@@ -5,7 +5,6 @@ description: Hook for getting Viem `PublicClient` instance.
 
 # usePublicClient
 
-Hook for getting Viem [`PublicClient`](https://viem.sh/docs/clients/public.html) instance.
 
 ## Import
 
@@ -27,7 +26,6 @@ function App() {
 :::
 
 ::: warning
-If you want to optimize bundle size, you should use [`useClient`](/react/api/hooks/useClient) along with Viem's [tree-shakable actions](https://viem.sh/docs/clients/custom.html#tree-shaking) instead. Since Public Client has all public actions attached directly to it.
 :::
 
 ## Parameters
@@ -85,7 +83,6 @@ import { type UsePublicClientReturnType } from 'wagmi'
 
 `PublicClient | undefined`
 
-Viem [`PublicClient`](https://viem.sh/docs/clients/public.html) instance.
 
 ## Action
 

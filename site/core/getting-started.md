@@ -52,10 +52,8 @@ Now that everything is set up, you can pass the `config` to use actions.
 
 ::: code-group
 ```tsx [index.ts]
-import { getAccount, getEnsName } from '@wagmi/core'
 import { config } from './config'
 
-const { address } = getAccount(config)
 const ensName = await getEnsName(config, { address })
 ```
 <<< @/snippets/core/config.ts[config.ts]

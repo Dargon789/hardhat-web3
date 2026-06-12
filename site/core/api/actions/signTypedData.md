@@ -97,11 +97,9 @@ const result = await signTypedData(config, {
 
 ::: code-group
 ```ts [index.ts]
-import { getAccount, signTypedData } from '@wagmi/core'
 import { config } from './config'
 import { types } from './typedData'
 
-const { connector } = getAccount(config)
 const result = await signTypedData(config, {
   connector, // [!code focus]
   types,
@@ -275,7 +273,6 @@ const result = await signTypedData(config, {
 import { type SignTypedDataReturnType } from '@wagmi/core'
 ```
 
-[`Hex`](https://viem.sh/docs/glossary/types.html#hex)
 
 The signed data.
 
@@ -406,4 +403,3 @@ import { type SignTypedDataErrorType } from '@wagmi/core'
 
 ## Viem
 
-- [`signTypedData`](https://viem.sh/docs/actions/wallet/signTypedData.html)
