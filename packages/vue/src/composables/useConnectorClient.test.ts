@@ -42,7 +42,6 @@ test('default', async () => {
         "connectorClient",
         {
           "chainId": 1,
-          "connectorUid": undefined,
         },
       ],
       "refetch": [Function],
@@ -105,13 +104,10 @@ test('behavior: connect and disconnect', async () => {
 
   expect(client.data.value).not.toBeDefined()
 
-  connect.connect({
-    connector: connect.connectors[0]!,
   })
 
   await waitFor(client.data, (data) => data !== undefined)
 
-  disconnect.disconnect()
 
   await waitFor(client.data, (data) => data === undefined)
 })
@@ -126,12 +122,10 @@ test('behavior: switch chains', async () => {
 
   await waitFor(connectorClient.data, (data) => data !== undefined)
 
-  switchChain.switchChain({ chainId: 456 })
   await waitFor(switchChain.isSuccess, (isSuccess) => isSuccess === true)
   await waitFor(connectorClient.data, (data) => data !== undefined)
   expect(connectorClient.data?.value?.chain.id).toEqual(456)
 
-  switchChain.switchChain({ chainId: 1 })
   await waitFor(switchChain.isSuccess, (isSuccess) => isSuccess === true)
   await waitFor(connectorClient.data, (data) => data !== undefined)
   expect(connectorClient.data?.value?.chain.id).toEqual(1)

@@ -1,5 +1,4 @@
 import { abi, config } from '@wagmi/test'
-import { expectTypeOf, test } from 'vitest'
 
 import { readContractsQueryOptions } from './readContracts.js'
 

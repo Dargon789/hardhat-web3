@@ -1,5 +1,4 @@
 const pool =
-  Number(process.env.VITEST_POOL_ID ?? 1) + Math.floor(Math.random() * 10000)
 
 export function getRpcUrls({ port }: { port: number }) {
   return {

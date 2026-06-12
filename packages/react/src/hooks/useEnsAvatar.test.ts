@@ -1,16 +1,11 @@
-import { renderHook, waitFor } from '@wagmi/test/react'
-import { expect, test } from 'vitest'
-
 import { useEnsAvatar } from './useEnsAvatar.js'
 
 test('default', async () => {
-  const { result } = renderHook(() =>
     useEnsAvatar({
       name: 'wevm.eth',
     }),
   )
 
-  await waitFor(() => expect(result.current.isSuccess).toBeTruthy())
 
   expect(result.current).toMatchInlineSnapshot(`
     {

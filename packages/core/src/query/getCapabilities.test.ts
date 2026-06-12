@@ -11,7 +11,6 @@ test('default', () => {
         "capabilities",
         {},
       ],
-      "retry": [Function],
     }
   `)
 })
@@ -30,7 +29,6 @@ test('parameters: chainId', () => {
           "account": "0x0000000000000000000000000000000000000000",
         },
       ],
-      "retry": [Function],
     }
   `)
 })

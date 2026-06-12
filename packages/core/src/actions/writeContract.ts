@@ -47,7 +47,6 @@ export type WriteContractParameters<
 > = UnionCompute<
   {
     // TODO: Should use `UnionStrictOmit<..., 'chain'>` on `viem_WriteContractParameters` result instead
-    // temp workaround that doesn't affect runtime behavior for for https://github.com/wevm/wagmi/issues/3981
     [key in keyof chains]: viem_WriteContractParameters<
       abi,
       functionName,
@@ -59,10 +58,6 @@ export type WriteContractParameters<
     >
   }[number] &
     Compute<ChainIdParameter<config, chainId>> &
-    ConnectorParameter & {
-      /** @deprecated */
-      __mode?: 'prepared'
-    }
 >
 
 export type WriteContractReturnType = viem_WriteContractReturnType

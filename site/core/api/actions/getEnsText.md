@@ -192,4 +192,3 @@ import { type getEnsTextError } from '@wagmi/core'
 
 ## Viem
 
-- [`getEnsText`](https://viem.sh/docs/ens/actions/getEnsText.html)

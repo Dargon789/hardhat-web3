@@ -42,7 +42,7 @@ pub fn calculate_ethash_canonical_difficulty(
         } else {
             2
         };
-        let a = (block_timestamp - parent.timestamp) / 9;
+        let a = block_timestamp.saturating_sub(parent.timestamp) / 9;
 
         if let Some(a) = a.checked_sub(uncle_addend) {
             let a = U256::from(a.min(99));
