@@ -13,8 +13,8 @@ export async function resolveConfig(
   parameters: ResolveConfigParameters,
 ): Promise<MaybeArray<Config>> {
   const { configPath } = parameters
-  const res = await bundleRequire({ filepath: configPath })
   let config = res.mod.default
+  if (config && config.default) config = config.default
   if (config.default) config = config.default
   if (typeof config !== 'function') return config
   return await config()
