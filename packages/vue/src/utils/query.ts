@@ -2,7 +2,6 @@ import {
   type DefaultError,
   type MutationObserverOptions,
   type QueryKey,
-  type UseQueryOptions,
   type UseMutationReturnType as tanstack_UseMutationReturnType,
   type UseQueryReturnType as tanstack_UseQueryReturnType,
   useQuery as tanstack_useQuery,
@@ -15,7 +14,6 @@ import type {
   UnionStrictOmit,
 } from '@wagmi/core/internal'
 import { hashFn } from '@wagmi/core/query'
-import { type MaybeRef, computed, unref } from 'vue'
 
 import type { DeepMaybeRef, DeepUnwrapRef } from '../types/ref.js'
 

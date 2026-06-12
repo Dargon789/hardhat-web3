@@ -1,8 +1,6 @@
 import { config } from '@wagmi/test'
 import { mainnet, zkSync } from 'viem/chains'
 import { test } from 'vitest'
-
-import { http } from 'viem'
 import { createConfig } from '../createConfig.js'
 import { getTransactionConfirmations } from './getTransactionConfirmations.js'
 

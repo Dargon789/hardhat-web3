@@ -108,7 +108,6 @@ export function infiniteReadContractsQueryKey<
     ChainIdParameter<config> &
     RequiredPageParamsParameters<contracts, allowFailure, pageParam>,
 ) {
-  const { contracts: _, query: _q, ...parameters } = options
   return ['infiniteReadContracts', filterQueryOptions(parameters)] as const
 }
 
