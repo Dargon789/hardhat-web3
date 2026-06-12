@@ -89,5 +89,3 @@ import { type GetBlockNumberErrorType } from '@wagmi/core'
 
 ## Viem
 
-- [`getBlockNumber`](https://viem.sh/docs/actions/public/getBlockNumber.html)
-- [`watchBlockNumber`](https://viem.sh/docs/actions/public/watchBlockNumber.html)

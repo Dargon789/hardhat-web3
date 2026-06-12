@@ -65,7 +65,7 @@ export async function init(options: Init = {}) {
     const config = options.content ?? defaultConfig
     content = dedent(`
       import { defineConfig } from '@wagmi/cli'
-      
+
       export default defineConfig(${JSON.stringify(config)})
     `)
   } else {

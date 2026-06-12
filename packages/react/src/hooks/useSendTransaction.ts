@@ -60,20 +60,9 @@ export function useSendTransaction<
 >(
   parameters: UseSendTransactionParameters<config, context> = {},
 ): UseSendTransactionReturnType<config, context> {
-  const { mutation } = parameters
-
   const config = useConfig(parameters)
-
   const mutationOptions = sendTransactionMutationOptions(config)
-  const { mutate, mutateAsync, ...result } = useMutation({
-    ...mutation,
-    ...mutationOptions,
-  })
-
   type Return = UseSendTransactionReturnType<config, context>
   return {
-    ...result,
-    sendTransaction: mutate as Return['sendTransaction'],
-    sendTransactionAsync: mutateAsync as Return['sendTransactionAsync'],
   }
 }

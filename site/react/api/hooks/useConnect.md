@@ -10,7 +10,6 @@ const typeName = 'Connect'
 const mutate = 'connect'
 const TData = '{ accounts: readonly [Address, ...Address[]]; chainId: number; }'
 const TError = 'ConnectErrorType'
-const TVariables = '{ chainId?: number | undefined; connector?: CreateConnectorFn | Connector | undefined; }'
 </script>
 
 # useConnect
@@ -31,10 +30,7 @@ import { useConnect } from 'wagmi'
 import { injected } from 'wagmi/connectors'
 
 function App() {
-  const { connect } = useConnect()
-
   return (
-    <button onClick={() => connect({ connector: injected() })}>
       Connect
     </button>
   )
@@ -61,7 +57,6 @@ import { useConnect } from 'wagmi'
 import { config } from './config' // [!code focus]
 
 function App() {
-  const result = useConnect({
     config, // [!code focus]
   })
 }
@@ -77,7 +72,6 @@ function App() {
 import { type UseConnectReturnType } from 'wagmi'
 ```
 
-### connectors
 
 `readonly Connector[]`
 
@@ -88,12 +82,9 @@ Globally configured connectors via [`createConfig`](/react/api/createConfig#conn
 import { useConnect } from 'wagmi'
 
 function App() {
-  const { connect, connectors } = useConnect()
 
   return (
     <div>
-      {connectors.map((connector) => (
-        <button key={connector.id} onClick={() => connect({ connector })}>
           {connector.name}
         </button>
       ))}

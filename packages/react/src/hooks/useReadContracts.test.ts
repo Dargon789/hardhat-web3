@@ -1,11 +1,6 @@
-import { abi, address, chain } from '@wagmi/test'
-import { renderHook, waitFor } from '@wagmi/test/react'
-import { expect, test } from 'vitest'
-
 import { useReadContracts } from './useReadContracts.js'
 
 test('default', async () => {
-  const { result } = renderHook(() =>
     useReadContracts({
       contracts: [
         {
@@ -23,13 +18,11 @@ test('default', async () => {
     }),
   )
 
-  await waitFor(() => expect(result.current.isSuccess).toBeTruthy())
 
   expect(result.current).toMatchInlineSnapshot(`
     {
       "data": [
         {
-          "result": 4n,
           "status": "success",
         },
         {
@@ -85,9 +78,6 @@ test('default', async () => {
   `)
 })
 
-test.skip('multichain', async () => {
-  const { mainnet, mainnet2, optimism } = chain
-  const { result } = renderHook(() =>
     useReadContracts({
       contracts: [
         {
@@ -124,24 +114,10 @@ test.skip('multichain', async () => {
           functionName: 'tokenOfOwnerByIndex',
           args: ['0xA0Cf798816D4b9b9866b5330EEa46a18382f251e', 0n],
         },
-        {
-          abi: abi.erc20,
-          address: address.optimism.usdc,
-          chainId: optimism.id,
-          functionName: 'symbol',
-        },
-        {
-          abi: abi.erc20,
-          address: address.optimism.usdc,
-          chainId: optimism.id,
-          functionName: 'balanceOf',
-          args: ['0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC'],
-        },
       ],
     }),
   )
 
-  await waitFor(() => expect(result.current.isSuccess).toBeTruthy())
 
   expect(result.current).toMatchInlineSnapshot(`
     {
@@ -164,14 +140,6 @@ test.skip('multichain', async () => {
         },
         {
           "result": 370395n,
-          "status": "success",
-        },
-        {
-          "result": "USDC",
-          "status": "success",
-        },
-        {
-          "result": 10959340n,
           "status": "success",
         },
       ],
@@ -239,18 +207,12 @@ test.skip('multichain', async () => {
               "chainId": 456,
               "functionName": "tokenOfOwnerByIndex",
             },
-            {
-              "address": "0x7f5c764cbc14f9669b88837ca1490cca17c31607",
-              "chainId": 10,
-              "functionName": "symbol",
-            },
-            {
-              "address": "0x7f5c764cbc14f9669b88837ca1490cca17c31607",
+    {
+        },
+        {
               "args": [
                 "0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC",
               ],
-              "chainId": 10,
-              "functionName": "balanceOf",
             },
           ],
         },

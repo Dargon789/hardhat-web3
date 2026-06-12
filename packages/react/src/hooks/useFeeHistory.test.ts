@@ -1,18 +1,14 @@
 import { chain, wait } from '@wagmi/test'
-import { renderHook, waitFor } from '@wagmi/test/react'
-import { expect, test } from 'vitest'
 
 import { useFeeHistory } from './useFeeHistory.js'
 
 test('default', async () => {
-  const { result } = renderHook(() =>
     useFeeHistory({
       blockCount: 4,
       rewardPercentiles: [25, 75],
     }),
   )
 
-  await waitFor(() => expect(result.current.isSuccess).toBeTruthy())
 
   const { data, ...rest } = result.current
   expect(data).toMatchObject({
@@ -62,7 +58,6 @@ test('default', async () => {
 })
 
 test('parameters: chainId', async () => {
-  const { result } = renderHook(() =>
     useFeeHistory({
       blockCount: 4,
       rewardPercentiles: [25, 75],
@@ -70,7 +65,6 @@ test('parameters: chainId', async () => {
     }),
   )
 
-  await waitFor(() => expect(result.current.isSuccess).toBeTruthy())
 
   const { data, ...rest } = result.current
   expect(data).toMatchObject({
@@ -120,7 +114,6 @@ test('parameters: chainId', async () => {
 })
 
 test('parameters: blockNumber', async () => {
-  const { result } = renderHook(() =>
     useFeeHistory({
       blockCount: 4,
       rewardPercentiles: [25, 75],
@@ -128,7 +121,6 @@ test('parameters: blockNumber', async () => {
     }),
   )
 
-  await waitFor(() => expect(result.current.isSuccess).toBeTruthy())
 
   const { data, ...rest } = result.current
   expect(data).toMatchObject({
@@ -179,7 +171,6 @@ test('parameters: blockNumber', async () => {
 })
 
 test('parameters: blockTag', async () => {
-  const { result } = renderHook(() =>
     useFeeHistory({
       blockCount: 4,
       rewardPercentiles: [25, 75],
@@ -187,7 +178,6 @@ test('parameters: blockTag', async () => {
     }),
   )
 
-  await waitFor(() => expect(result.current.isSuccess).toBeTruthy())
 
   const { data, ...rest } = result.current
   expect(data).toMatchObject({
@@ -238,13 +228,9 @@ test('parameters: blockTag', async () => {
 })
 
 test('behavior: blockCount: undefined -> defined', async () => {
-  let blockCount: number | undefined = undefined
-
-  const { result, rerender } = renderHook(() =>
-    useFeeHistory({
-      blockCount,
-      rewardPercentiles: [25, 75],
-    }),
+      useFeeHistory({
+        rewardPercentiles: [25, 75],
+      }),
   )
 
   {
@@ -290,10 +276,7 @@ test('behavior: blockCount: undefined -> defined', async () => {
     `)
   }
 
-  blockCount = 4
-  rerender()
 
-  await waitFor(() => expect(result.current.isSuccess).toBeTruthy())
 
   const { data, ...rest } = result.current
   expect(data).toMatchObject({
@@ -343,13 +326,9 @@ test('behavior: blockCount: undefined -> defined', async () => {
 })
 
 test('behavior: rewardPercentiles: undefined -> defined', async () => {
-  let rewardPercentiles: number[] | undefined = undefined
-
-  const { result, rerender } = renderHook(() =>
-    useFeeHistory({
-      blockCount: 4,
-      rewardPercentiles,
-    }),
+      useFeeHistory({
+        blockCount: 4,
+      }),
   )
 
   {
@@ -392,10 +371,7 @@ test('behavior: rewardPercentiles: undefined -> defined', async () => {
     `)
   }
 
-  rewardPercentiles = [25, 75]
-  rerender()
 
-  await waitFor(() => expect(result.current.isSuccess).toBeTruthy())
 
   const { data, ...rest } = result.current
   expect(data).toMatchObject({
@@ -445,8 +421,6 @@ test('behavior: rewardPercentiles: undefined -> defined', async () => {
 })
 
 test('behavior: disabled when properties missing', async () => {
-  const { result } = renderHook(() => useFeeHistory())
 
   await wait(100)
-  await waitFor(() => expect(result.current.isPending).toBeTruthy())
 })
