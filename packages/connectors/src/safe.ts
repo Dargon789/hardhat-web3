@@ -23,7 +23,7 @@ export type SafeParameters = Compute<
      * Timeout in milliseconds for `getInfo` (from the Safe SDK) to resolve.
      *
      * `getInfo` does not resolve when not used in Safe App iFrame. This allows the connector to force a timeout.
-     * @default 10
+     * @default 200
      */
     unstable_getInfoTimeout?: number | undefined
   }
