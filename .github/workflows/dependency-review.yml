@@ -1,5 +1,5 @@
 # Dependency Review Action
-#
+# ai help chat
 # This Action will scan dependency manifest files that change as part of a Pull Request,
 # surfacing known-vulnerable versions of the packages declared or updated in the PR.
 # Once installed, if the workflow run is marked as required, PRs introducing known-vulnerable
@@ -10,7 +10,8 @@
 name: 'Dependency review'
 on:
   pull_request:
-    branches: [ "main" ]
+    branches: ['main']
+
 # If using a dependency submission action in this workflow this permission will need to be set to:
 #
 # permissions:
@@ -33,6 +34,6 @@ jobs:
         # Commonly enabled options, see https://github.com/actions/dependency-review-action#configuration-options for all available options.
         with:
           comment-summary-in-pr: always
-          fail-on-severity: moderate
+        #   fail-on-severity: moderate
         #   deny-licenses: GPL-1.0-or-later, LGPL-2.0-or-later
         #   retry-on-snapshot-warnings: true

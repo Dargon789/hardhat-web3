@@ -181,7 +181,7 @@ The second ordering mode, called `"fifo"`, keeps the mempool transactions sorted
 You can change the ordering mode with:
 
 ```json
-networks: {
+"networks": {
   hardhat: {
     mining: {
       mempool: {

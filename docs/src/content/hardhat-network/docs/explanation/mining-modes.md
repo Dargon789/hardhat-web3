@@ -46,7 +46,7 @@ The way Hardhat Network's mempool orders transactions is customizable. By defaul
 You can enable the FIFO behavior in your config with:
 
 ```json
-networks: {
+"networks": {
   hardhat: {
     mining: {
       mempool: {
