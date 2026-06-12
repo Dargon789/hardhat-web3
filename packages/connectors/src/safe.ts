@@ -95,7 +95,7 @@ export function safe(parameters: SafeParameters = {}) {
         // `getInfo` hangs when not used in Safe App iFrame
         // https://github.com/safe-global/safe-apps-sdk/issues/263#issuecomment-1029835840
         const safe = await withTimeout(() => sdk.safe.getInfo(), {
-          timeout: parameters.unstable_getInfoTimeout ?? 10,
+          timeout: parameters.unstable_getInfoTimeout ?? 200,
         })
         if (!safe) throw new Error('Could not load Safe information')
         // Unwrapping import for Vite compatibility.
