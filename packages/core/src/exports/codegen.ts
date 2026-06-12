@@ -6,12 +6,6 @@ export {
 } from '../actions/codegen/createSimulateContract.js'
 
 export {
-  type CreateReadContractParameters,
-  type CreateReadContractReturnType,
-  createReadContract,
-} from '../actions/codegen/createReadContract.js'
-
-export {
   type CreateWatchContractEventParameters,
   type CreateWatchContractEventReturnType,
   createWatchContractEvent,

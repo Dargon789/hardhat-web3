@@ -1,5 +1,3 @@
-import type { QueryOptions } from '@tanstack/query-core'
-
 import {
   type GetProofErrorType,
   type GetProofParameters,
@@ -11,28 +9,13 @@ import type { ScopeKeyParameter } from '../types/properties.js'
 import type { Compute, ExactPartial } from '../types/utils.js'
 import { filterQueryOptions } from './utils.js'
 
-export type GetProofOptions<config extends Config> = Compute<
-  ExactPartial<GetProofParameters<config>> & ScopeKeyParameter
->
+  >
 
-export function getProofQueryOptions<config extends Config>(
   config: config,
-  options: GetProofOptions<config> = {},
-) {
   return {
-    async queryFn({ queryKey }) {
-      const { address, scopeKey: _, storageKeys, ...parameters } = queryKey[1]
-      if (!address || !storageKeys)
         throw new Error('address and storageKeys are required')
-      return getProof(config, { ...parameters, address, storageKeys })
     },
     queryKey: getProofQueryKey(options),
-  } as const satisfies QueryOptions<
-    GetProofQueryFnData,
-    GetProofErrorType,
-    GetProofData,
-    GetProofQueryKey<config>
-  >
 }
 
 export type GetProofQueryFnData = GetProofReturnType
@@ -40,7 +23,6 @@ export type GetProofQueryFnData = GetProofReturnType
 export type GetProofData = GetProofQueryFnData
 
 export function getProofQueryKey<config extends Config>(
-  options: GetProofOptions<config>,
 ) {
   return ['getProof', filterQueryOptions(options)] as const
 }

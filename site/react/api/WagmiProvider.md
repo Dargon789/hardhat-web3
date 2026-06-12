@@ -13,11 +13,11 @@ import { WagmiProvider } from 'wagmi'
 ::: code-group
 ```tsx [app.tsx]
 import { WagmiProvider } from 'wagmi'
-import { config } from './config' 
+import { config } from './config'
 
 function App() {
   return (
-    <WagmiProvider config={config}> 
+    <WagmiProvider config={config}>
       {/** ... */}
     </WagmiProvider>
   )
@@ -39,7 +39,7 @@ import { type WagmiProviderProps } from 'wagmi'
 ::: code-group
 ```tsx [app.tsx]
 import { WagmiProvider } from 'wagmi'
-import { config } from './config' 
+import { config } from './config'
 
 function App() {
   return (
@@ -63,7 +63,7 @@ function App() {
 ::: code-group
 ```tsx [app.tsx]
 import { WagmiProvider } from 'wagmi'
-import { config } from './config' 
+import { config } from './config'
 
 function App() {
   return (
@@ -89,7 +89,7 @@ function App() {
 ::: code-group
 ```tsx [app.tsx]
 import { WagmiProvider } from 'wagmi'
-import { config } from './config' 
+import { config } from './config'
 
 function App() {
   return (

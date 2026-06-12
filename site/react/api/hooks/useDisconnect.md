@@ -30,10 +30,7 @@ import { useDisconnect } from 'wagmi'
 import { useDisconnect } from 'wagmi'
 
 function App() {
-  const { disconnect } = useDisconnect()
-
   return (
-    <button onClick={() => disconnect()}>
       Disconnect
     </button>
   )
@@ -76,7 +73,6 @@ function App() {
 import { type UseDisconnectReturnType } from 'wagmi'
 ```
 
-### connectors
 
 `readonly Connector[]`
 
@@ -84,16 +80,13 @@ Connectors that are currently connected. Useful for rendering a list of connecto
 
 ::: code-group
 ```tsx [index.tsx]
-import { useDisconnect } from 'wagmi'
 import { mainnet } from 'wagmi/chains'
 
 function App() {
-  const { connectors, disconnect } = useDisconnect()
 
   return (
     <div>
       {connectors.map((connector) => (
-        <button key={connector.id} onClick={() => disconnect({ connector })}>
           {connector.name}
         </button>
       ))}

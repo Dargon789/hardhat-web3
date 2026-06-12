@@ -13,7 +13,6 @@ Actions for accounts, wallets, contracts, transactions, signing, ENS, and more.
 ## Import
 
 ```ts
-import { getAccount } from '@wagmi/core'
 ```
 
 ## Available Actions

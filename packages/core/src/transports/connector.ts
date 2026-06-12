@@ -6,8 +6,6 @@ import {
   ProviderDisconnectedError,
   type TransportConfig,
   type WalletRpcSchema,
-  createTransport,
-  hexToNumber,
   withRetry,
   withTimeout,
 } from 'viem'

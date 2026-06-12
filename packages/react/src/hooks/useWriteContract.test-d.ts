@@ -1,4 +1,3 @@
-import { http, type WriteContractErrorType, createConfig } from '@wagmi/core'
 import { base } from '@wagmi/core/chains'
 import { abi } from '@wagmi/test'
 import type { Abi, Address, Hash } from 'viem'
@@ -10,13 +9,6 @@ import { useWriteContract } from './useWriteContract.js'
 const contextValue = { foo: 'bar' } as const
 
 test('context', () => {
-  const {
-    context,
-    data,
-    error,
-    writeContract: write,
-    variables,
-  } = useWriteContract({
     mutation: {
       onMutate(variables) {
         expectTypeOf(variables).toMatchTypeOf<{
@@ -64,14 +56,9 @@ test('context', () => {
     },
   })
 
-  expectTypeOf(data).toEqualTypeOf<Hash | undefined>()
-  expectTypeOf(error).toEqualTypeOf<WriteContractErrorType | null>()
-  expectTypeOf(variables).toMatchTypeOf<
     { chainId?: number | undefined } | undefined
   >()
-  expectTypeOf(context).toEqualTypeOf<typeof contextValue | undefined>()
 
-  write(
     {
       address: '0x',
       abi: abi.erc20,

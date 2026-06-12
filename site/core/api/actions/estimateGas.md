@@ -173,7 +173,6 @@ const result = await estimateGas(config, {
 
 `bigint | undefined`
 
-The price in wei to pay per gas. Only applies to [Legacy Transactions](https://viem.sh/docs/glossary/terms.html#legacy-transaction).
 
 ::: code-group
 ```ts [index.ts]
@@ -194,7 +193,6 @@ const result = await estimateGas(config, {
 
 `bigint | undefined`
 
-Total fee per gas in wei, inclusive of [`maxPriorityFeePerGas`](#maxPriorityFeePerGas). Only applies to [EIP-1559 Transactions](https://viem.sh/docs/glossary/terms.html#eip-1559-transaction).
 
 ::: code-group
 ```ts [index.ts]
@@ -215,7 +213,6 @@ const result = await estimateGas(config, {
 
 `bigint | undefined`
 
-Max priority fee per gas in wei. Only applies to [EIP-1559 Transactions](https://viem.sh/docs/glossary/terms.html#eip-1559-transaction).
 
 ::: code-group
 ```ts [index.ts]
@@ -310,7 +307,7 @@ import { parseEther } from 'viem'
 import { config } from './config'
 
 const result = await estimateGas(config, {
-  to: '0xd2135CfB216b74109775236E36d4b433F1DF507B', 
+  to: '0xd2135CfB216b74109775236E36d4b433F1DF507B',
   value: parseEther('0.01'), // [!code focus]
 })
 ```
@@ -337,4 +334,3 @@ import { type EstimateGasErrorType } from '@wagmi/core'
 
 ## Viem
 
-- [`estimateGas`](https://viem.sh/docs/actions/public/estimateGas.html)

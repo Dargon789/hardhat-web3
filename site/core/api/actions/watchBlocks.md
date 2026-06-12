@@ -155,9 +155,9 @@ import { watchBlocks } from '@wagmi/core'
 import { config } from './config'
 
 const unwatch = watchBlocks(config, {
-  onBlock(block) { 
-    console.log('Block changed!', block) 
-  }, 
+  onBlock(block) {
+    console.log('Block changed!', block)
+  },
   onError(error) { // [!code focus]
     console.error('Block error', error) // [!code focus]
   }, // [!code focus]
@@ -246,4 +246,3 @@ Function for cleaning up watcher.
 
 ## Viem
 
-- [`watchBlocks`](https://viem.sh/docs/actions/public/watchBlocks.html)

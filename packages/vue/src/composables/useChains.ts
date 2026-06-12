@@ -2,11 +2,9 @@ import {
   type Config,
   type GetChainsReturnType,
   type ResolvedRegister,
-  getChains,
 } from '@wagmi/core'
 import { watchChains } from '@wagmi/core/internal'
 
-import { type Ref, onScopeDispose, readonly, ref } from 'vue'
 import type { ConfigParameter } from '../types/properties.js'
 import { useConfig } from './useConfig.js'
 

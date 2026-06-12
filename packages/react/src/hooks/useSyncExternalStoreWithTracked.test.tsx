@@ -1,8 +1,5 @@
-import { fireEvent, screen } from '@testing-library/react'
-import { act, cleanup, render, renderHook } from '@wagmi/test/react'
 import React from 'react'
 import * as ReactDOM from 'react-dom'
-import { afterEach, expect, test } from 'vitest'
 
 import { useSyncExternalStoreWithTracked } from './useSyncExternalStoreWithTracked.js'
 
@@ -41,10 +38,6 @@ function useExternalStore(
   return state as any
 }
 
-afterEach(() => {
-  cleanup()
-})
-
 test('rerenders only when the tracked value changes', async () => {
   const externalStore = createExternalStore({
     foo: 'bar',
@@ -54,11 +47,9 @@ test('rerenders only when the tracked value changes', async () => {
 
   const renders: any[] = []
 
-  renderHook(() => {
     const { gm } = useExternalStore(externalStore, (state) => {
       renders.push(state)
     })
-
     return gm
   })
 
@@ -105,7 +96,6 @@ test('rerenders when all values are being tracked', async () => {
 
   const renders: any[] = []
 
-  renderHook(() => {
     const { foo, gm, isGonnaMakeIt } = useExternalStore(
       externalStore,
       (state) => {
@@ -149,7 +139,6 @@ test('rerenders when no values are being tracked', async () => {
 
   const renders: any[] = []
 
-  renderHook(() => {
     useExternalStore(externalStore, (state) => {
       renders.push(state)
     })
@@ -204,21 +193,15 @@ test('store object reference is stable across rerenders', async () => {
     )
   }
 
-  render(<Test />)
 
-  const forceRerenderBtn = screen.getByRole('button')
   expect(childRenderCount).toBe(1)
   expect(renders.length).toBe(1)
 
   // updating parent state, child should not rerender
-  fireEvent.click(forceRerenderBtn)
   expect(childRenderCount).toBe(1)
   expect(renders.length).toBe(2)
 
   // child and parent both rerender when store changes
-  act(() => {
-    externalStore.set((x) => ({ ...x, isGonnaMakeIt: true }))
-  })
   expect(childRenderCount).toBe(2)
   expect(renders.length).toBe(3)
 })
@@ -228,7 +211,6 @@ test('array', async () => {
 
   const renders: any[] = []
 
-  renderHook(() => {
     const array = useExternalStore(externalStore, (state) => {
       renders.push(state)
     })
