@@ -57,9 +57,6 @@ export function useSponsors() {
           img: 'linea-light.svg',
         },
         {
-          name: 'Routescan',
-          url: 'https://routescan.io',
-          img: 'routescan-light.svg',
         },
       ],
       silver: [

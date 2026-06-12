@@ -16,17 +16,13 @@ export function deepEqual(a: any, b: any) {
       return true
     }
 
-    if (a.valueOf !== Object.prototype.valueOf)
       return a.valueOf() === b.valueOf()
-    if (a.toString !== Object.prototype.toString)
       return a.toString() === b.toString()
 
     const keys = Object.keys(a)
     length = keys.length
     if (length !== Object.keys(b).length) return false
 
-    for (i = length; i-- !== 0; )
-      if (!Object.prototype.hasOwnProperty.call(b, keys[i]!)) return false
 
     for (i = length; i-- !== 0; ) {
       const key = keys[i]
@@ -38,6 +34,5 @@ export function deepEqual(a: any, b: any) {
   }
 
   // true if both NaN, false otherwise
-  // biome-ignore lint/suspicious/noSelfCompare: <explanation>
   return a !== a && b !== b
 }

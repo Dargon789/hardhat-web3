@@ -6,7 +6,6 @@ const typeName = 'getTransactionReceipt'
 
 # getTransactionReceipt
 
-Action for return the [Transaction Receipt](https://viem.sh/docs/glossary/terms.html#transaction-receipt) given a [Transaction](https://viem.sh/docs/glossary/terms.html#transaction) hash.
 
 ## Import
 
@@ -78,7 +77,6 @@ await getTransactionReceipt(config, {
 import { type GetTransactionReceiptReturnType } from '@wagmi/core'
 ```
 
-[`TransactionReceipt`](https://viem.sh/docs/glossary/types.html#transactionreceipt)
 
 The transaction receipt.
 
@@ -92,4 +90,3 @@ import { type GetTransactionReceiptErrorType } from '@wagmi/core'
 
 ## Viem
 
-- [`getTransactionReceipt`](https://viem.sh/docs/actions/public/getTransactionReceipt.html)

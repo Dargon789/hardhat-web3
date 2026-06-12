@@ -13,7 +13,6 @@ const TError = 'GetStorageAtErrorType'
 
 # useStorageAt
 
-Hook for for returning the value from a storage slot at a given address.
 
 ## Import
 

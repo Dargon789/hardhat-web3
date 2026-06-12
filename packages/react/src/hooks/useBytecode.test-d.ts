@@ -1,6 +1,4 @@
 import { expectTypeOf, test } from 'vitest'
-
-import type { Hex } from 'viem'
 import { useBytecode } from './useBytecode.js'
 
 test('select data', () => {

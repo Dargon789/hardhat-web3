@@ -211,9 +211,9 @@ import { config } from './config'
 
 const unwatch = watchContractEvent(config, {
   abi,
-  onLogs(logs) { 
-    console.log('Logs changed!', logs) 
-  }, 
+  onLogs(logs) {
+    console.log('Logs changed!', logs)
+  },
   onError(error) { // [!code focus]
     console.error('Logs error', error) // [!code focus]
   }, // [!code focus]
@@ -373,4 +373,3 @@ import { type WatchContractEventError } from '@wagmi/core'
 
 ## Viem
 
-- [`watchContractEvent`](https://viem.sh/docs/contract/watchContractEvent.html)
