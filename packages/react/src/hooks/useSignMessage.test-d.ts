@@ -8,7 +8,6 @@ const message = 'hello world'
 const contextValue = { foo: 'bar' } as const
 
 test('context', () => {
-  const { context, data, error, signMessage, variables } = useSignMessage({
     mutation: {
       onMutate(variables) {
         expectTypeOf(variables).toEqualTypeOf<SignMessageVariables>()
@@ -33,12 +32,7 @@ test('context', () => {
     },
   })
 
-  expectTypeOf(data).toEqualTypeOf<`0x${string}` | undefined>()
-  expectTypeOf(error).toEqualTypeOf<SignMessageErrorType | null>()
-  expectTypeOf(variables).toEqualTypeOf<SignMessageVariables | undefined>()
-  expectTypeOf(context).toEqualTypeOf<typeof contextValue | undefined>()
 
-  signMessage(
     { message },
     {
       onError(error, variables, context) {

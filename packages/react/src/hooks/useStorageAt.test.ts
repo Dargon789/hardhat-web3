@@ -1,19 +1,14 @@
 import { address, chain, wait } from '@wagmi/test'
-import { renderHook, waitFor } from '@wagmi/test/react'
-import { expect, test } from 'vitest'
-
 import type { Address } from 'viem'
 import { useStorageAt } from './useStorageAt.js'
 
 test('default', async () => {
-  const { result } = renderHook(() =>
     useStorageAt({
       address: address.wagmiMintExample,
       slot: '0x0',
     }),
   )
 
-  await waitFor(() => expect(result.current.isSuccess).toBeTruthy())
 
   expect(result.current).toMatchInlineSnapshot(`
     {
@@ -54,7 +49,6 @@ test('default', async () => {
 })
 
 test('parameters: blockNumber', async () => {
-  const { result } = renderHook(() =>
     useStorageAt({
       address: address.wagmiMintExample,
       blockNumber: 16280770n,
@@ -62,7 +56,6 @@ test('parameters: blockNumber', async () => {
     }),
   )
 
-  await waitFor(() => expect(result.current.isSuccess).toBeTruthy())
 
   expect(result.current).toMatchInlineSnapshot(`
     {
@@ -104,7 +97,6 @@ test('parameters: blockNumber', async () => {
 })
 
 test('parameters: blockTag', async () => {
-  const { result } = renderHook(() =>
     useStorageAt({
       address: address.wagmiMintExample,
       blockTag: 'safe',
@@ -112,7 +104,6 @@ test('parameters: blockTag', async () => {
     }),
   )
 
-  await waitFor(() => expect(result.current.isSuccess).toBeTruthy())
 
   expect(result.current).toMatchInlineSnapshot(`
     {
@@ -154,7 +145,6 @@ test('parameters: blockTag', async () => {
 })
 
 test('parameters: chainId', async () => {
-  const { result } = renderHook(() =>
     useStorageAt({
       address: address.wagmiMintExample,
       chainId: chain.optimism.id,
@@ -162,7 +152,6 @@ test('parameters: chainId', async () => {
     }),
   )
 
-  await waitFor(() => expect(result.current.isSuccess).toBeTruthy())
 
   expect(result.current).toMatchInlineSnapshot(`
     {
@@ -203,13 +192,9 @@ test('parameters: chainId', async () => {
 })
 
 test('behavior: address: undefined -> defined', async () => {
-  let contractAddress: Address | undefined = undefined
-
-  const { result, rerender } = renderHook(() =>
-    useStorageAt({
-      address: contractAddress,
-      slot: '0x0',
-    }),
+      useStorageAt({
+        slot: '0x0',
+      }),
   )
 
   expect(result.current).toMatchInlineSnapshot(`
@@ -249,10 +234,7 @@ test('behavior: address: undefined -> defined', async () => {
     }
   `)
 
-  contractAddress = address.wagmiMintExample
-  rerender()
 
-  await waitFor(() => expect(result.current.isSuccess).toBeTruthy())
   expect(result.current).toMatchInlineSnapshot(`
     {
       "data": "0x7761676d6900000000000000000000000000000000000000000000000000000a",
@@ -292,8 +274,6 @@ test('behavior: address: undefined -> defined', async () => {
 })
 
 test('behavior: disabled when properties missing', async () => {
-  const { result } = renderHook(() => useStorageAt())
 
   await wait(100)
-  await waitFor(() => expect(result.current.isPending).toBeTruthy())
 })

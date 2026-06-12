@@ -10,7 +10,7 @@ Action that requests for the wallet to sign and broadcast a batch of write contr
 
 [Read more.](https://github.com/ethereum/EIPs/blob/815028dc634463e1716fc5ce44c019a6040f0bef/EIPS/eip-5792.md#wallet_sendcalls)
 
- 
+
 
 ## Import
 
@@ -38,7 +38,7 @@ const id = await writeContracts(config, {
       abi,
       functionName: 'approve',
       args: [
-        '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC', 
+        '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
         100n
       ],
     },
@@ -89,7 +89,7 @@ const id = await writeContracts(config, {
       abi,
       functionName: 'approve',
       args: [
-        '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC', 
+        '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
         100n
       ],
     },
@@ -177,7 +177,7 @@ const id = await writeContracts(config, {
       abi,
       functionName: 'approve',
       args: [
-        '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC', 
+        '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
         100n
       ],
     },
@@ -226,7 +226,7 @@ const id = await writeContracts(config, {
       abi,
       functionName: 'approve',
       args: [
-        '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC', 
+        '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
         100n
       ],
     },
@@ -273,7 +273,7 @@ const id = await writeContracts(config, {
       abi,
       functionName: 'approve',
       args: [
-        '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC', 
+        '0xa5cc3c03994DB5b0d9A5eEdD10CabaB0813678AC',
         100n
       ],
     },
@@ -300,9 +300,7 @@ const id = await writeContracts(config, {
 import { type WriteContractsReturnType } from '@wagmi/core/experimental'
 ```
 
-`bigint`
 
-Most recent block number seen.
 
 ## Error
 

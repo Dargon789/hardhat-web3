@@ -136,4 +136,3 @@ import { type GetTransactionCountErrorType } from '@wagmi/core'
 
 ## Viem
 
-- [`getTransactionCount`](https://viem.sh/docs/actions/public/getTransactionCount.html)

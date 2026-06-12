@@ -21,7 +21,6 @@ export function hashFn(queryKey: QueryKey): string {
   })
 }
 
-// biome-ignore lint/complexity/noBannedTypes:
 function isPlainObject(value: any): value is Object {
   if (!hasObjectPrototype(value)) {
     return false
@@ -36,7 +35,6 @@ function isPlainObject(value: any): value is Object {
   if (!hasObjectPrototype(prot)) return false
 
   // If constructor does not have an Object-specific method
-  // biome-ignore lint/suspicious/noPrototypeBuiltins: <explanation>
   if (!prot.hasOwnProperty('isPrototypeOf')) return false
 
   // Most likely a plain Object
@@ -47,9 +45,7 @@ function hasObjectPrototype(o: any): boolean {
   return Object.prototype.toString.call(o) === '[object Object]'
 }
 
-export function filterQueryOptions<type extends Record<string, unknown>>(
   options: type,
-): type {
   // destructuring is super fast
   // biome-ignore format: no formatting
   const {
@@ -65,9 +61,6 @@ export function filterQueryOptions<type extends Record<string, unknown>>(
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // wagmi
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    config, connector, query,
     ...rest
   } = options
-
-  return rest as type
 }

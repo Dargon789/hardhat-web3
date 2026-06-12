@@ -9,12 +9,6 @@ import {
   type WalletCallReceipt,
   type WalletGetCallsStatusReturnType,
   type WalletRpcSchema,
-  custom,
-  fromHex,
-  getAddress,
-  keccak256,
-  numberToHex,
-  stringToHex,
 } from 'viem'
 import { rpc } from 'viem/utils'
 
@@ -50,12 +44,10 @@ export function mock(parameters: MockParameters) {
     Transport<'custom', unknown, EIP1193RequestFn<WalletRpcSchema>>
   >
   type Properties = {
-    connect(parameters?: {
       chainId?: number | undefined
       isReconnecting?: boolean | undefined
       foo?: string | undefined
     }): Promise<{
-      accounts: readonly Address[]
       chainId: number
     }>
   }
@@ -69,7 +61,6 @@ export function mock(parameters: MockParameters) {
     async setup() {
       connectedChainId = config.chains[0].id
     },
-    async connect({ chainId } = {}) {
       if (features.connectError) {
         if (typeof features.connectError === 'boolean')
           throw new UserRejectedRequestError(new Error('Failed to connect.'))
@@ -90,7 +81,6 @@ export function mock(parameters: MockParameters) {
       connected = true
 
       return {
-        accounts: accounts.map((x) => getAddress(x)),
         chainId: currentChainId,
       }
     },
@@ -190,7 +180,6 @@ export function mock(parameters: MockParameters) {
               paymasterService: {
                 supported:
                   (params as [Hex])[0] ===
-                  '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
               },
               sessionKeys: {
                 supported: true,
@@ -200,7 +189,6 @@ export function mock(parameters: MockParameters) {
               paymasterService: {
                 supported:
                   (params as [Hex])[0] ===
-                  '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
               },
             },
           }
@@ -212,7 +200,6 @@ export function mock(parameters: MockParameters) {
             const { result, error } = await rpc.http(url, {
               body: {
                 method: 'eth_sendTransaction',
-                params: [call],
               },
             })
             if (error)

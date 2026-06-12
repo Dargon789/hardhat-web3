@@ -40,8 +40,6 @@ export type ConnectParameters<
 > &
   parameters
 
-export type ConnectReturnType<config extends Config = Config> = {
-  accounts: readonly [Address, ...Address[]]
   chainId:
     | config['chains'][number]['id']
     | (number extends config['chains'][number]['id'] ? number : number & {})
@@ -62,8 +60,6 @@ export async function connect<
   connector extends Connector | CreateConnectorFn,
 >(
   config: config,
-  parameters: ConnectParameters<config, connector>,
-): Promise<ConnectReturnType<config>> {
   // "Register" connector if not already created
   let connector: Connector
   if (typeof parameters.connector === 'function') {
@@ -80,7 +76,6 @@ export async function connect<
 
     const { connector: _, ...rest } = parameters
     const data = await connector.connect(rest)
-    const accounts = data.accounts as readonly [Address, ...Address[]]
 
     connector.emitter.off('connect', config._internal.events.connect)
     connector.emitter.on('change', config._internal.events.change)
@@ -90,7 +85,6 @@ export async function connect<
     config.setState((x) => ({
       ...x,
       connections: new Map(x.connections).set(connector.uid, {
-        accounts,
         chainId: data.chainId,
         connector: connector,
       }),
@@ -98,7 +92,6 @@ export async function connect<
       status: 'connected',
     }))
 
-    return { accounts, chainId: data.chainId }
   } catch (error) {
     config.setState((x) => ({
       ...x,

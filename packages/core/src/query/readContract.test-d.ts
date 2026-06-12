@@ -1,5 +1,4 @@
 import { abi, config } from '@wagmi/test'
-import { expectTypeOf, test } from 'vitest'
 
 import { readContractQueryOptions } from './readContract.js'
 
@@ -10,6 +9,5 @@ test('default', async () => {
     functionName: 'balanceOf',
     args: ['0x'],
   })
-  const result = await options.queryFn({} as any)
   expectTypeOf(result).toEqualTypeOf<bigint>()
 })

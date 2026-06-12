@@ -7,13 +7,9 @@ import type { Compute } from '@wagmi/core/internal'
 import {
   type WaitForTransactionReceiptData,
   type WaitForTransactionReceiptOptions,
-  type WaitForTransactionReceiptQueryFnData,
-  type WaitForTransactionReceiptQueryKey,
   waitForTransactionReceiptQueryOptions,
 } from '@wagmi/core/query'
 import { computed } from 'vue'
-
-import type { ConfigParameter, QueryParameter } from '../types/properties.js'
 import type { DeepMaybeRef } from '../types/ref.js'
 import { deepUnref } from '../utils/cloneDeep.js'
 import { type UseQueryReturnType, useQuery } from '../utils/query.js'
@@ -27,14 +23,6 @@ export type UseWaitForTransactionReceiptParameters<
   selectData = WaitForTransactionReceiptData<config, chainId>,
 > = Compute<
   DeepMaybeRef<
-    WaitForTransactionReceiptOptions<config, chainId> &
-      ConfigParameter<config> &
-      QueryParameter<
-        WaitForTransactionReceiptQueryFnData<config, chainId>,
-        WaitForTransactionReceiptErrorType,
-        selectData,
-        WaitForTransactionReceiptQueryKey<config, chainId>
-      >
   >
 >
 
@@ -52,33 +40,9 @@ export function useWaitForTransactionReceipt<
     config['chains'][number]['id'] = config['chains'][number]['id'],
   selectData = WaitForTransactionReceiptData<config, chainId>,
 >(
-  parameters_: UseWaitForTransactionReceiptParameters<
     config,
     chainId,
     selectData
   > = {},
 ): UseWaitForTransactionReceiptReturnType<config, chainId, selectData> {
-  const parameters = computed(() => deepUnref(parameters_))
-  const config = useConfig(parameters_)
-  const configChainId = useChainId()
-
-  const queryOptions = computed(() => {
-    const { chainId = configChainId.value, hash, query = {} } = parameters.value
-
-    const options = waitForTransactionReceiptQueryOptions(config, {
-      ...parameters.value,
-      chainId,
-    })
-    const enabled = Boolean(hash && (query.enabled ?? true))
-
-    return {
-      ...query,
-      ...options,
-      enabled,
-    }
-  })
-
-  return useQuery(
-    queryOptions as any,
-  ) as UseWaitForTransactionReceiptReturnType<config, chainId, selectData>
 }

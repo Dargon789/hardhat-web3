@@ -1,6 +1,7 @@
 <!-- <script setup>
 const packageName = 'wagmi'
 const connectorsPackageName = 'wagmi/connectors'
+const connectorDependencyVersion = 'x.y.z'
 </script> -->
 
 # walletConnect
@@ -12,6 +13,28 @@ Connector for [WalletConnect](https://walletconnect.com).
 ```ts-vue
 import { walletConnect } from '{{connectorsPackageName}}'
 ```
+
+## Install
+
+<PackageMetadata package="@walletconnect/ethereum-provider" repo="WalletConnect/walletconnect-monorepo" licenseUrl="https://github.com/WalletConnect/walletconnect-monorepo/blob/v2.0/providers/ethereum-provider/LICENSE.md" />
+
+::: code-group
+```bash-vue [pnpm]
+pnpm add @walletconnect/ethereum-provider@{{connectorDependencyVersion}}
+```
+
+```bash-vue [npm]
+npm install @walletconnect/ethereum-provider@{{connectorDependencyVersion}}
+```
+
+```bash-vue [yarn]
+yarn add @walletconnect/ethereum-provider@{{connectorDependencyVersion}}
+```
+
+```bash-vue [bun]
+bun add @walletconnect/ethereum-provider@{{connectorDependencyVersion}}
+```
+:::
 
 ## Usage
 
