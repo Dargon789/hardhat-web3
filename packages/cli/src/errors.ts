@@ -34,7 +34,6 @@ export function fromZodError(
   }
 
   const reason = zError.issues
-
     // limit max number of issues printed in the reason section
     .slice(0, maxIssuesInMessage)
     // format error message
