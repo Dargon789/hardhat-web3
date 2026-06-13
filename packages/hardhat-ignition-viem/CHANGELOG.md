@@ -1,4 +1,3 @@
-<<<<<<< Updated upstream
 # @nomicfoundation/edr
 
 ## 0.3.4
@@ -44,7 +43,7 @@
 - 5fe1728: Fixed a bug in `hardhat_setStorageAt` that occured when the storage of a remote contract was modified during forking (#4970)
 - 0ec305f: Fixed a bug in `hardhat_dropTransaction` where empty queues persisted and caused panics
 - a5071e5: Fixed a bug in `eth_estimateGas` where a call would fail because the nonce was being checked
-=======
+
 # Changelog
 
 ## 0.15.11
@@ -207,4 +206,3 @@
 
 - Add `@nomicfoundation/hardhat-plugin-viem` package, that adds an `ignition` object to the Hardhat Runtime Environment that supports deploying Ignition modules and returning deployed contracts as [Viem](https://viem.sh/) contract instances, see the our [Viem guide](https://hardhat.org/ignition/docs/guides/viem) for more details ([#612](https://github.com/NomicFoundation/hardhat-ignition/pull/612))
 - Add support for setting the default sender account from tests and scripts ([#639](https://github.com/NomicFoundation/hardhat-ignition/issues/639))
->>>>>>> Stashed changes
