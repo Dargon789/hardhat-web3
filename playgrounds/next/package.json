@@ -6,9 +6,9 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@vercel/analytics": "^1.4.1",
     "viem": "2.*",
     "wagmi": "workspace:*"
   },
-  "devDependencies": {
-  }
+  "devDependencies": {}
 }
