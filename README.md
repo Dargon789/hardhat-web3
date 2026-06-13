@@ -31,7 +31,7 @@ On [Hardhat's website](https://hardhat.org) you will find:
 
 ## Contributing
 
-Contributions are always welcome! Feel free to open any issue or send a pull request.
+Contributions are always welcome! Feel free to open an issue or send a pull request.
 
 Go to [CONTRIBUTING.md](./CONTRIBUTING.md) to learn about how to set up Hardhat's development environment.
 
