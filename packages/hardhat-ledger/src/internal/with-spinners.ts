@@ -1,11 +1,7 @@
 import ora from "ora";
 import EventEmitter from "events";
 
-export type OutputControlledEmitter = EventEmitter & {
-  isOutputEnabled: boolean;
-};
-
-export function withSpinners<T extends OutputControlledEmitter>(emitter: T): T {
+export function withSpinners<T extends EventEmitter>(emitter: T): T {
   attachSpinner(emitter, {
     startText: "[hardhat-ledger] Connecting wallet",
     eventPrefix: "connection",
@@ -20,34 +16,28 @@ export function withSpinners<T extends OutputControlledEmitter>(emitter: T): T {
     startText: "[hardhat-ledger] Finding derivation path",
     eventPrefix: "derivation",
   });
-  emitter.on("derivation_progress", (path: string, index: number) =>
-    emitter.isOutputEnabled
-      ? (derivationSpinner.text = `[hardhat-ledger] Deriving address #${index} (path "${path}")`)
-      : undefined
+  emitter.on(
+    "derivation_progress",
+    (path: string, index: number) =>
+      (derivationSpinner.text = `[hardhat-ledger] Deriving address #${index} (path "${path}")`)
   );
 
   return emitter;
 }
 
 function attachSpinner(
-  emitter: OutputControlledEmitter,
+  emmiter: EventEmitter,
   spinnerOptions: {
     startText: string;
     eventPrefix: string;
   }
 ): ora.Ora {
   const { startText, eventPrefix } = spinnerOptions;
-  const spinner = ora({ text: startText, discardStdin: false });
+  const spinner = ora(startText);
 
-  emitter.on(`${eventPrefix}_start`, () =>
-    emitter.isOutputEnabled ? spinner.start() : undefined
-  );
-  emitter.on(`${eventPrefix}_success`, () =>
-    emitter.isOutputEnabled ? spinner.succeed() : undefined
-  );
-  emitter.on(`${eventPrefix}_failure`, () =>
-    emitter.isOutputEnabled ? spinner.fail() : undefined
-  );
+  emmiter.on(`${eventPrefix}_start`, () => spinner.start());
+  emmiter.on(`${eventPrefix}_success`, () => spinner.succeed());
+  emmiter.on(`${eventPrefix}_failure`, () => spinner.fail());
 
   return spinner;
 }

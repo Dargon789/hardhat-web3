@@ -12,7 +12,7 @@ module.exports = {
   plugins: [
     "@nomicfoundation/hardhat-internal-rules",
     "import",
-    "mocha",
+    "no-only-tests",
     "@typescript-eslint",
     "@nomicfoundation/slow-imports",
   ],
@@ -206,6 +206,7 @@ module.exports = {
     "no-extra-bind": "error",
     "no-new-func": "error",
     "no-new-wrappers": "error",
+    "no-only-tests/no-only-tests": "error",
     "no-return-await": "off",
     "@typescript-eslint/return-await": "error",
     "no-sequences": "error",
@@ -237,7 +238,6 @@ module.exports = {
         patterns: ["hardhat/src", "@nomiclabs/*/src"],
       },
     ],
-    "mocha/no-exclusive-tests": "error",
-    "mocha/no-async-describe": "error",
   },
 };
+

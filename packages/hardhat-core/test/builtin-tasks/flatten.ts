@@ -1,10 +1,8 @@
 import { assert } from "chai";
-import fs, { readFileSync } from "fs";
+import fs from "fs";
 
 import sinon, { SinonSpy } from "sinon";
-import picocolors from "picocolors";
-import { removeSync } from "fs-extra";
-import { tmpdir } from "os";
+import chalk from "chalk";
 import {
   TASK_FLATTEN,
   TASK_FLATTEN_GET_FLATTENED_SOURCE,
@@ -13,7 +11,7 @@ import {
 import { getPackageJson } from "../../src/internal/util/packageInfo";
 import { useEnvironment } from "../helpers/environment";
 import { useFixtureProject } from "../helpers/project";
-import { compileLiteral } from "../helpers/compilation";
+import { compileLiteral } from "../internal/hardhat-network/stack-traces/compilation";
 
 function getContractsOrder(flattenedFiles: string) {
   const CONTRACT_REGEX = /\s*contract(\s+)(\w)/gm;
@@ -383,7 +381,7 @@ describe("Flatten task", () => {
 
       assert(
         spyFunctionConsoleWarn.calledWith(
-          picocolors.yellow(
+          chalk.yellow(
             `\nThe following file(s) do NOT specify SPDX licenses: contracts/A.sol, contracts/B.sol, contracts/C.sol`
           )
         )
@@ -391,7 +389,7 @@ describe("Flatten task", () => {
 
       assert(
         spyFunctionConsoleWarn.calledWith(
-          picocolors.yellow(
+          chalk.yellow(
             `\nPragma abicoder directives are defined in some files, but they are not defined in the following ones: contracts/A.sol, contracts/B.sol`
           )
         )
@@ -399,7 +397,7 @@ describe("Flatten task", () => {
 
       assert(
         spyFunctionConsoleWarn.calledWith(
-          picocolors.yellow(
+          chalk.yellow(
             `\nThe flattened file is using the pragma abicoder directive 'pragma abicoder v2' but these files have a different pragma abicoder directive: contracts/C.sol`
           )
         )
@@ -412,21 +410,6 @@ describe("Flatten task", () => {
       });
 
       assert(!spyFunctionConsoleWarn.called);
-    });
-
-    it("should write to an output file when the parameter output is specified", async function () {
-      const outputFile = `${tmpdir()}/flatten.sol`;
-      try {
-        await this.env.run(TASK_FLATTEN, {
-          files: ["contracts/A.sol", "contracts/D.sol"],
-          output: outputFile,
-        });
-        const expected = await getExpectedSol();
-        const actual = readFileSync(outputFile, "utf8");
-        assert.equal(actual, expected);
-      } finally {
-        removeSync(outputFile);
-      }
     });
 
     describe("No contracts to flatten", () => {

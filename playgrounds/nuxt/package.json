@@ -1,0 +1,17 @@
+{
+  "name": "nuxt-app",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "_postinstall": "nuxt prepare"
+  },
+  "dependencies": {
+    "@wagmi/vue": "workspace:*",
+    "viem": "2.*",
+    "vue-router": "^4.3.2"
+  }
+}
