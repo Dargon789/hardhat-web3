@@ -18,6 +18,9 @@ on:
       - "config/**"
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 defaults:
   run:
     working-directory: packages/hardhat-core
@@ -31,13 +34,13 @@ jobs:
     name: Test hardhat-core on Windows with Node 16
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: pnpm/action-setup@v2
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v3
         with:
-          version: 8
+          version: 9
       - uses: actions/setup-node@v2
         with:
-          node-version: 16
+          node-version: 18
           cache: "pnpm"
       - name: Install
         run: pnpm install --frozen-lockfile --prefer-offline
@@ -55,7 +58,7 @@ jobs:
     # disable until actions/virtual-environments#4896 is fixed
     if: ${{ false }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v2
         with:
           version: 8
@@ -80,7 +83,7 @@ jobs:
       matrix:
         node: [16, 18, 20]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v2
         with:
           version: 8
@@ -105,7 +108,7 @@ jobs:
       matrix:
         node: [16, 18, 20]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v2
         with:
           version: 8
