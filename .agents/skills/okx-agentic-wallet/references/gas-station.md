@@ -2,7 +2,7 @@
 
 Gas Station enables paying gas fees with stablecoins (USDT/USDC/USDG) when the user lacks native tokens. It uses EIP-7702 to upgrade the wallet and a third-party Relayer to pay gas on behalf of the user.
 
-**Supported chains (12 EVM chains)**: Ethereum, BNB Smart Chain (BSC), Base, Polygon, Arbitrum One, Optimism, Linea, Monad, Scroll, Sonic, Conflux eSpace, X Layer.
+**Supported chains (11 EVM chains)**: Ethereum, BNB Smart Chain (BSC), Base, Polygon, Arbitrum One, Optimism, Linea, Monad, Scroll, Sonic, Conflux eSpace.
 
 Gas Station is **EVM-only**. Non-EVM chains (Solana, Sui, Bitcoin, Ton, Tron, …) are **not supported** — never list them as supported even if the user mentions them.
 
