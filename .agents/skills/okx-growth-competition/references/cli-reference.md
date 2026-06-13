@@ -186,7 +186,7 @@ Register for a competition. **Requires wallet login.**
 ```
 onchainos competition join --activity-id <id> --evm-wallet <evm_addr> --sol-wallet <sol_addr>
 ```
-
+onchainos competition join --activity-id <id> --evm-wallet <evm_addr> --sol-wallet <sol_addr> --chain-index <chain_id>
 **API**: `POST /priapi/v5/wallet/agentic/competition/join`
 
 **Extra header**: `OK-ACCESS-PROJECT: 4d156bf0c61130f2692d097ecb68dbe4`
