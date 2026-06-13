@@ -1,0 +1,14 @@
+{
+  "name": "next-app",
+  "private": true,
+  "scripts": {
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "viem": "2.*",
+    "wagmi": "workspace:*"
+  },
+  "devDependencies": {
+  }
+}
