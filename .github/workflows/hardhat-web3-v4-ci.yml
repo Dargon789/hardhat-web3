@@ -5,6 +5,9 @@ permissions:
 permissions:
   contents: read
 
+permissions:
+  contents: read
+
 on:
   push:
     branches: [$default-branch]
@@ -38,7 +41,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v2
         with:
           version: 8
@@ -61,7 +64,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v2
         with:
           version: 8
@@ -85,7 +88,7 @@ jobs:
       matrix:
         node: [16, 18, 20]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v2
         with:
           version: 8

@@ -124,24 +124,34 @@ export class WindowMessageHandler extends BaseWalletTransport {
     const payload = JSON.stringify(message, bigintReplacer)
 
     // post-message to app.
+<<<<<<< HEAD
     // only for init requests, we send to '*' origin
     if (message.type === EventType.INIT) {
       this.postMessage(payload, true)
     } else {
       this.postMessage(payload)
     }
+=======
+    this.postMessage(payload)
+>>>>>>> main
   }
 
   get isPopup(): boolean {
     return this._isPopup
   }
 
+<<<<<<< HEAD
   private postMessage(message: any, init = false) {
     if (init !== true && this._init !== InitState.OK) {
+=======
+  private postMessage(message: any) {
+    if (this._init !== InitState.OK) {
+>>>>>>> main
       logger.error('impossible state, should not be calling postMessage until inited')
       return
     }
 
+<<<<<<< HEAD
     if (init) {
       // init message transmission prefers a specific origin when possible
       let targetOrigin: string | undefined
@@ -166,6 +176,14 @@ export class WindowMessageHandler extends BaseWalletTransport {
       } else {
         logger.error('unable to postMessage as parentOrigin is invalid')
       }
+=======
+    // all message transmission must use a specific, validated origin
+    if (this.appOrigin && this.appOrigin.length > 4) {
+      // just above '.com'
+      this.parentWindow.postMessage(message, this.appOrigin)
+    } else {
+      logger.error('unable to postMessage as parentOrigin is invalid')
+>>>>>>> main
     }
   }
 

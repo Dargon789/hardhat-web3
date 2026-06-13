@@ -76,6 +76,33 @@ jobs:
           mkdir -p "$ARTIFACT_DIR"
           ls -la "$ARTIFACT_DIR" || true
 
+      - name: Normalize Run ID
+        id: run-id
+        run: |
+          set -euo pipefail
+
+          # Prefer the workflow_run id when present; otherwise fall back to the manual input.
+          RAW_RUN_ID="${{ github.event.workflow_run.id || inputs.run_id }}"
+
+          if [[ -z "${RAW_RUN_ID:-}" ]]; then
+            echo "RAW_RUN_ID is empty; refusing to use it as a run-id for artifact download." >&2
+            exit 1
+          fi
+
+          # Disallow any whitespace.
+          if [[ "$RAW_RUN_ID" =~ [[:space:]] ]]; then
+            echo "RAW_RUN_ID contains whitespace; refusing to use it as a run-id." >&2
+            exit 1
+          fi
+
+          # Only allow a strictly numeric run ID.
+          if ! [[ "$RAW_RUN_ID" =~ ^[0-9]+$ ]]; then
+            echo "RAW_RUN_ID '$RAW_RUN_ID' is not a valid numeric run-id." >&2
+            exit 1
+          fi
+
+          printf 'normalized_run_id=%s\n' "$RAW_RUN_ID" >>"$GITHUB_OUTPUT"
+
       - name: Download Release Assets
         uses: actions/download-artifact@v5
         with:
@@ -85,7 +112,7 @@ jobs:
           # Extract artifacts into an isolated temp directory, not the workspace
           path: ${{ steps.paths.outputs.artifact_dir }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          run-id: ${{ github.event.workflow_run.id || inputs.run_id }}
+          run-id: ${{ steps.run-id.outputs.normalized_run_id }}
 
       - name: Validate Downloaded Artifacts
         env:
@@ -159,19 +186,19 @@ jobs:
           node-version: "24"
           registry-url: "https://registry.npmjs.org"
 
-      - name: Ensure npm workspace is unmodified
+      - name: Ensure npm workspace is unmodified and clean
         run: |
           set -euo pipefail
           # Fail if package.json or bun.lockb are different from committed version
           git diff --exit-code ./npm/package.json ./npm/bun.lockb
-
-      - name: Ensure npm directory has no untracked files
-        run: |
-          set -euo pipefail
-          # Fail if there are any untracked (uncommitted) files in ./npm
-          if git status --porcelain=1 -- ./npm | grep -q '??'; then
-            echo "::error::Untracked files detected in ./npm. Aborting dependency installation." >&2
-            git status --porcelain=1 -- ./npm >&2 || true
+          # Ensure npm workspace directory exists
+          if [ ! -d "./npm" ]; then
+            echo "::error::Expected ./npm directory to exist before installing dependencies." >&2
+            exit 1
+          fi
+          # Sanity check: ensure no obvious scripts or executables have appeared in ./npm
+          if find ./npm -type f -regextype posix-extended -regex '.*\.(sh|exe|js|bat|py)$' | grep .; then
+            echo "::error::Detected unexpected script or executable file under ./npm; refusing to run bun install." >&2
             exit 1
           fi
 
@@ -240,39 +267,15 @@ jobs:
           fi
           echo "NPM workspace is clean."
 
-      - name: Ensure No Artifacts In npm Workspace
+      - name: Derive Release Version from Artifacts
+        id: release-version
         env:
           ARTIFACT_DIR: ${{ steps.paths.outputs.artifact_dir }}
         run: |
           set -euo pipefail
-          # Assert artifact directory is outside the npm workspace
-          if [[ "$ARTIFACT_DIR" == "$GITHUB_WORKSPACE/npm"* ]]; then
-            echo "Artifact directory must not be inside the npm workspace"
-            exit 1
-          fi
-          # Ensure no foundry_* artifacts exist under ./npm
-          if compgen -G "$GITHUB_WORKSPACE/npm/foundry_*" > /dev/null; then
-            echo "Found unexpected foundry_* files under ./npm; removing to avoid artifact poisoning."
-            rm -f "$GITHUB_WORKSPACE"/npm/foundry_*
-          fi
 
-      - name: Debug: List Isolated Artifact Directory
-        env:
-          ARTIFACT_DIR: ${{ steps.paths.outputs.artifact_dir }}
-        run: |
-          set -euo pipefail
           echo "Artifacts in $ARTIFACT_DIR:"
           ls -la "$ARTIFACT_DIR" || true
-
-      - name: Transpile TS -> JS
-        id: release-version
-        working-directory: ./npm
-        env:
-          PROVENANCE: true
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_REGISTRY_URL: ${{ env.NPM_REGISTRY_URL }}
-        run: bun run build
 
           # Derive RELEASE_VERSION from any foundry artifact we downloaded
           # Expected names: foundry_<VERSION>_<platform>_<arch>.{tar.gz,zip}
@@ -293,7 +296,7 @@ jobs:
             exit 1
           fi
           version_part=${first_basename#foundry_}
-          export RELEASE_VERSION=${version_part%%_*}
+          RELEASE_VERSION=${version_part%%_*}
           # Validate RELEASE_VERSION: allow "v" optional, then e.g. 1.2.3(-rc.1) etc (semver)
           if ! [[ "$RELEASE_VERSION" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+([\-+a-zA-Z0-9\.]*)?$ ]]; then
             echo "ERROR: RELEASE_VERSION '$RELEASE_VERSION' does not match expected pattern (semver, e.g. v1.2.3)" >&2
@@ -306,9 +309,46 @@ jobs:
               exit 1
               ;;
           esac
+          # Expose the strictly validated RELEASE_VERSION to later steps
           echo "Detected RELEASE_VERSION=$RELEASE_VERSION"
 
-          printf 'RELEASE_VERSION=%s\n' "$RELEASE_VERSION" >>"$GITHUB_OUTPUT"
+      - name: Transpile TS -> JS
+        working-directory: ./npm
+        env:
+          PROVENANCE: true
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_REGISTRY_URL: ${{ env.NPM_REGISTRY_URL }}
+        run: |
+          set -euo pipefail
+
+          # Derive the release version from the trusted output of the earlier step.
+          SAFE_RELEASE_VERSION='${{ steps.release-version.outputs.RELEASE_VERSION }}'
+
+          # Validate SAFE_RELEASE_VERSION before using or exporting it. Only allow semantic-version-like strings,
+          # and reject any value containing whitespace or newlines to prevent artifact poisoning.
+          if [[ -z "${SAFE_RELEASE_VERSION:-}" ]]; then
+            echo "SAFE_RELEASE_VERSION is empty or unset; refusing to export." >&2
+            exit 1
+          fi
+          # Disallow whitespace (including newlines, tabs) in SAFE_RELEASE_VERSION
+          if [[ "$SAFE_RELEASE_VERSION" =~ [[:space:]] ]]; then
+            echo "SAFE_RELEASE_VERSION contains whitespace; refusing to export." >&2
+            exit 1
+          fi
+          # Only allow versions like 1.2.3 or 1.2.3-beta.1
+          if ! [[ "$SAFE_RELEASE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "SAFE_RELEASE_VERSION '$SAFE_RELEASE_VERSION' has an invalid format; refusing to export." >&2
+            exit 1
+          fi
+
+          # Expose the validated version to the build as an environment variable if needed.
+          export RELEASE_VERSION="$SAFE_RELEASE_VERSION"
+
+          bun run build
+
+          # Write the validated version to the job output.
+          printf 'RELEASE_VERSION=%s\n' "$SAFE_RELEASE_VERSION" >>"$GITHUB_OUTPUT"
 
       - name: Stage Binary Into Package
         run: |

@@ -108,3 +108,4 @@ Cargo.lock
 
 # vercel deploy
 .vercel/
+/cargo
