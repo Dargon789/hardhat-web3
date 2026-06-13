@@ -1,0 +1,17 @@
+{
+  "name": "vite-core",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@wagmi/connectors": "workspace:*",
+    "@wagmi/core": "workspace:*",
+    "viem": "2.*"
+  },
+  "devDependencies": {
+  }
+}

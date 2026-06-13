@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 import * as t from "io-ts";
 
-import { isValidAddress } from "@ethereumjs/util";
+import { isValidAddress } from "@nomicfoundation/ethereumjs-util";
 
 import { isEIP712Message, ledgerService } from "@ledgerhq/hw-app-eth";
 import TransportNodeHid from "@ledgerhq/hw-transport-node-hid";
@@ -35,7 +35,6 @@ export class LedgerProvider extends ProviderWrapperWithChainId {
 
   public readonly paths: Paths = {}; // { address: path }
   public name: string = "LedgerProvider";
-  public isOutputEnabled: boolean = true;
 
   protected _eth: EthWrapper | undefined;
 
@@ -114,10 +113,6 @@ export class LedgerProvider extends ProviderWrapperWithChainId {
 
   public async request(args: RequestArguments): Promise<unknown> {
     const params = this._getParams(args);
-
-    if (args.method === "hardhat_setLedgerOutputEnabled") {
-      return this._setOutputEnabled(params);
-    }
 
     if (args.method === "eth_accounts") {
       const accounts = (await this._wrappedProvider.request(args)) as string[];
@@ -346,7 +341,7 @@ export class LedgerProvider extends ProviderWrapperWithChainId {
         account <= LedgerProvider.MAX_DERIVATION_ACCOUNTS;
         account++
       ) {
-        path = this._getDerivationPath(account);
+        path = `44'/60'/${account}'/0/0`;
 
         this.emit("derivation_progress", path, account);
 
@@ -374,21 +369,9 @@ export class LedgerProvider extends ProviderWrapperWithChainId {
 
     this.emit("derivation_failure");
     throw new HardhatLedgerDerivationPathError(
-      `Could not find a valid derivation path for ${addressToFind}. Paths from ${this._getDerivationPath(
-        0
-      )} to ${this._getDerivationPath(
-        LedgerProvider.MAX_DERIVATION_ACCOUNTS
-      )} were searched.`,
+      `Could not find a valid derivation path for ${addressToFind}. Paths from m/44'/60'/0'/0/0 to m/44'/60'/${LedgerProvider.MAX_DERIVATION_ACCOUNTS}'/0/0 were searched.`,
       path
     );
-  }
-
-  private _getDerivationPath(index: number): string {
-    if (this.options.derivationFunction === undefined) {
-      return `m/44'/60'/${index}'/0/0`;
-    } else {
-      return this.options.derivationFunction(index);
-    }
   }
 
   private async _withConfirmation<T extends (...args: any) => any>(
@@ -407,21 +390,23 @@ export class LedgerProvider extends ProviderWrapperWithChainId {
   }
 
   private async _toRpcSig(signature: Signature): Promise<string> {
-    const { toRpcSig, toBytes } = await import("@ethereumjs/util");
+    const { toRpcSig, toBuffer } = await import(
+      "@nomicfoundation/ethereumjs-util"
+    );
 
     return toRpcSig(
       BigInt(signature.v - 27),
-      toBytes(toHex(signature.r)),
-      toBytes(toHex(signature.s))
+      toBuffer(toHex(signature.r)),
+      toBuffer(toHex(signature.s))
     );
   }
 
   private async _getNonce(address: Buffer): Promise<bigint> {
-    const { bytesToHex } = await import("@ethereumjs/util");
+    const { bufferToHex } = await import("@nomicfoundation/ethereumjs-util");
 
     const response = (await this._wrappedProvider.request({
       method: "eth_getTransactionCount",
-      params: [bytesToHex(address), "pending"],
+      params: [bufferToHex(address), "pending"],
     })) as string;
 
     return rpcQuantityToBigInt(response);
@@ -442,15 +427,5 @@ export class LedgerProvider extends ProviderWrapperWithChainId {
         hexAddress
       );
     }
-  }
-
-  /**
-   * Toggles the provider's output. Use to suppress default feedback and
-   * manage it via events.
-   */
-  private _setOutputEnabled(params: any[]): void {
-    const [enabled] = validateParams(params, t.boolean);
-
-    this.isOutputEnabled = enabled;
   }
 }

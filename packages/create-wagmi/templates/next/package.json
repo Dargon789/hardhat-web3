@@ -1,0 +1,17 @@
+{
+  "name": "wagmi-next-starter",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "viem": "latest",
+    "wagmi": "latest"
+  },
+  "devDependencies": {
+    "@wagmi/cli": "latest",
+  }
+}

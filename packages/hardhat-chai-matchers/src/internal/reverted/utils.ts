@@ -125,8 +125,3 @@ export function resultToArray(result: EthersT.Result): any[] {
         : x
     );
 }
-
-export function parseBytes32String(v: string): string {
-  const ethers = require("ethers") as typeof EthersT;
-  return ethers.decodeBytes32String(v);
-}
