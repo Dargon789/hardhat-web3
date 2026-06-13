@@ -105,7 +105,7 @@ onchainos swap quote --from <address> --to <address> --readable-amount <amount> 
 One-shot swap: quote → approve (if needed) → sign → broadcast → txHash. Honeypot and price impact >10% are blocked internally.
 
 ```bash
-onchainos swap execute --from <address> --to <address> --readable-amount <amount> --chain <chain> --wallet <address> [--slippage <pct>] [--gas-level <level>] [--swap-mode <mode>] [--mev-protection] [--tips <sol_amount>] [--max-auto-slippage <pct>]
+onchainos swap execute --from <address> --to <address> --readable-amount <amount> --chain <chain> --wallet <address> [--slippage <pct>] [--gas-level <level>] [--swap-mode <mode>] [--mev-protection] [--tips <sol_amount>] [--max-auto-slippage <pct>] [--force]
 ```
 
 | Param | Required | Default | Description |
