@@ -1,12 +1,12 @@
 import type * as z from 'zod'
 
 class ValidationError extends Error {
-  details: z.core.$ZodIssue[]
+  details: z.ZodIssue[]
 
   constructor(
     message: string,
     options: {
-      details: z.core.$ZodIssue[]
+      details: z.ZodIssue[]
     },
   ) {
     super(message)
