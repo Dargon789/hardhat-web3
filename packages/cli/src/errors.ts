@@ -25,11 +25,15 @@ export function fromZodError(
     prefix?: string
   } = {},
 ): ValidationError {
+  const joinPath = (arr: (string | number)[]) => {
     return arr.reduce<string>((acc, value) => {
-      if (typeof value === 'number') return `${acc}[${value}]`
+      if (typeof value === 'number') return acc + '[' + value + ']'
       const separator = acc === '' ? '' : '.'
+      return acc + separator + value
     }, '')
   }
+
+  const reason = zError.issues
 
     // limit max number of issues printed in the reason section
     .slice(0, maxIssuesInMessage)
