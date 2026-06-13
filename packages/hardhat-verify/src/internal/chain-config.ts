@@ -140,10 +140,10 @@ export const builtinChains: ChainConfig[] = [
   },
   {
     network: "polygonZkEVMTestnet",
-    chainId: 2442,
+    chainId: 1442,
     urls: {
-      apiURL: "https://api-cardona-zkevm.polygonscan.com/api",
-      browserURL: "https://cardona-zkevm.polygonscan.com",
+      apiURL: "https://api-testnet-zkevm.polygonscan.com/api",
+      browserURL: "https://testnet-zkevm.polygonscan.com",
     },
   },
   {
@@ -171,14 +171,6 @@ export const builtinChains: ChainConfig[] = [
     },
   },
   {
-    network: "holesky",
-    chainId: 17000,
-    urls: {
-      apiURL: "https://api-holesky.etherscan.io/api",
-      browserURL: "https://holesky.etherscan.io",
-    },
-  },
-  {
     network: "arbitrumOne",
     chainId: 42161,
     urls: {
@@ -203,27 +195,11 @@ export const builtinChains: ChainConfig[] = [
     },
   },
   {
-    network: "ink",
-    chainId: 57073,
-    urls: {
-      apiURL: "https://explorer.inkonchain.com/api/v2",
-      browserURL: "https://explorer.inkonchain.com/",
-    },
-  },
-  {
     network: "polygonMumbai",
     chainId: 80001,
     urls: {
       apiURL: "https://api-testnet.polygonscan.com/api",
       browserURL: "https://mumbai.polygonscan.com/",
-    },
-  },
-  {
-    network: "polygonAmoy",
-    chainId: 80002,
-    urls: {
-      apiURL: "https://api-amoy.polygonscan.com/api",
-      browserURL: "https://amoy.polygonscan.com/",
     },
   },
   {
@@ -235,27 +211,19 @@ export const builtinChains: ChainConfig[] = [
     },
   },
   {
-    network: "baseSepolia",
-    chainId: 84532,
+    network: "arbitrumTestnet",
+    chainId: 421611,
     urls: {
-      apiURL: "https://api-sepolia.basescan.org/api",
-      browserURL: "https://sepolia.basescan.org/",
+      apiURL: "https://api-testnet.arbiscan.io/api",
+      browserURL: "https://testnet.arbiscan.io/",
     },
   },
   {
-    network: "arbitrumSepolia",
-    chainId: 421614,
+    network: "arbitrumGoerli",
+    chainId: 421613,
     urls: {
-      apiURL: "https://api-sepolia.arbiscan.io/api",
-      browserURL: "https://sepolia.arbiscan.io/",
-    },
-  },
-  {
-    network: "inkSepolia",
-    chainId: 763373,
-    urls: {
-      apiURL: "https://explorer-sepolia.inkonchain.com/api/v2",
-      browserURL: "https://explorer-sepolia.inkonchain.com/",
+      apiURL: "https://api-goerli.arbiscan.io/api",
+      browserURL: "https://goerli.arbiscan.io/",
     },
   },
   {

@@ -2,7 +2,7 @@ import type { JsonFragment } from "@ethersproject/abi";
 import type { SolidityConfig } from "hardhat/types";
 import type { ChainConfig } from "../types";
 
-import picocolors from "picocolors";
+import chalk from "chalk";
 import path from "path";
 import { builtinChains } from "./chain-config";
 import {
@@ -19,7 +19,6 @@ import {
 
 import { LibraryToAddress } from "./solc/artifacts";
 import {
-  ABIArgumentTypeErrorType,
   isABIArgumentLengthError,
   isABIArgumentOverflowError,
   isABIArgumentTypeError,
@@ -45,7 +44,7 @@ export async function printSupportedNetworks(
   ]);
 
   const supportedNetworksTable = table([
-    [picocolors.bold("network"), picocolors.bold("chain id")],
+    [chalk.bold("network"), chalk.bold("chain id")],
     ...supportedNetworks,
   ]);
 
@@ -58,7 +57,7 @@ export async function printSupportedNetworks(
   const customNetworksTable =
     customNetworks.length > 0
       ? table([
-          [picocolors.bold("network"), picocolors.bold("chain id")],
+          [chalk.bold("network"), chalk.bold("chain id")],
           ...customNetworks,
         ])
       : table([["No custom networks were added"]]);
@@ -85,13 +84,12 @@ To learn how to add custom networks, follow these instructions: https://hardhat.
  * are the names of verification subtasks and the values are HardhatVerifyError
  * objects describing the specific errors.
  * @remarks This function formats and logs the verification errors to the
- * console with a red color using picocolors. Each error is displayed along with the
+ * console with a red color using chalk. Each error is displayed along with the
  * name of the verification provider it belongs to.
  * @example
  * const errors: Record<string, HardhatVerifyError> = {
  *   verify:etherscan: { message: 'Error message for Etherscan' },
  *   verify:sourcify: { message: 'Error message for Sourcify' },
- *   verify:blockscout: { message: 'Error message for Blockscout' },
  *   // Add more errors here...
  * };
  * printVerificationErrors(errors);
@@ -103,9 +101,6 @@ To learn how to add custom networks, follow these instructions: https://hardhat.
  * //
  * // Sourcify:
  * // Error message for Sourcify
- * //
- * // Blockscout:
- * // Error message for Blockscout
  * //
  * // ... (more errors if present)
  */
@@ -119,7 +114,7 @@ export function printVerificationErrors(
     errorMessage += `${subtaskLabel}:\n${error.message}\n\n`;
   }
 
-  console.error(picocolors.red(errorMessage));
+  console.error(chalk.red(errorMessage));
 }
 
 /**
@@ -233,24 +228,6 @@ export async function encodeArguments(
   const contractInterface = new Interface(abi);
   let encodedConstructorArguments;
   try {
-    // encodeDeploy doesn't catch subtle type mismatches, such as a number
-    // being passed when a string is expected, so we have to validate the
-    // scenario manually.
-    const expectedConstructorArgs = contractInterface.deploy.inputs;
-    constructorArguments.forEach((arg, i) => {
-      if (
-        expectedConstructorArgs[i]?.type === "string" &&
-        typeof arg !== "string"
-      ) {
-        throw new ABIArgumentTypeError({
-          code: "INVALID_ARGUMENT",
-          argument: expectedConstructorArgs[i].name,
-          value: arg,
-          reason: "invalid string value",
-        } as ABIArgumentTypeErrorType);
-      }
-    });
-
     encodedConstructorArguments = contractInterface
       .encodeDeploy(constructorArguments)
       .replace("0x", "");
