@@ -1,4 +1,0 @@
-ignorePaths:
-  - .github/config/regression-tests.yml
-  - archive/**
-  - pnpm-lock.yaml

@@ -4,14 +4,14 @@
 set -e
 
 # import helpers functions
-. ../helpers.sh
+. ../../helpers.sh
 
 echo "Running tests: $(basename "$(pwd)")"
 
 echo "it should print an error saying that the configuration variables are not set"
 run_test_and_handle_failure "npx hardhat" 1
 
-echo "it should list the configuration variables that need to be set"
+echo "it should list the configuartion variables that need to be set"
 run_test_and_handle_failure "npx hardhat vars setup" 0
 
 echo "it should list the keys without failing (even if there are no keys)"
@@ -22,5 +22,5 @@ echo "it should fail because the key does not exist"
 run_test_and_handle_failure "npx hardhat vars get HH_KEY_DO_NOT_EXIST_3468267" 1
 
 #
-# Do not DELETE or SET keys to avoid modifying the configuration variables of the user running these tests
+# Do not DELETE or SET keys to avoid modifing the configuration variables of the user running these tests
 #

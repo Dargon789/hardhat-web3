@@ -1,5 +1,23 @@
 # @nomicfoundation/hardhat-verify
 
+## 3.0.10
+
+### Patch Changes
+
+- 577e516: Expose an `Etherscan` instance through the `verification` property on `network.connect()` for advanced use cases. This version also adds a `customApiCall` method to the Etherscan instance, allowing custom requests to the Etherscan API ([#7644](https://github.com/NomicFoundation/hardhat/issues/7644))
+
+## 3.0.9
+
+### Patch Changes
+
+- 13a1e4b: Multiple internal fixes to the solidity build system ([#7900](https://github.com/NomicFoundation/hardhat/pull/7900))
+
+## 3.0.8
+
+### Patch Changes
+
+- 0635271: Fix Etherscan verification retry with full compiler input, thanks @SyedAsadKazmi! ([#7577](https://github.com/NomicFoundation/hardhat/pull/7577))
+
 ## 3.0.7
 
 ### Patch Changes

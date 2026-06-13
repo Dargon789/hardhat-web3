@@ -1,6 +1,6 @@
 {
   "name": "@nomicfoundation/hardhat-verify",
-  "version": "3.0.7",
+  "version": "3.0.10",
   "description": "Hardhat plugin for verifying contracts",
   "homepage": "https://github.com/nomicfoundation/hardhat/tree/v-next/v-next/hardhat-verify",
   "repository": {
@@ -14,7 +14,8 @@
   "types": "dist/src/index.d.ts",
   "exports": {
     ".": "./dist/src/index.js",
-    "./verify": "./dist/src/verify.js"
+    "./verify": "./dist/src/verify.js",
+    "./types": "./dist/src/types.js"
   },
   "keywords": [
     "ethereum",
@@ -50,7 +51,7 @@
     "@nomicfoundation/hardhat-node-test-reporter": "workspace:^3.0.0",
     "@nomicfoundation/hardhat-test-utils": "workspace:^",
     "@types/debug": "^4.1.7",
-    "@types/node": "^20.14.9",
+    "@types/node": "^22.0.0",
     "@types/semver": "^7.5.8",
     "c8": "^9.1.0",
     "eslint": "9.25.1",
@@ -58,7 +59,8 @@
     "prettier": "3.2.5",
     "rimraf": "^5.0.5",
     "tsx": "^4.19.3",
-    "typescript": "~5.8.0"
+    "typescript": "~5.8.0",
+    "hardhat": "workspace:^3.1.6"
   },
   "dependencies": {
     "@ethersproject/abi": "^5.8.0",
@@ -72,6 +74,6 @@
     "zod": "^3.23.8"
   },
   "peerDependencies": {
-    "hardhat": "workspace:^3.0.0"
+    "hardhat": "workspace:^3.1.6"
   }
 }

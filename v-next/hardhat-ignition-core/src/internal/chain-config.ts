@@ -166,8 +166,13 @@ export const builtinChains: ChainConfig[] = [
     network: "chiado",
     chainId: 10200,
     urls: {
+<<<<<<< HEAD:packages/hardhat-verify/src/internal/chain-config.ts
+      apiURL: "https://gnosis-chiado.blockscout.com/api",
+      browserURL: "https://gnosis-chiado.blockscout.com",
+=======
       apiURL: "https://blockscout.chiadochain.net/api",
       browserURL: "https://blockscout.chiadochain.net",
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ignition-core/src/internal/chain-config.ts
     },
   },
   {
@@ -229,6 +234,8 @@ export const builtinChains: ChainConfig[] = [
   {
     network: "arbitrumTestnet",
     chainId: 421611,
+<<<<<<< HEAD:packages/hardhat-verify/src/internal/chain-config.ts
+=======
     urls: {
       apiURL: "https://api-testnet.arbiscan.io/api",
       browserURL: "https://testnet.arbiscan.io/",
@@ -245,9 +252,18 @@ export const builtinChains: ChainConfig[] = [
   {
     network: "arbitrumSepolia",
     chainId: 421614,
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ignition-core/src/internal/chain-config.ts
     urls: {
-      apiURL: "https://api-sepolia.arbiscan.io/api",
-      browserURL: "https://sepolia.arbiscan.io/",
+      apiURL: "https://api-testnet.arbiscan.io/api",
+      browserURL: "https://testnet.arbiscan.io/",
+    },
+  },
+  {
+    network: "arbitrumGoerli",
+    chainId: 421613,
+    urls: {
+      apiURL: "https://api-goerli.arbiscan.io/api",
+      browserURL: "https://goerli.arbiscan.io/",
     },
   },
   {

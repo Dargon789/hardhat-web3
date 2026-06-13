@@ -1,2 +1,6 @@
+<<<<<<< HEAD:docs/.prettierignore
+/node_modules
+=======
 /node_modules
 /artifacts
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-viem/test/fixture-projects/default-ts-project/.gitignore

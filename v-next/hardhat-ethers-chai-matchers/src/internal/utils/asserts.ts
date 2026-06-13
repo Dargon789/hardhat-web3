@@ -1,5 +1,9 @@
+<<<<<<< HEAD:packages/hardhat-chai-matchers/src/internal/utils.ts
+import { PREVIOUS_MATCHER_NAME } from "./constants";
+=======
 import type { AssertWithSsfi, Ssfi } from "./ssfi.js";
 
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/src/internal/utils/asserts.ts
 import {
   assertHardhatInvariant,
   HardhatError,
@@ -16,6 +20,8 @@ export function assertIsNotNull<T>(
 ): asserts value is Exclude<T, null> {
   assertHardhatInvariant(value !== null, `${valueName} should not be null`);
 }
+<<<<<<< HEAD:packages/hardhat-chai-matchers/src/internal/utils.ts
+=======
 
 export function assertArgsArraysEqual(
   Assertion: Chai.AssertionStatic,
@@ -154,3 +160,4 @@ export function assertCanBeConvertedToBigint(
     "value should be of type string, number or bigint",
   );
 }
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/src/internal/utils/asserts.ts

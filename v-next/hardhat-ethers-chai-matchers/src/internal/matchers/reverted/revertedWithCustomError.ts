@@ -5,14 +5,23 @@ import type { BaseContract } from "ethers/contract";
 import { HardhatError } from "@nomicfoundation/hardhat-errors";
 import { numberToHexString } from "@nomicfoundation/hardhat-utils/hex";
 
+import { AssertionError } from "chai";
+import ordinal from "ordinal";
+
 import {
   ASSERTION_ABORTED,
   REVERTED_WITH_CUSTOM_ERROR_MATCHER,
+<<<<<<< HEAD:packages/hardhat-chai-matchers/src/internal/reverted/revertedWithCustomError.ts
+} from "../constants";
+import { assertIsNotNull, preventAsyncMatcherChaining } from "../utils";
+import { buildAssert, Ssfi } from "../../utils";
+=======
 } from "../../constants.js";
 import { assertArgsArraysEqual, assertIsNotNull } from "../../utils/asserts.js";
 import { buildAssert } from "../../utils/build-assert.js";
 import { preventAsyncMatcherChaining } from "../../utils/prevent-chaining.js";
 
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/src/internal/matchers/reverted/revertedWithCustomError.ts
 import {
   decodeReturnData,
   getReturnDataFromError,
@@ -35,9 +44,14 @@ export function supportRevertedWithCustomError(
     REVERTED_WITH_CUSTOM_ERROR_MATCHER,
     function (
       this: any,
+<<<<<<< HEAD:packages/hardhat-chai-matchers/src/internal/reverted/revertedWithCustomError.ts
+      contract: EthersT.BaseContract,
+      expectedCustomErrorName: string
+=======
       contract: BaseContract,
       expectedCustomErrorName: string,
       ...args: any[]
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/src/internal/matchers/reverted/revertedWithCustomError.ts
     ) {
       // capture negated flag before async code executes; see buildAssert's jsdoc
       const negated = this.__flags.negate;
@@ -45,8 +59,12 @@ export function supportRevertedWithCustomError(
       const { iface, expectedCustomError } = validateInput(
         this._obj,
         contract,
+<<<<<<< HEAD:packages/hardhat-chai-matchers/src/internal/reverted/revertedWithCustomError.ts
+        expectedCustomErrorName
+=======
         expectedCustomErrorName,
         args,
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/src/internal/matchers/reverted/revertedWithCustomError.ts
       );
 
       preventAsyncMatcherChaining(
@@ -151,10 +169,16 @@ export function supportRevertedWithCustomError(
 
 function validateInput(
   obj: any,
+<<<<<<< HEAD:packages/hardhat-chai-matchers/src/internal/reverted/revertedWithCustomError.ts
+  contract: EthersT.BaseContract,
+  expectedCustomErrorName: string
+): { iface: EthersT.Interface; expectedCustomError: EthersT.ErrorFragment } {
+=======
   contract: BaseContract,
   expectedCustomErrorName: string,
   args: any[],
 ): { iface: Interface; expectedCustomError: ErrorFragment } {
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/src/internal/matchers/reverted/revertedWithCustomError.ts
   try {
     // check the case where users forget to pass the contract as the first
     // argument
@@ -185,12 +209,15 @@ function validateInput(
       );
     }
 
+<<<<<<< HEAD:packages/hardhat-chai-matchers/src/internal/reverted/revertedWithCustomError.ts
+=======
     if (args.length > 0) {
       throw new HardhatError(
         HardhatError.ERRORS.CHAI_MATCHERS.GENERAL.REVERT_INVALID_ARGUMENTS_LENGTH,
       );
     }
 
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/src/internal/matchers/reverted/revertedWithCustomError.ts
     return { iface, expectedCustomError };
   } catch (e) {
     // if the input validation fails, we discard the subject since it could
@@ -203,7 +230,11 @@ function validateInput(
 export async function revertedWithCustomErrorWithArgs(
   context: any,
   Assertion: Chai.AssertionStatic,
+<<<<<<< HEAD:packages/hardhat-chai-matchers/src/internal/reverted/revertedWithCustomError.ts
+  _utils: Chai.ChaiUtils,
+=======
   _chaiUtils: Chai.ChaiUtils,
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/src/internal/matchers/reverted/revertedWithCustomError.ts
   expectedArgs: any[],
   ssfi: Ssfi,
 ): Promise<void> {
@@ -231,6 +262,11 @@ export async function revertedWithCustomErrorWithArgs(
     contractInterface.decodeErrorResult(errorFragment, returnData),
   );
 
+<<<<<<< HEAD:packages/hardhat-chai-matchers/src/internal/reverted/revertedWithCustomError.ts
+  new Assertion(actualArgs).to.have.same.length(
+    expectedArgs.length,
+    `expected ${expectedArgs.length} args but got ${actualArgs.length}`
+=======
   assertArgsArraysEqual(
     Assertion,
     expectedArgs,
@@ -239,5 +275,45 @@ export async function revertedWithCustomErrorWithArgs(
     "error",
     assert,
     ssfi,
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/src/internal/matchers/reverted/revertedWithCustomError.ts
   );
+
+  for (const [i, actualArg] of actualArgs.entries()) {
+    const expectedArg = expectedArgs[i];
+    if (typeof expectedArg === "function") {
+      const errorPrefix = `The predicate for custom error argument with index ${i}`;
+      try {
+        assert(
+          expectedArg(actualArg),
+          `${errorPrefix} returned false`
+          // no need for a negated message, since we disallow mixing .not. with
+          // .withArgs
+        );
+      } catch (e) {
+        if (e instanceof AssertionError) {
+          assert(
+            false,
+            `${errorPrefix} threw an AssertionError: ${e.message}`
+            // no need for a negated message, since we disallow mixing .not. with
+            // .withArgs
+          );
+        }
+        throw e;
+      }
+    } else if (Array.isArray(expectedArg)) {
+      const expectedLength = expectedArg.length;
+      const actualLength = actualArg.length;
+      assert(
+        expectedLength === actualLength,
+        `Expected the ${ordinal(i + 1)} argument of the "${
+          customError.name
+        }" custom error to have ${expectedLength} ${
+          expectedLength === 1 ? "element" : "elements"
+        }, but it has ${actualLength}`
+      );
+      new Assertion(actualArg).to.deep.equal(expectedArg);
+    } else {
+      new Assertion(actualArg).to.equal(expectedArg);
+    }
+  }
 }
