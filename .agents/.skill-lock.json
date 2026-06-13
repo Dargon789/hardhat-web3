@@ -1,0 +1,69 @@
+{
+  "version": 3,
+  "skills": {
+    "workflow-init": {
+      "source": "vercel/workflow",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/vercel/workflow.git",
+      "skillPath": "skills/workflow-init/SKILL.md",
+      "skillFolderHash": "51e8190b4abf978532dac4e9705225c75652b9b3",
+      "installedAt": "2026-02-22T13:21:44.400Z",
+      "updatedAt": "2026-02-24T06:29:38.279Z"
+    },
+    "find-skills": {
+      "source": "vercel-labs/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/vercel-labs/skills.git",
+      "skillPath": "skills/find-skills/SKILL.md",
+      "skillFolderHash": "c2f31172b6f256272305a5e6e7228b258446899f",
+      "installedAt": "2026-02-22T13:21:51.443Z",
+      "updatedAt": "2026-02-22T13:21:51.443Z"
+    },
+    "gemini-api-dev": {
+      "source": "google-gemini/gemini-skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/google-gemini/gemini-skills.git",
+      "skillPath": "skills/gemini-api-dev/SKILL.md",
+      "skillFolderHash": "5c9c6bc8cf2ef3e3b11d784a97281d721fdac0ca",
+      "installedAt": "2026-02-25T04:16:08.363Z",
+      "updatedAt": "2026-02-25T04:16:08.363Z"
+    },
+    "1inch-mcp-server": {
+      "source": "1inch/1inch-ai",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/1inch/1inch-ai.git",
+      "skillPath": "skills/1inch-mcp-server/SKILL.md",
+      "skillFolderHash": "4dc601b333912ea9fbf39ae6a091de5378c38cd2",
+      "installedAt": "2026-05-13T00:43:47.009Z",
+      "updatedAt": "2026-05-13T00:43:47.009Z"
+    },
+    "appkit": {
+      "source": "reown-com/skills",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/reown-com/skills.git",
+      "skillPath": "skills/appkit/SKILL.md",
+      "skillFolderHash": "69cb3fa2213f1b4f93b9b3e27b4c56052d2825b6",
+      "installedAt": "2026-05-16T07:40:04.402Z",
+      "updatedAt": "2026-05-16T07:40:04.402Z"
+    }
+  },
+  "dismissed": {
+    "findSkillsPrompt": true
+  },
+  "lastSelectedAgents": [
+    "amp",
+    "antigravity",
+    "antigravity-cli",
+    "cline",
+    "codex",
+    "cursor",
+    "deepagents",
+    "gemini-cli",
+    "github-copilot",
+    "kimi-code-cli",
+    "opencode",
+    "warp",
+    "zed",
+    "claude-code"
+  ]
+}
