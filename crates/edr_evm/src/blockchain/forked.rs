@@ -459,7 +459,7 @@ impl Blockchain for ForkedBlockchain {
             self.runtime().clone(),
             self.remote.client().clone(),
             self.state_root_generator.clone(),
-            block_number,
+            block_number.min(self.fork_block_number),
             state_root,
         );
 

@@ -5,18 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="042f3357-bda5-4d02-ac34-176372a67074" name="Changes" comment="counter">
-      <change beforePath="$PROJECT_DIR$/.changeset/polite-mugs-cry.m" beforeDir="false" afterPath="$PROJECT_DIR$/.changeset/polite-mugs-cry.m" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.devcontainer/devcontainer.json" beforeDir="false" afterPath="$PROJECT_DIR$/.devcontainer/devcontainer.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/counter/broadcast/Counter.s.sol/1/run-1759204744050.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/counter/broadcast/Counter.s.sol/1/run-1759204801689.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/counter/broadcast/Counter.s.sol/1/run-1765190340466.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/counter/broadcast/Counter.s.sol/1/run-1766203023114.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/counter/broadcast/Counter.s.sol/1/run-1766203386041.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/counter/broadcast/Counter.s.sol/1/run-1767266310773.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/counter/broadcast/Counter.s.sol/1/run-latest.json" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/counter/lib/ds-test" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/src/content/hardhat-network/docs/explanation/mining-modes.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/src/content/hardhat-network/docs/explanation/mining-modes.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/src/content/hardhat-network/docs/reference/index.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/src/content/hardhat-network/docs/reference/index.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/hardhat-ignition-examples/0xsequence-wallet-2.3.7/packages/0xsequence/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/packages/hardhat-ignition-examples/0xsequence-wallet-2.3.7/packages/0xsequence/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/hardhat-ledger/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/packages/hardhat-ledger/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/hardhat-toolbox-viem/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/packages/hardhat-toolbox-viem/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/hardhat-verify/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/packages/hardhat-verify/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/hardhat-vyper/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/packages/hardhat-vyper/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tsconfig.base.json" beforeDir="false" afterPath="$PROJECT_DIR$/tsconfig.base.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/counter/utils/JsonBindings.sol" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -32,6 +29,12 @@
     </persistenceIdMap>
   </component>
   <component name="Git.Settings">
+    <option name="PUSH_TAGS">
+      <GitPushTagMode>
+        <option name="argument" value="--tags" />
+        <option name="title" value="All" />
+      </GitPushTagMode>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
     <option name="ROOT_SYNC" value="DONT_SYNC" />
   </component>
@@ -86,7 +89,7 @@
     "cidr.known.project.marker": "true",
     "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
     "dart.analysis.tool.window.visible": "false",
-    "git-widget-placeholder": "main",
+    "git-widget-placeholder": "master",
     "ignore.virus.scanning.warn.message": "true",
     "junie.onboarding.icon.badge.shown": "true",
     "kotlin-language-version-configured": "true",
