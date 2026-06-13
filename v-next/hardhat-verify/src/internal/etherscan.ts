@@ -566,7 +566,7 @@ class EtherscanVerificationStatusResponse
   }
 
   public isFailure(): boolean {
-    return this.message.startsWith("Fail - Unable to verify");
+    return typeof this.message === "string" && this.message.startsWith("Fail - Unable to verify");
   }
 
   public isSuccess(): boolean {
