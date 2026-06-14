@@ -1,1 +1,0 @@
-export { walletContracts } from './wallet'
