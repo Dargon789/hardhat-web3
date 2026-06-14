@@ -1,8 +1,8 @@
 import {
-  bufferToHex,
+  bytesToHex as bufferToHex,
   isValidAddress,
-  toBuffer,
-} from "@nomicfoundation/ethereumjs-util";
+  toBytes,
+} from "@ethereumjs/util";
 import * as t from "io-ts";
 
 import * as BigIntUtils from "../../../util/bigint";
@@ -22,14 +22,24 @@ export const rpcQuantity = new t.Type<bigint>(
 export const rpcData = new t.Type<Buffer>(
   "DATA",
   Buffer.isBuffer,
-  (u, c) => (isRpcDataString(u) ? t.success(toBuffer(u)) : t.failure(u, c)),
+  (u, c) =>
+    isRpcDataString(u) ? t.success(Buffer.from(toBytes(u))) : t.failure(u, c),
+  t.identity
+);
+
+export const rpcParity = new t.Type<Buffer>(
+  "PARITY",
+  Buffer.isBuffer,
+  (u, c) =>
+    isRpcParityString(u) ? t.success(Buffer.from(toBytes(u))) : t.failure(u, c),
   t.identity
 );
 
 export const rpcHash = new t.Type<Buffer>(
   "HASH",
   (v): v is Buffer => Buffer.isBuffer(v) && v.length === HASH_LENGTH_BYTES,
-  (u, c) => (isRpcHashString(u) ? t.success(toBuffer(u)) : t.failure(u, c)),
+  (u, c) =>
+    isRpcHashString(u) ? t.success(Buffer.from(toBytes(u))) : t.failure(u, c),
   t.identity
 );
 
@@ -96,7 +106,10 @@ function validateStorageSlot(u: unknown, c: t.Context): t.Validation<bigint> {
 export const rpcAddress = new t.Type<Buffer>(
   "ADDRESS",
   (v): v is Buffer => Buffer.isBuffer(v) && v.length === ADDRESS_LENGTH_BYTES,
-  (u, c) => (isRpcAddressString(u) ? t.success(toBuffer(u)) : t.failure(u, c)),
+  (u, c) =>
+    isRpcAddressString(u)
+      ? t.success(Buffer.from(toBytes(u)))
+      : t.failure(u, c),
   t.identity
 );
 
@@ -173,7 +186,7 @@ export function rpcDataToBigInt(data: string): bigint {
 }
 
 export function bufferToRpcData(
-  buffer: Buffer,
+  buffer: Uint8Array,
   padToBytes: number = 0
 ): string {
   let s = bufferToHex(buffer);
@@ -191,7 +204,7 @@ export function rpcDataToBuffer(data: string): Buffer {
     });
   }
 
-  return toBuffer(data);
+  return Buffer.from(toBytes(data));
 }
 
 // Type guards
@@ -209,6 +222,10 @@ function isRpcQuantityString(u: unknown): u is string {
 
 function isRpcDataString(u: unknown): u is string {
   return typeof u === "string" && u.match(/^0x(?:[0-9a-fA-F]{2})*$/) !== null;
+}
+
+function isRpcParityString(u: unknown): u is string {
+  return typeof u === "string" && u.match(/^0x[0-9a-fA-F]{1,2}$/) !== null;
 }
 
 function isRpcHashString(u: unknown): u is string {
