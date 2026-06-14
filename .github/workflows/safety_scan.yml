@@ -1,5 +1,5 @@
 name: Example workflow for Python using Safety Action
-
+# Run pipenv scan 
 permissions:
   contents: read
 
@@ -16,3 +16,4 @@ jobs:
         uses: pyupio/safety-action@v1
         with:
           api-key: ${{ secrets.SAFETY_API_KEY }}
+
