@@ -1,4 +1,4 @@
-import picocolors from "picocolors";
+import chalk from "chalk";
 import fs from "fs";
 import { HardhatRuntimeEnvironment, HardhatUserConfig } from "hardhat/types";
 import { resetHardhatContext } from "hardhat/plugins-testing";
@@ -39,10 +39,7 @@ export function useEnvironment(
 
   afterEach(function () {
     if (this.currentTest?.state === "failed") {
-      console.log(
-        picocolors.red("Failed in fixture project"),
-        picocolors.red(fixtureProjectPath)
-      );
+      console.log(chalk.red("Failed in fixture project", fixtureProjectPath));
     }
   });
 }
@@ -73,10 +70,7 @@ export function usePersistentEnvironment(
 
   afterEach(function () {
     if (this.currentTest?.state === "failed") {
-      console.log(
-        picocolors.red("Failed in fixture project"),
-        picocolors.red(fixtureProjectPath)
-      );
+      console.log(chalk.red("Failed in fixture project", fixtureProjectPath));
     }
   });
 }
@@ -165,10 +159,7 @@ contract Example {
 
   afterEach(function () {
     if (this.currentTest?.state === "failed") {
-      console.log(
-        picocolors.red("Failed in fixture project"),
-        picocolors.red(fixtureProjectPath)
-      );
+      console.log(chalk.red("Failed in fixture project", fixtureProjectPath));
     }
   });
 }

@@ -1,7 +1,6 @@
-import picocolors from "picocolors";
+import chalk from "chalk";
 import debug from "debug";
 import "source-map-support/register";
-
 import {
   TASK_COMPILE,
   TASK_HELP,
@@ -37,6 +36,7 @@ import {
   writePromptedForHHVSCode,
 } from "../util/global-dir";
 import { getPackageJson } from "../util/packageInfo";
+
 import { saveFlamegraph } from "../core/flamegraph";
 import { Analytics, requestTelemetryConsent } from "./analytics";
 import { ArgumentsParser } from "./ArgumentsParser";
@@ -49,7 +49,6 @@ import {
   isHardhatVSCodeInstalled,
 } from "./hardhat-vscode-installation";
 import { handleVars } from "./vars";
-import { BannerManager } from "./banner-manager";
 
 const log = debug("hardhat:core:cli");
 
@@ -103,7 +102,7 @@ function showViaIRWarning(resolvedConfig: HardhatConfig) {
   if (viaIREnabled) {
     console.warn();
     console.warn(
-      picocolors.yellow(
+      chalk.yellow(
         `Your solidity settings have viaIR enabled, which is not fully supported yet. You can still use Hardhat, but some features, like stack traces, might not work correctly.
 
 Learn more at https://hardhat.org/solc-viair`
@@ -171,16 +170,14 @@ async function main() {
 
         // Warning for Hardhat V3 deprecation
         console.warn(
-          picocolors.yellow(picocolors.bold("\n\nDEPRECATION WARNING\n\n")),
-          picocolors.yellow(
-            `Initializing a project with ${picocolors.white(
-              picocolors.italic("npx hardhat")
+          chalk.yellow.bold("\n\nDEPRECATION WARNING\n\n"),
+          chalk.yellow(
+            `Initializing a project with ${chalk.white.italic(
+              "npx hardhat"
             )} is deprecated and will be removed in the future.\n`
           ),
-          picocolors.yellow(
-            `Please use ${picocolors.white(
-              picocolors.italic("npx hardhat init")
-            )} instead.\n\n`
+          chalk.yellow(
+            `Please use ${chalk.white.italic("npx hardhat init")} instead.\n\n`
           )
         );
 
@@ -231,18 +228,6 @@ async function main() {
     const taskDefinitions = ctx.tasksDSL.getTaskDefinitions();
     const scopesDefinitions = ctx.tasksDSL.getScopesDefinitions();
 
-    const env = new Environment(
-      resolvedConfig,
-      hardhatArguments,
-      taskDefinitions,
-      scopesDefinitions,
-      envExtenders,
-      userConfig,
-      providerExtenders
-    );
-
-    ctx.setHardhatRuntimeEnvironment(env);
-
     // eslint-disable-next-line prefer-const
     let { scopeName, taskName, unparsedCLAs } =
       argumentsParser.parseScopeAndTaskNames(
@@ -278,7 +263,7 @@ async function main() {
 
     let taskArguments: TaskArguments;
 
-    // --help is an also special case
+    // --help is a also special case
     if (hardhatArguments.help && taskName !== TASK_HELP) {
       // we "move" the task and scope names to the task arguments,
       // and run the help task
@@ -318,6 +303,19 @@ async function main() {
         unparsedCLAs
       );
     }
+
+    const env = new Environment(
+      resolvedConfig,
+      hardhatArguments,
+      taskDefinitions,
+      scopesDefinitions,
+      envExtenders,
+      ctx.experimentalHardhatNetworkMessageTraceHooks,
+      userConfig,
+      providerExtenders
+    );
+
+    ctx.setHardhatRuntimeEnvironment(env);
 
     try {
       const timestampBeforeRun = new Date().getTime();
@@ -369,23 +367,6 @@ async function main() {
       if (process.exitCode !== 0) {
         showViaIRWarning(resolvedConfig);
       }
-
-      // we notify of new versions only if the tests failed
-      if (process.exitCode !== 0) {
-        try {
-          const { showNewVersionNotification } = await import(
-            "./version-notifier"
-          );
-          await showNewVersionNotification();
-        } catch {
-          // ignore possible version notifier errors
-        }
-      }
-    }
-
-    if (!isRunningOnCiServer() && process.stdout.isTTY === true) {
-      const hardhat3BannerManager = await BannerManager.getInstance();
-      await hardhat3BannerManager.showBanner(200);
     }
 
     log(`Killing Hardhat after successfully running task ${taskName}`);
@@ -395,22 +376,20 @@ async function main() {
     if (HardhatError.isHardhatError(error)) {
       isHardhatError = true;
       console.error(
-        picocolors.red(picocolors.bold("Error")),
-        error.message.replace(/^\w+:/, (t) =>
-          picocolors.red(picocolors.bold(t))
-        )
+        chalk.red.bold("Error"),
+        error.message.replace(/^\w+:/, (t) => chalk.red.bold(t))
       );
     } else if (HardhatPluginError.isHardhatPluginError(error)) {
       isHardhatError = true;
       console.error(
-        picocolors.red(picocolors.bold(`Error in plugin ${error.pluginName}:`)),
+        chalk.red.bold(`Error in plugin ${error.pluginName}:`),
         error.message
       );
     } else if (error instanceof Error) {
-      console.error(picocolors.red("An unexpected error occurred:"));
+      console.error(chalk.red("An unexpected error occurred:"));
       showStackTraces = true;
     } else {
-      console.error(picocolors.red("An unexpected error occurred."));
+      console.error(chalk.red("An unexpected error occurred."));
       showStackTraces = true;
     }
 

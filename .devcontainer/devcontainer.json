@@ -1,22 +1,64 @@
 {
-  "name": "Hardhat",
+  "name": "Hardhat + EDR",
   "image": "mcr.microsoft.com/devcontainers/base:bullseye",
   "features": {
     "ghcr.io/devcontainers/features/node:1": {
-      "version": "18"
+      "version": "16" /* Keep in sync with the oldest version of Node.js that Hardhat supports */
+    },
+    "ghcr.io/devcontainers/features/rust:1": {
+      "version": "1.70" /* Keep in sync with rust-toolchain */,
+      "profile": "default"
     }
   },
-  "postCreateCommand": "scripts/setup.sh",
-  "containerEnv": {
-    "ALCHEMY_URL": "${localEnv:ALCHEMY_URL}",
-    "INFURA_URL": "${localEnv:INFURA_URL}"
+  /* libudev-dev is required by hardhat-ledger. pkg-config is required by EDR to use OpenSSL */
+  "postCreateCommand": "sudo apt update && sudo apt install -y libudev-dev pkg-config"
+}
+// For format details, see https://aka.ms/devcontainer.json.
+{
+  "name": "Foundry Development",
+  "build": {
+    "context": "..",
+    "dockerfile": "Dockerfile.dev"
   },
+
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "installZsh": true,
+      "configureZshAsDefaultShell": true,
+      "installOhMyZsh": true,
+      "upgradePackages": true
+    }
+  },
+
+  "forwardPorts": [],
+
+  "postCreateCommand": "rustup default stable && rustup update",
+
   "customizations": {
     "vscode": {
       "extensions": [
-        "esbenp.prettier-vscode",
-        "NomicFoundation.hardhat-solidity"
-      ]
+        "rust-lang.rust-analyzer",
+        "serayuzgur.crates",
+        "tamasfe.even-better-toml",
+        "ms-python.python",
+        "dbaeumer.vscode-eslint",
+        "oven.bun-vscode"
+      ],
+      "settings": {
+        "rust-analyzer.checkOnSave": true,
+        "rust-analyzer.cargo.features": "all"
+      }
     }
-  }
+  },
+
+  "remoteUser": "foundry",
+
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
+
+  "workspaceFolder": "/workspace",
+
+  "mounts": [
+    "source=${localEnv:HOME}/.cargo/registry,target=/home/foundry/.cargo/registry,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.cargo/git,target=/home/foundry/.cargo/git,type=bind,consistency=cached"
+  ]
 }

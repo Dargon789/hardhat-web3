@@ -3,6 +3,7 @@ import debug from "debug";
 import {
   Artifacts as IArtifacts,
   EnvironmentExtender,
+  ExperimentalHardhatNetworkMessageTraceHook,
   HardhatArguments,
   HardhatConfig,
   HardhatRuntimeEnvironment,
@@ -19,6 +20,7 @@ import {
   ScopesMap,
 } from "../../types";
 import { Artifacts } from "../artifacts";
+import { MessageTrace } from "../hardhat-network/stack-traces/message-trace";
 
 import { getHardhatVersion } from "../util/packageInfo";
 import { analyzeModuleNotFoundError } from "./config/config-loading";
@@ -75,6 +77,7 @@ export class Environment implements HardhatRuntimeEnvironment {
     public readonly tasks: TasksMap,
     public readonly scopes: ScopesMap,
     environmentExtenders: EnvironmentExtender[] = [],
+    experimentalHardhatNetworkMessageTraceHooks: ExperimentalHardhatNetworkMessageTraceHook[] = [],
     public readonly userConfig: HardhatUserConfig = {},
     providerExtenders: ProviderExtender[] = []
   ) {
@@ -101,6 +104,10 @@ export class Environment implements HardhatRuntimeEnvironment {
         config,
         networkName,
         this.artifacts,
+        experimentalHardhatNetworkMessageTraceHooks.map(
+          (hook) => (trace: MessageTrace, isCallMessageTrace: boolean) =>
+            hook(this, trace, isCallMessageTrace)
+        ),
         providerExtenders
       );
     });

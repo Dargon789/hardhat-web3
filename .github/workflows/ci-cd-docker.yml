@@ -1,0 +1,29 @@
+name: CI/CD with Docker
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t my-hardhat-app .
+
+      - name: Run tests inside Docker
+        run: docker run --rm my-hardhat-app npm run test:e2e
+
+      - name: Push image to registry
+        if: github.ref == 'refs/heads/main'
+        run: |
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+          docker tag my-hardhat-app myrepo/my-hardhat-app:latest
+          docker push myrepo/my-hardhat-app:latest
