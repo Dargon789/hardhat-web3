@@ -184,8 +184,6 @@ When `--activity-id` is omitted, the CLI calls `competition list --status 2` fir
 Register for a competition. **Requires wallet login.**
 
 ```
-onchainos competition join --activity-id <id> --evm-wallet <evm_addr> --sol-wallet <sol_addr>
-```
 onchainos competition join --activity-id <id> --evm-wallet <evm_addr> --sol-wallet <sol_addr> --chain-index <chain_id>
 **API**: `POST /priapi/v5/wallet/agentic/competition/join`
 
