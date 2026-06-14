@@ -1,10 +1,20 @@
 #!/bin/bash
 set -euo pipefail
 
+rust_version=$(<rust-toolchain)
+
+# rustup
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain $rust_version
+
+# Make rustup available to this script
+source "$HOME/.cargo/env"
+
+# Install nightly rustfmt
+rustup toolchain install nightly --profile minimal --component rustfmt
+
 sudo apt update
 
+# TODO: nodejs, npm, yarn
 # libudev-dev is required by hardhat-ledger
-sudo apt install -y libudev-dev
-
-# aha and wkhtmltoimage (included in the wkhtmltopdf package) are used in the integration tests of the node:test reporter
-sudo apt install -y aha wkhtmltopdf
+# pkg-config is required by EDR to use OpenSSL
+sudo apt install -y libudev-dev pkg-config

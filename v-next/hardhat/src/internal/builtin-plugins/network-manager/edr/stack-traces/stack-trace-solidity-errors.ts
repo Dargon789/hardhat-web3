@@ -1,4 +1,14 @@
+<<<<<<< HEAD:packages/hardhat-core/src/internal/hardhat-network/stack-traces/solidity-errors.ts
+import { bytesToHex as bufferToHex } from "@ethereumjs/util";
+
+import { ReturnData } from "../provider/return-data";
+import { panicErrorCodeToMessage } from "./panic-errors";
+import {
+  CONSTRUCTOR_FUNCTION_NAME,
+  PRECOMPILE_FUNCTION_NAME,
+=======
 import type {
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat/src/internal/builtin-plugins/network-manager/edr/stack-traces/stack-trace-solidity-errors.ts
   SolidityStackTrace,
   SolidityStackTraceEntry,
   SourceReference,
@@ -238,7 +248,13 @@ function getMessageFromLastStackTraceEntry(
       }
 
       if (!returnData.isEmpty()) {
+<<<<<<< HEAD:packages/hardhat-core/src/internal/hardhat-network/stack-traces/solidity-errors.ts
+        const buffer = Buffer.from(returnData.value).toString("hex");
+
+        return `VM Exception while processing transaction: reverted with an unrecognized custom error (return data: 0x${buffer})`;
+=======
         return `VM Exception while processing transaction: reverted with an unrecognized custom error (return data: ${bytesToHexString(returnData.value)})`;
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat/src/internal/builtin-plugins/network-manager/edr/stack-traces/stack-trace-solidity-errors.ts
       }
 
       if (stackTraceEntry.isInvalidOpcodeError) {

@@ -3,16 +3,17 @@ import type { CoverageMetadata } from "../types.js";
 
 import path from "node:path";
 
-import { addStatementCoverageInstrumentation } from "@nomicfoundation/edr";
 import {
   assertHardhatInvariant,
   HardhatError,
 } from "@nomicfoundation/hardhat-errors";
 import { ensureError } from "@nomicfoundation/hardhat-utils/error";
 import { readUtf8File } from "@nomicfoundation/hardhat-utils/fs";
+import { findClosestPackageRoot } from "@nomicfoundation/hardhat-utils/package";
 import debug from "debug";
 
 import { CoverageManagerImplementation } from "../coverage-manager.js";
+import { instrumentSolidityFileForCompilationJob } from "../instrumentation.js";
 
 const log = debug("hardhat:core:coverage:hook-handlers:solidity");
 
@@ -35,12 +36,12 @@ export default async (): Promise<Partial<SolidityHooks>> => ({
 
     if (context.globalOptions.coverage && !isTestSource) {
       try {
-        const { source, metadata } = addStatementCoverageInstrumentation(
-          fileContent,
+        const { source, metadata } = instrumentSolidityFileForCompilationJob({
+          compilationJobSolcVersion: solcVersion,
           sourceName,
-          solcVersion,
-          COVERAGE_LIBRARY_PATH,
-        );
+          fileContent,
+          coverageLibraryPath: COVERAGE_LIBRARY_PATH,
+        });
 
         // TODO: Remove this once EDR starts returning line information as part
         // of the metadata.
@@ -63,13 +64,11 @@ export default async (): Promise<Partial<SolidityHooks>> => ({
                 fsPath,
               );
               const tag = Buffer.from(m.tag).toString("hex");
-              const startLine = lineNumbers[m.startUtf16];
-              const endLine = lineNumbers[m.endUtf16 - 1];
               coverageMetadata.push({
                 relativePath,
                 tag,
-                startLine,
-                endLine,
+                startUtf16: m.startUtf16,
+                endUtf16: m.endUtf16,
               });
               break;
             default:
@@ -124,9 +123,10 @@ export default async (): Promise<Partial<SolidityHooks>> => ({
       // NOTE: We add the coverage.sol straight into sources here. The alternative
       // would be to do it during the resolution phase. However, we decided this
       // is a simpler solution, at least for now.
-      const content = await readUtf8File(
-        path.join(import.meta.dirname, "../../../../../../coverage.sol"),
-      );
+      const packageRoot = await findClosestPackageRoot(import.meta.url);
+      const coverageSolPath = path.join(packageRoot, "coverage.sol");
+
+      const content = await readUtf8File(coverageSolPath);
       solcInput.sources[COVERAGE_LIBRARY_PATH] = { content };
     }
 

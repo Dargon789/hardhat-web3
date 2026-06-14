@@ -1,5 +1,23 @@
 # @nomicfoundation/hardhat-mocha
 
+## 3.0.10
+
+### Patch Changes
+
+- c6e93c4: Added extra debugging support for tracking performance in `npx hardhat test mocha` test runs ([#7948](https://github.com/NomicFoundation/hardhat/pull/7948))
+
+## 3.0.9
+
+### Patch Changes
+
+- 12d7468: Add mocha results to test summary numbers ([#7791](https://github.com/NomicFoundation/hardhat/pull/7791))
+
+## 3.0.8
+
+### Patch Changes
+
+- 3667ecd: Fixed `hardhat-mocha` dependencies by moving `hardhat` and `mocha` to `peerDependencies` ([#7519](https://github.com/NomicFoundation/hardhat/issues/7519))
+
 ## 3.0.7
 
 ### Patch Changes

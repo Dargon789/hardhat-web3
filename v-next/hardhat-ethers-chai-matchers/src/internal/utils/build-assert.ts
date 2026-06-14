@@ -3,6 +3,44 @@ import type { Ssfi } from "./ssfi.js";
 import { HardhatError } from "@nomicfoundation/hardhat-errors";
 import { AssertionError } from "chai";
 
+type Message = string | (() => string);
+
+function evalMessage(message?: Message): string {
+  if (message === undefined) {
+    throw new Error(
+      "Assertion doesn't have an error message. Please open an issue to report this."
+    );
+  }
+
+  return typeof message === "function" ? message() : message;
+}
+
+function buildNegated(ssfi: Ssfi) {
+  return function (
+    condition: boolean,
+    _messageFalse?: Message,
+    messageTrue?: Message
+  ) {
+    if (condition) {
+      const message = evalMessage(messageTrue);
+      throw new AssertionError(message, undefined, ssfi);
+    }
+  };
+}
+
+function buildNormal(ssfi: Ssfi) {
+  return function (
+    condition: boolean,
+    messageFalse?: Message,
+    _messageTrue?: Message
+  ) {
+    if (!condition) {
+      const message = evalMessage(messageFalse);
+      throw new AssertionError(message, undefined, ssfi);
+    }
+  };
+}
+
 /**
  * This function is used by the matchers to obtain an `assert` function, which
  * should be used instead of `this.assert`.
@@ -20,6 +58,9 @@ import { AssertionError } from "chai";
  * existing matchers for a reference of something that works well enough.
  */
 export function buildAssert(negated: boolean, ssfi: Ssfi) {
+<<<<<<< HEAD:packages/hardhat-chai-matchers/src/utils.ts
+  return negated ? buildNegated(ssfi) : buildNormal(ssfi);
+=======
   return function (
     condition: boolean,
     messageFalse?: string | (() => string),
@@ -51,4 +92,5 @@ export function buildAssert(negated: boolean, ssfi: Ssfi) {
       throw new AssertionError(message, undefined, ssfi);
     }
   };
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/src/internal/utils/build-assert.ts
 }

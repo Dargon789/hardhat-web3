@@ -36,6 +36,12 @@ describe(".to.emit (contract events)", { timeout: 60000 }, () => {
   });
 
   function runTests() {
+<<<<<<< HEAD:packages/hardhat-chai-matchers/test/events.ts
+    beforeEach(async function () {
+      otherContract = await (
+        await this.hre.ethers.getContractFactory("AnotherContract")
+      ).deploy();
+=======
     let ethers: HardhatEthers;
 
     before(async () => {
@@ -44,6 +50,7 @@ describe(".to.emit (contract events)", { timeout: 60000 }, () => {
 
     beforeEach(async () => {
       otherContract = await ethers.deployContract("AnotherContract");
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/test/matchers/events.ts
 
       contract = await (
         await ethers.getContractFactory<[string], EventsContract>("Events")
@@ -79,6 +86,9 @@ describe(".to.emit (contract events)", { timeout: 60000 }, () => {
       );
     });
 
+<<<<<<< HEAD:packages/hardhat-chai-matchers/test/events.ts
+    it("Should detect events without arguments", async function () {
+=======
     it("should fail when matcher is called with too many arguments", async () => {
       await assertRejectsWithHardhatError(
         () =>
@@ -90,6 +100,7 @@ describe(".to.emit (contract events)", { timeout: 60000 }, () => {
     });
 
     it("should detect events without arguments", async () => {
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/test/matchers/events.ts
       await expect(contract.emitWithoutArgs()).to.emit(contract, "WithoutArgs");
     });
 
@@ -139,6 +150,10 @@ describe(".to.emit (contract events)", { timeout: 60000 }, () => {
         );
       });
 
+<<<<<<< HEAD:packages/hardhat-chai-matchers/test/events.ts
+      describe("with a uint argument", function () {
+        it("Should match the argument", async function () {
+=======
       it("should verify zero arguments", async () => {
         await expect(contract.emitWithoutArgs())
           .to.emit(contract, "WithoutArgs")
@@ -147,6 +162,7 @@ describe(".to.emit (contract events)", { timeout: 60000 }, () => {
 
       describe("with a uint argument", () => {
         it("should match the argument", async () => {
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/test/matchers/events.ts
           await expect(contract.emitUint(1))
             .to.emit(contract, "WithUintArg")
             .withArgs(1);
@@ -159,7 +175,11 @@ describe(".to.emit (contract events)", { timeout: 60000 }, () => {
               .withArgs(2),
           ).to.be.eventually.rejectedWith(
             AssertionError,
+<<<<<<< HEAD:packages/hardhat-chai-matchers/test/events.ts
+            "expected 1 to equal 2"
+=======
             'Error in "WithUintArg" event: Error in the 1st argument assertion: expected 1 to equal 2.',
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/test/matchers/events.ts
           );
         });
 
@@ -170,7 +190,11 @@ describe(".to.emit (contract events)", { timeout: 60000 }, () => {
               .withArgs(1, 3),
           ).to.be.eventually.rejectedWith(
             AssertionError,
+<<<<<<< HEAD:packages/hardhat-chai-matchers/test/events.ts
+            'Expected "WithUintArg" event to have 2 argument(s), but it has 1'
+=======
             'Error in "WithUintArg" event: Expected arguments array to have length 2, but it has 1',
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/test/matchers/events.ts
           );
         });
       });
@@ -200,7 +224,11 @@ describe(".to.emit (contract events)", { timeout: 60000 }, () => {
               .withArgs(otherAddressable),
           ).to.be.eventually.rejectedWith(
             AssertionError,
+<<<<<<< HEAD:packages/hardhat-chai-matchers/test/events.ts
+            `expected '${address}' to equal '${otherAddress}'`
+=======
             `Error in "WithAddressArg" event: Error in the 1st argument assertion: expected '${address}' to equal '${otherAddress}'`,
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/test/matchers/events.ts
           );
         });
 
@@ -211,7 +239,11 @@ describe(".to.emit (contract events)", { timeout: 60000 }, () => {
               .withArgs(otherAddress),
           ).to.be.eventually.rejectedWith(
             AssertionError,
+<<<<<<< HEAD:packages/hardhat-chai-matchers/test/events.ts
+            `expected '${address}' to equal '${otherAddress}'`
+=======
             `Error in "WithAddressArg" event: Error in the 1st argument assertion: expected '${address}' to equal '${otherAddress}'`,
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/test/matchers/events.ts
           );
         });
 
@@ -222,16 +254,33 @@ describe(".to.emit (contract events)", { timeout: 60000 }, () => {
               .withArgs(address, otherAddress),
           ).to.be.eventually.rejectedWith(
             AssertionError,
+<<<<<<< HEAD:packages/hardhat-chai-matchers/test/events.ts
+            'Expected "WithAddressArg" event to have 2 argument(s), but it has 1'
+=======
             'Error in "WithAddressArg" event: Expected arguments array to have length 2, but it has 1',
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/test/matchers/events.ts
           );
         });
       });
+
+      const string1 = "string1";
+      const string1Bytes = ethers.hexlify(ethers.toUtf8Bytes(string1));
+      const string2 = "string2";
+      const string2Bytes = ethers.hexlify(ethers.toUtf8Bytes(string2));
 
       // for abbreviating long strings in diff views like chai does:
       function abbrev(longString: string): string {
         return `${longString.substring(0, 37)}…`;
       }
 
+<<<<<<< HEAD:packages/hardhat-chai-matchers/test/events.ts
+      function hash(s: string): string {
+        return ethers.keccak256(s);
+      }
+
+      describe("with a string argument", function () {
+        it("Should match the argument", async function () {
+=======
       function formatHash(str: string, hashFn = id) {
         const hash = hashFn(str);
         return {
@@ -257,6 +306,7 @@ describe(".to.emit (contract events)", { timeout: 60000 }, () => {
 
       describe("with a string argument", () => {
         it("should match the argument", async () => {
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/test/matchers/events.ts
           await expect(contract.emitString("string"))
             .to.emit(contract, "WithStringArg")
             .withArgs("string");
@@ -264,27 +314,54 @@ describe(".to.emit (contract events)", { timeout: 60000 }, () => {
 
         it("should fail when the input argument doesn't match the event argument", async () => {
           await expect(
-            expect(contract.emitString(str1.str))
+            expect(contract.emitString(string1))
               .to.emit(contract, "WithStringArg")
+<<<<<<< HEAD:packages/hardhat-chai-matchers/test/events.ts
+              .withArgs(string2)
+          ).to.be.eventually.rejectedWith(
+            AssertionError,
+            `expected '${string1}' to equal '${string2}'`
+=======
               .withArgs(str2.str),
           ).to.be.eventually.rejectedWith(
             AssertionError,
             `expected '${str1.str}' to equal '${str2.str}'`,
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/test/matchers/events.ts
           );
         });
       });
 
+<<<<<<< HEAD:packages/hardhat-chai-matchers/test/events.ts
+      describe("with an indexed string argument", function () {
+        it("Should match the argument", async function () {
+          await expect(contract.emitIndexedString(string1))
+=======
       describe("with an indexed string argument", () => {
         it("should match the argument", async () => {
           await expect(contract.emitIndexedString(str1.str))
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/test/matchers/events.ts
             .to.emit(contract, "WithIndexedStringArg")
-            .withArgs(str1.str);
+            .withArgs(string1);
         });
 
         it("should fail when the input argument doesn't match the event argument", async () => {
           await expect(
-            expect(contract.emitIndexedString(str1.str))
+            expect(contract.emitIndexedString(string1))
               .to.emit(contract, "WithIndexedStringArg")
+<<<<<<< HEAD:packages/hardhat-chai-matchers/test/events.ts
+              .withArgs(string2)
+          ).to.be.eventually.rejectedWith(
+            AssertionError,
+            `The actual value was an indexed and hashed value of the event argument. The expected value provided to the assertion was hashed to produce ${hash(
+              string2Bytes
+            )}. The actual hash and the expected hash did not match: expected '${abbrev(
+              hash(string1Bytes)
+            )}' to equal '${abbrev(hash(string2Bytes))}'`
+          );
+        });
+
+        it("Should match the event argument with a hash value", async function () {
+=======
               .withArgs(str2.str),
           ).to.be.eventually.rejectedWith(
             AssertionError,
@@ -293,9 +370,22 @@ describe(".to.emit (contract events)", { timeout: 60000 }, () => {
         });
 
         it("should fail if expected argument is the hash not the pre-image", async () => {
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/test/matchers/events.ts
           await expect(
-            expect(contract.emitIndexedString(str1.str))
+            expect(contract.emitIndexedString(string1))
               .to.emit(contract, "WithIndexedStringArg")
+<<<<<<< HEAD:packages/hardhat-chai-matchers/test/events.ts
+              .withArgs(hash(string1Bytes))
+          ).to.be.eventually.rejectedWith(
+            AssertionError,
+            "The actual value was an indexed and hashed value of the event argument. The expected value provided to the assertion should be the actual event argument (the pre-image of the hash). You provided the hash itself. Please supply the the actual event argument (the pre-image of the hash) instead."
+          );
+        });
+
+        it("Should fail when trying to match the event argument with an incorrect hash value", async function () {
+          const expectedHash = hash(string1Bytes);
+          const incorrectHash = hash(string2Bytes);
+=======
               .withArgs(str1.hash),
           ).to.be.eventually.rejectedWith(
             AssertionError,
@@ -305,47 +395,92 @@ describe(".to.emit (contract events)", { timeout: 60000 }, () => {
 
         it("should fail when trying to match the event argument with an incorrect hash value", async () => {
           const incorrect = formatHash(str2.hash, ethers.keccak256);
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/test/matchers/events.ts
           await expect(
-            expect(contract.emitIndexedString(str1.str))
+            expect(contract.emitIndexedString(string1))
               .to.emit(contract, "WithIndexedStringArg")
+<<<<<<< HEAD:packages/hardhat-chai-matchers/test/events.ts
+              .withArgs(incorrectHash)
+          ).to.be.eventually.rejectedWith(
+            AssertionError,
+            `The actual value was an indexed and hashed value of the event argument. The expected value provided to the assertion was hashed to produce ${hash(
+              incorrectHash
+            )}. The actual hash and the expected hash did not match: expected '${abbrev(
+              expectedHash
+            )}' to equal '${abbrev(hash(incorrectHash))}'`
+=======
               .withArgs(incorrect.str),
           ).to.be.eventually.rejectedWith(
             AssertionError,
             `Error in "WithIndexedStringArg" event: Error in the 1st argument assertion: The actual value was an indexed and hashed value of the event argument. The expected value provided to the assertion was hashed to produce ${incorrect.hash}. The actual hash and the expected hash ${str1.hash} did not match: expected '${str1.abbrev}' to equal '${incorrect.abbrev}`,
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/test/matchers/events.ts
           );
         });
       });
 
+<<<<<<< HEAD:packages/hardhat-chai-matchers/test/events.ts
+      describe("with a bytes argument", function () {
+        it("Should match the argument", async function () {
+          await expect(contract.emitBytes(string1Bytes))
+=======
       describe("with a bytes argument", () => {
         it("should match the argument", async () => {
           await expect(contract.emitBytes(str1.bytes))
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/test/matchers/events.ts
             .to.emit(contract, "WithBytesArg")
-            .withArgs(str1.bytes);
+            .withArgs(string1Bytes);
         });
 
         it("should fail when the input argument doesn't match the event argument", async () => {
           await expect(
-            expect(contract.emitBytes(str2.bytes))
+            expect(contract.emitBytes(string2Bytes))
               .to.emit(contract, "WithBytesArg")
+<<<<<<< HEAD:packages/hardhat-chai-matchers/test/events.ts
+              .withArgs(string1Bytes)
+          ).to.be.eventually.rejectedWith(
+            AssertionError,
+            `expected '${string2Bytes}' to equal '${string1Bytes}'`
+=======
               .withArgs(str1.str),
           ).to.be.eventually.rejectedWith(
             AssertionError,
             `Error in "WithBytesArg" event: Error in the 1st argument assertion: expected '${str2.bytes}' to equal '${str1.str}'`,
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/test/matchers/events.ts
           );
         });
       });
 
+<<<<<<< HEAD:packages/hardhat-chai-matchers/test/events.ts
+      describe("with an indexed bytes argument", function () {
+        it("Should match the argument", async function () {
+          await expect(contract.emitIndexedBytes(string1Bytes))
+=======
       describe("with an indexed bytes argument", () => {
         it("should match the argument", async () => {
           await expect(contract.emitIndexedBytes(str1.bytes))
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/test/matchers/events.ts
             .to.emit(contract, "WithIndexedBytesArg")
-            .withArgs(str1.str);
+            .withArgs(string1Bytes);
         });
 
         it("should fail when the input argument doesn't match the event argument", async () => {
           await expect(
-            expect(contract.emitIndexedBytes(str2.bytes))
+            expect(contract.emitIndexedBytes(string2Bytes))
               .to.emit(contract, "WithIndexedBytesArg")
+<<<<<<< HEAD:packages/hardhat-chai-matchers/test/events.ts
+              .withArgs(string1Bytes)
+          ).to.be.eventually.rejectedWith(
+            AssertionError,
+            `The actual value was an indexed and hashed value of the event argument. The expected value provided to the assertion was hashed to produce ${hash(
+              string1Bytes
+            )}. The actual hash and the expected hash did not match: expected '${abbrev(
+              hash(string2Bytes)
+            )}' to equal '${abbrev(hash(string1Bytes))}'`
+          );
+        });
+
+        it("Should match the event argument with a hash value", async function () {
+=======
               .withArgs(str1.str),
           ).to.be.eventually.rejectedWith(
             AssertionError,
@@ -354,52 +489,98 @@ describe(".to.emit (contract events)", { timeout: 60000 }, () => {
         });
 
         it("should fail the passerd argument is the hash, not the pre-image", async () => {
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/test/matchers/events.ts
           await expect(
-            expect(contract.emitIndexedBytes(str1.bytes))
+            expect(contract.emitIndexedBytes(string1Bytes))
               .to.emit(contract, "WithIndexedBytesArg")
+<<<<<<< HEAD:packages/hardhat-chai-matchers/test/events.ts
+              .withArgs(hash(string1Bytes))
+          ).to.be.eventually.rejectedWith(
+            AssertionError,
+            "The actual value was an indexed and hashed value of the event argument. The expected value provided to the assertion should be the actual event argument (the pre-image of the hash). You provided the hash itself. Please supply the the actual event argument (the pre-image of the hash) instead."
+=======
               .withArgs(str1.hash),
           ).to.be.eventually.rejectedWith(
             AssertionError,
             "The actual value was an indexed and hashed value of the event argument. The expected value provided to the assertion should be the actual event argument (the pre-image of the hash). You provided the hash itself. Please supply the actual event argument (the pre-image of the hash) instead.",
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/test/matchers/events.ts
           );
         });
       });
 
+<<<<<<< HEAD:packages/hardhat-chai-matchers/test/events.ts
+      const string1Bytes32 = ethers.zeroPadValue(string1Bytes, 32);
+      const string2Bytes32 = ethers.zeroPadValue(string2Bytes, 32);
+      describe("with a bytes32 argument", function () {
+        it("Should match the argument", async function () {
+          await expect(contract.emitBytes32(string1Bytes32))
+=======
       describe("with a bytes32 argument", () => {
         it("should match the argument", async () => {
           await expect(contract.emitBytes32(str1.bytes32))
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/test/matchers/events.ts
             .to.emit(contract, "WithBytes32Arg")
-            .withArgs(str1.bytes32);
+            .withArgs(string1Bytes32);
         });
 
         it("should fail when the input argument doesn't match the event argument", async () => {
           await expect(
-            expect(contract.emitBytes32(str2.bytes32))
+            expect(contract.emitBytes32(string2Bytes32))
               .to.emit(contract, "WithBytes32Arg")
+<<<<<<< HEAD:packages/hardhat-chai-matchers/test/events.ts
+              .withArgs(string1Bytes32)
+          ).to.be.eventually.rejectedWith(
+            AssertionError,
+            `expected '${abbrev(
+              ethers.hexlify(string2Bytes32)
+            )}' to equal '${abbrev(ethers.hexlify(string1Bytes32))}'`
+=======
               .withArgs(str1.bytes32),
           ).to.be.eventually.rejectedWith(
             AssertionError,
             `Error in "WithBytes32Arg" event: Error in the 1st argument assertion: expected '${str2.abbrev32}' to equal '${str1.abbrev32}'`,
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/test/matchers/events.ts
           );
         });
       });
 
+<<<<<<< HEAD:packages/hardhat-chai-matchers/test/events.ts
+      describe("with an indexed bytes32 argument", function () {
+        it("Should match the argument", async function () {
+          await expect(contract.emitIndexedBytes32(string1Bytes32))
+=======
       describe("with an indexed bytes32 argument", () => {
         it("should match the argument", async () => {
           await expect(contract.emitIndexedBytes32(str1.bytes32))
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/test/matchers/events.ts
             .to.emit(contract, "WithIndexedBytes32Arg")
-            .withArgs(str1.bytes32);
+            .withArgs(string1Bytes32);
         });
 
         it("should fail when the input argument doesn't match the event argument", async () => {
           await expect(
-            expect(contract.emitIndexedBytes32(str2.bytes32))
+            expect(contract.emitIndexedBytes32(string2Bytes32))
               .to.emit(contract, "WithIndexedBytes32Arg")
+<<<<<<< HEAD:packages/hardhat-chai-matchers/test/events.ts
+              .withArgs(string1Bytes32)
+          ).to.be.eventually.rejectedWith(
+            AssertionError,
+            `expected '${abbrev(
+              ethers.hexlify(string2Bytes32)
+            )}' to equal '${abbrev(ethers.hexlify(string1Bytes32))}'`
+=======
               .withArgs(str1.bytes32),
           ).to.be.eventually.rejectedWith(
             AssertionError,
             `Error in "WithIndexedBytes32Arg" event: Error in the 1st argument assertion: expected '${str2.abbrev32}' to equal '${str1.abbrev32}'`,
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/test/matchers/events.ts
           );
+        });
+
+        it("Should match the event argument with a hash value", async function () {
+          await expect(contract.emitIndexedBytes32(string1Bytes32))
+            .to.emit(contract, "WithIndexedBytes32Arg")
+            .withArgs(string1Bytes32);
         });
       });
 
@@ -417,6 +598,15 @@ describe(".to.emit (contract events)", { timeout: 60000 }, () => {
               .withArgs([3, 4]),
           ).to.be.eventually.rejectedWith(
             AssertionError,
+<<<<<<< HEAD:packages/hardhat-chai-matchers/test/events.ts
+            "expected 1 to equal 3"
+          );
+        });
+
+        it("Should fail when the arrays don't have the same length", async function () {
+          await expect(
+            expect(contract.emitUintArray(1, 2))
+=======
             `Error in "WithUintArray" event: Error in the 1st argument assertion: Error in the 1st argument assertion: expected 1 to equal 3.`,
           );
         });
@@ -424,10 +614,35 @@ describe(".to.emit (contract events)", { timeout: 60000 }, () => {
         describe("nested predicate", () => {
           it("should succeed when predicate passes", async () => {
             await expect(contract.emitUintArray(1, 2))
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/test/matchers/events.ts
               .to.emit(contract, "WithUintArray")
-              .withArgs([anyValue, 2]);
-          });
+              .withArgs([1])
+          ).to.be.eventually.rejectedWith(
+            AssertionError,
+            'Expected the 1st argument of the "WithUintArray" event to have 1 element, but it has 2'
+          );
 
+<<<<<<< HEAD:packages/hardhat-chai-matchers/test/events.ts
+          await expect(
+            expect(contract.emitUintArray(1, 2))
+              .to.emit(contract, "WithUintArray")
+              .withArgs([1, 2, 3])
+          ).to.be.eventually.rejectedWith(
+            AssertionError,
+            'Expected the 1st argument of the "WithUintArray" event to have 3 elements, but it has 2'
+          );
+        });
+      });
+
+      describe("with a bytes32 array argument", function () {
+        it("Should succeed when expectations are met", async function () {
+          await expect(
+            contract.emitBytes32Array(
+              `0x${"aa".repeat(32)}`,
+              `0x${"bb".repeat(32)}`
+            )
+          )
+=======
           it("should fail when predicate returns false", async () => {
             await expect(
               expect(contract.emitUintArray(1, 2))
@@ -489,20 +704,35 @@ describe(".to.emit (contract events)", { timeout: 60000 }, () => {
 
         it("should succeed when expectations are met", async () => {
           await expect(contract.emitBytes32Array(aa, bb))
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/test/matchers/events.ts
             .to.emit(contract, "WithBytes32Array")
-            .withArgs([aa, bb]);
+            .withArgs([`0x${"aa".repeat(32)}`, `0x${"bb".repeat(32)}`]);
         });
 
         it("should fail when expectations are not met", async () => {
           await expect(
-            expect(contract.emitBytes32Array(aa, bb))
+            expect(
+              contract.emitBytes32Array(
+                `0x${"aa".repeat(32)}`,
+                `0x${"bb".repeat(32)}`
+              )
+            )
               .to.emit(contract, "WithBytes32Array")
+<<<<<<< HEAD:packages/hardhat-chai-matchers/test/events.ts
+              .withArgs([`0x${"cc".repeat(32)}`, `0x${"dd".repeat(32)}`])
+          ).to.be.eventually.rejectedWith(
+            AssertionError,
+            `expected '${abbrev(`0x${"aa".repeat(32)}`)}' to equal '${abbrev(
+              `0x${"cc".repeat(32)}`
+            )}'`
+=======
               .withArgs([cc, dd]),
           ).to.be.eventually.rejectedWith(
             AssertionError,
             `Error in "WithBytes32Array" event: Error in the 1st argument assertion: Error in the 1st argument assertion: expected '${abbrev(
               aa,
             )}' to equal '${abbrev(cc)}'`,
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/test/matchers/events.ts
           );
         });
       });
@@ -521,7 +751,11 @@ describe(".to.emit (contract events)", { timeout: 60000 }, () => {
               .withArgs([3, 4]),
           ).to.be.eventually.rejectedWith(
             AssertionError,
+<<<<<<< HEAD:packages/hardhat-chai-matchers/test/events.ts
+            "expected 1 to equal 3"
+=======
             'Error in "WithStructArg" event: Error in the 1st argument assertion: Error in the 1st argument assertion: expected 1 to equal 3.',
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/test/matchers/events.ts
           );
         });
       });
@@ -540,7 +774,11 @@ describe(".to.emit (contract events)", { timeout: 60000 }, () => {
               .withArgs(2, 2),
           ).to.be.eventually.rejectedWith(
             AssertionError,
+<<<<<<< HEAD:packages/hardhat-chai-matchers/test/events.ts
+            "expected 1 to equal 2"
+=======
             'Error in "WithTwoUintArgs" event: Error in the 1st argument assertion: expected 1 to equal 2',
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/test/matchers/events.ts
           );
         });
 
@@ -551,7 +789,11 @@ describe(".to.emit (contract events)", { timeout: 60000 }, () => {
               .withArgs(1, 1),
           ).to.be.eventually.rejectedWith(
             AssertionError,
+<<<<<<< HEAD:packages/hardhat-chai-matchers/test/events.ts
+            "expected 2 to equal 1"
+=======
             'Error in "WithTwoUintArgs" event: Error in the 2nd argument assertion: expected 2 to equal 1.',
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/test/matchers/events.ts
           );
         });
 
@@ -562,7 +804,11 @@ describe(".to.emit (contract events)", { timeout: 60000 }, () => {
               .withArgs(1, 2, 3, 4),
           ).to.be.eventually.rejectedWith(
             AssertionError,
+<<<<<<< HEAD:packages/hardhat-chai-matchers/test/events.ts
+            'Expected "WithTwoUintArgs" event to have 4 argument(s), but it has 2'
+=======
             'Error in "WithTwoUintArgs" event: Expected arguments array to have length 4, but it has 2',
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/test/matchers/events.ts
           );
         });
 
@@ -573,7 +819,11 @@ describe(".to.emit (contract events)", { timeout: 60000 }, () => {
               .withArgs(1),
           ).to.be.eventually.rejectedWith(
             AssertionError,
+<<<<<<< HEAD:packages/hardhat-chai-matchers/test/events.ts
+            'Expected "WithTwoUintArgs" event to have 1 argument(s), but it has 2'
+=======
             'Error in "WithTwoUintArgs" event: Expected arguments array to have length 1, but it has 2',
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/test/matchers/events.ts
           );
         });
 
@@ -588,10 +838,17 @@ describe(".to.emit (contract events)", { timeout: 60000 }, () => {
             await expect(
               expect(contract.emitTwoUints(1, 2))
                 .to.emit(contract, "WithTwoUintArgs")
+<<<<<<< HEAD:packages/hardhat-chai-matchers/test/events.ts
+                .withArgs(1, () => false)
+            ).to.be.eventually.rejectedWith(
+              AssertionError,
+              "The predicate for the 2nd event argument returned false"
+=======
                 .withArgs(1, () => false),
             ).to.be.rejectedWith(
               AssertionError,
               'Error in "WithTwoUintArgs" event: Error in the 2nd argument assertion: The predicate did not return true',
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/test/matchers/events.ts
             );
           });
 
@@ -601,11 +858,16 @@ describe(".to.emit (contract events)", { timeout: 60000 }, () => {
                 .to.emit(contract, "WithTwoUintArgs")
                 .withArgs(() => {
                   throw new Error("user-defined error");
+<<<<<<< HEAD:packages/hardhat-chai-matchers/test/events.ts
+                }, "foo")
+            ).to.be.rejectedWith(Error, "user-defined error");
+=======
                 }, "foo"),
             ).to.be.rejectedWith(
               Error,
               'Error in "WithTwoUintArgs" event: Error in the 1st argument assertion: The predicate threw when called: user-defined error',
             );
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/test/matchers/events.ts
           });
 
           describe("with predicate anyUint", () => {
@@ -616,7 +878,11 @@ describe(".to.emit (contract events)", { timeout: 60000 }, () => {
                   .withArgs(anyUint),
               ).to.be.rejectedWith(
                 AssertionError,
+<<<<<<< HEAD:packages/hardhat-chai-matchers/test/events.ts
+                "The predicate for the 1st event argument threw an AssertionError: anyUint expected its argument to be an integer, but its type was 'string'"
+=======
                 "Error in \"WithStringArg\" event: Error in the 1st argument assertion: The predicate threw when called: anyUint expected its argument to be an integer, but its type was 'string'",
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/test/matchers/events.ts
               );
             });
 
@@ -627,7 +893,11 @@ describe(".to.emit (contract events)", { timeout: 60000 }, () => {
                   .withArgs(anyUint),
               ).to.be.rejectedWith(
                 AssertionError,
+<<<<<<< HEAD:packages/hardhat-chai-matchers/test/events.ts
+                "The predicate for the 1st event argument threw an AssertionError: anyUint expected its argument to be an unsigned integer, but it was negative, with value -1"
+=======
                 'Error in "WithIntArg" event: Error in the 1st argument assertion: The predicate threw when called: anyUint expected its argument to be an unsigned integer, but it was negative, with value -1',
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/test/matchers/events.ts
               );
             });
           });
@@ -691,23 +961,35 @@ describe(".to.emit (contract events)", { timeout: 60000 }, () => {
               .withArgs(1)
               .and.to.emit(contract, "WithStringArg");
           });
+<<<<<<< HEAD:packages/hardhat-chai-matchers/test/events.ts
+          it("Should pass when expecting the correct args from the second event", async function () {
+=======
 
           it("should pass when expecting the correct args from the second event", async () => {
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/test/matchers/events.ts
             await expect(contract.emitUintAndString(1, "a string"))
               .to.emit(contract, "WithUintArg")
               .and.to.emit(contract, "WithStringArg")
               .withArgs("a string");
           });
+<<<<<<< HEAD:packages/hardhat-chai-matchers/test/events.ts
+          it("Should pass when expecting the correct args from both events", async function () {
+=======
 
           it("should pass when expecting the correct args from both events", async () => {
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/test/matchers/events.ts
             await expect(contract.emitUintAndString(1, "a string"))
               .to.emit(contract, "WithUintArg")
               .withArgs(1)
               .and.to.emit(contract, "WithStringArg")
               .withArgs("a string");
           });
+<<<<<<< HEAD:packages/hardhat-chai-matchers/test/events.ts
+          it("Should fail when expecting the wrong argument value for the first event", async function () {
+=======
 
           it("should fail when expecting the wrong argument value for the first event", async () => {
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/test/matchers/events.ts
             await expect(
               expect(contract.emitUintAndString(1, "a string"))
                 .to.emit(contract, "WithUintArg")
@@ -715,11 +997,18 @@ describe(".to.emit (contract events)", { timeout: 60000 }, () => {
                 .and.to.emit(contract, "WithStringArg"),
             ).to.be.eventually.rejectedWith(
               AssertionError,
+<<<<<<< HEAD:packages/hardhat-chai-matchers/test/events.ts
+              "expected 1 to equal 2"
+            );
+          });
+          it("Should fail when expecting the wrong argument value for the second event", async function () {
+=======
               'Error in "WithUintArg" event: Error in the 1st argument assertion: expected 1 to equal 2.',
             );
           });
 
           it("should fail when expecting the wrong argument value for the second event", async () => {
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/test/matchers/events.ts
             await expect(
               expect(contract.emitUintAndString(1, "a string"))
                 .to.emit(contract, "WithUintArg")
@@ -727,11 +1016,18 @@ describe(".to.emit (contract events)", { timeout: 60000 }, () => {
                 .withArgs("a different string"),
             ).to.be.eventually.rejectedWith(
               AssertionError,
+<<<<<<< HEAD:packages/hardhat-chai-matchers/test/events.ts
+              "expected 'a string' to equal 'a different string'"
+            );
+          });
+          it("Should fail when expecting too many arguments from the first event", async function () {
+=======
               "Error in \"WithStringArg\" event: Error in the 1st argument assertion: expected 'a string' to equal 'a different string'",
             );
           });
 
           it("should fail when expecting too many arguments from the first event", async () => {
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/test/matchers/events.ts
             await expect(
               expect(contract.emitUintAndString(1, "a string"))
                 .to.emit(contract, "WithUintArg")
@@ -739,11 +1035,18 @@ describe(".to.emit (contract events)", { timeout: 60000 }, () => {
                 .and.to.emit(contract, "WithStringArg"),
             ).to.be.eventually.rejectedWith(
               AssertionError,
+<<<<<<< HEAD:packages/hardhat-chai-matchers/test/events.ts
+              'Expected "WithUintArg" event to have 2 argument(s), but it has 1'
+            );
+          });
+          it("Should fail when expecting too many arguments from the second event", async function () {
+=======
               'Error in "WithUintArg" event: Expected arguments array to have length 2, but it has 1',
             );
           });
 
           it("should fail when expecting too many arguments from the second event", async () => {
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/test/matchers/events.ts
             await expect(
               expect(contract.emitUintAndString(1, "a string"))
                 .to.emit(contract, "WithUintArg")
@@ -751,11 +1054,18 @@ describe(".to.emit (contract events)", { timeout: 60000 }, () => {
                 .withArgs("a different string", "yet another string"),
             ).to.be.eventually.rejectedWith(
               AssertionError,
+<<<<<<< HEAD:packages/hardhat-chai-matchers/test/events.ts
+              'Expected "WithStringArg" event to have 2 argument(s), but it has 1'
+            );
+          });
+          it("Should fail when expecting too few arguments from the first event", async function () {
+=======
               'Error in "WithStringArg" event: Expected arguments array to have length 2, but it has 1',
             );
           });
 
           it("should fail when expecting too few arguments from the first event", async () => {
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/test/matchers/events.ts
             await expect(
               expect(
                 contract.emitTwoUintsAndTwoStrings(
@@ -770,11 +1080,18 @@ describe(".to.emit (contract events)", { timeout: 60000 }, () => {
                 .and.to.emit(contract, "WithTwoStringArgs"),
             ).to.be.eventually.rejectedWith(
               AssertionError,
+<<<<<<< HEAD:packages/hardhat-chai-matchers/test/events.ts
+              'Expected "WithTwoUintArgs" event to have 1 argument(s), but it has 2'
+            );
+          });
+          it("Should fail when expecting too few arguments from the second event", async function () {
+=======
               'Error in "WithTwoUintArgs" event: Expected arguments array to have length 1, but it has 2',
             );
           });
 
           it("should fail when expecting too few arguments from the second event", async () => {
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/test/matchers/events.ts
             await expect(
               expect(
                 contract.emitTwoUintsAndTwoStrings(
@@ -789,7 +1106,11 @@ describe(".to.emit (contract events)", { timeout: 60000 }, () => {
                 .withArgs("a string"),
             ).to.be.eventually.rejectedWith(
               AssertionError,
+<<<<<<< HEAD:packages/hardhat-chai-matchers/test/events.ts
+              'Expected "WithTwoStringArgs" event to have 1 argument(s), but it has 2'
+=======
               'Error in "WithTwoStringArgs" event: Expected arguments array to have length 1, but it has 2',
+>>>>>>> 64ba9d80dc5d99bc8803d3cb6d6a9d5f8928e0c5:v-next/hardhat-ethers-chai-matchers/test/matchers/events.ts
             );
           });
         });

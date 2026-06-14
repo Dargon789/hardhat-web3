@@ -50,10 +50,11 @@ interface TestActionArguments {
   grep?: string;
   noCompile: boolean;
   verbosity: number;
+  testSummaryIndex: number;
 }
 
 const runSolidityTests: NewTaskActionFunction<TestActionArguments> = async (
-  { testFiles, chainType, grep, noCompile, verbosity },
+  { testFiles, chainType, grep, noCompile, verbosity, testSummaryIndex },
   hre,
 ) => {
   assertHardhatInvariant(
@@ -157,10 +158,21 @@ const runSolidityTests: NewTaskActionFunction<TestActionArguments> = async (
     };
   }
 
+  // Extract hardfork from the selected network configuration
+  let hardfork: string | undefined;
+  if (hre.globalOptions.network !== undefined) {
+    const networkName = hre.globalOptions.network;
+    const networkConfig = hre.config.networks[networkName];
+    if (networkConfig !== undefined && networkConfig.type === "edr-simulated") {
+      hardfork = networkConfig.hardfork;
+    }
+  }
+
   const config: SolidityTestRunnerConfigArgs =
     await solidityTestConfigToSolidityTestRunnerConfigArgs({
       chainType,
       projectRoot: hre.config.paths.root,
+      hardfork,
       config: solidityTestConfig,
       verbosity,
       observability: observabilityConfig,
@@ -186,6 +198,11 @@ const runSolidityTests: NewTaskActionFunction<TestActionArguments> = async (
     sourceNameToUserSourceName,
     options,
   );
+
+  let failed = 0;
+  let passed = 0;
+  let skipped = 0;
+  let failureOutput = "";
 
   const testReporterStream = runStream
     .on("data", (event: TestEvent) => {
@@ -217,9 +234,25 @@ const runSolidityTests: NewTaskActionFunction<TestActionArguments> = async (
         }
       }
     })
-    .compose((source) =>
-      testReporter(source, sourceNameToUserSourceName, verbosity),
-    );
+    .compose(async function* (source) {
+      const reporter = testReporter(
+        source,
+        sourceNameToUserSourceName,
+        verbosity,
+        testSummaryIndex,
+      );
+
+      for await (const value of reporter) {
+        if (typeof value === "string") {
+          yield value;
+        } else {
+          failed = value.failed;
+          passed = value.passed;
+          skipped = value.skipped;
+          failureOutput = value.failureOutput;
+        }
+      }
+    });
 
   const outputStream = testReporterStream.pipe(
     createNonClosingWriter(process.stdout),
@@ -250,6 +283,14 @@ const runSolidityTests: NewTaskActionFunction<TestActionArguments> = async (
   }
 
   console.log();
+
+  return {
+    failed,
+    passed,
+    skipped,
+    todo: 0,
+    failureOutput,
+  };
 };
 
 export default runSolidityTests;

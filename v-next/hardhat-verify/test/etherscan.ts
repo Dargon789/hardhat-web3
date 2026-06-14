@@ -556,6 +556,183 @@ describe("etherscan", () => {
       });
     });
 
+    describe("customApiCall", async () => {
+      const testDispatcher = initializeTestDispatcher({
+        url: etherscanApiUrl,
+      });
+
+      it("should make a GET request with default options", async () => {
+        const etherscan = new Etherscan({
+          ...etherscanConfig,
+          dispatcher: testDispatcher.interceptable,
+        });
+
+        testDispatcher.interceptable
+          .intercept({
+            path: "/v2/api",
+            method: "GET",
+            query: {
+              chainid: String(etherscanConfig.chainId),
+              apikey: etherscanConfig.apiKey,
+              module: "contract",
+              action: "getsourcecode",
+              address,
+            },
+          })
+          .reply(200, {
+            status: "1",
+            message: "OK",
+            result: [{ SourceCode: sourceCode }],
+          });
+
+        const response = await etherscan.customApiCall({
+          module: "contract",
+          action: "getsourcecode",
+          address,
+        });
+
+        assert.equal(response.status, "1");
+        assert.equal(response.message, "OK");
+      });
+
+      it("should make a POST request when method is POST", async () => {
+        const etherscan = new Etherscan({
+          ...etherscanConfig,
+          dispatcher: testDispatcher.interceptable,
+        });
+
+        testDispatcher.interceptable
+          .intercept({
+            path: "/v2/api",
+            method: "POST",
+            query: {
+              chainid: String(etherscanConfig.chainId),
+              apikey: etherscanConfig.apiKey,
+              module: "contract",
+              action: "verifysourcecode",
+            },
+          })
+          .reply(200, {
+            status: "1",
+            message: "OK",
+            result: guid,
+          });
+
+        const response = await etherscan.customApiCall(
+          {
+            module: "contract",
+            action: "verifysourcecode",
+          },
+          {
+            method: "POST",
+            body: { contractaddress: address },
+          },
+        );
+
+        assert.equal(response.status, "1");
+        assert.equal(response.result, guid);
+      });
+
+      it("should allow overriding chainid and apikey", async () => {
+        const etherscan = new Etherscan({
+          ...etherscanConfig,
+          dispatcher: testDispatcher.interceptable,
+        });
+
+        const customChainId = "12345";
+        const customApiKey = "customKey";
+
+        testDispatcher.interceptable
+          .intercept({
+            path: "/v2/api",
+            method: "GET",
+            query: {
+              chainid: customChainId,
+              apikey: customApiKey,
+              module: "test",
+              action: "test",
+            },
+          })
+          .reply(200, {
+            status: "1",
+            message: "OK",
+            result: "success",
+          });
+
+        const response = await etherscan.customApiCall({
+          module: "test",
+          action: "test",
+          chainid: customChainId,
+          apikey: customApiKey,
+        });
+
+        assert.equal(response.status, "1");
+        assert.equal(response.result, "success");
+      });
+
+      it("should throw an error if the request fails", async () => {
+        const etherscan = new Etherscan({
+          ...etherscanConfig,
+          dispatcher: testDispatcher.interceptable,
+        });
+
+        testDispatcher.interceptable
+          .intercept({
+            path: "/v2/api",
+            method: "GET",
+            query: {
+              chainid: String(etherscanConfig.chainId),
+              apikey: etherscanConfig.apiKey,
+              module: "test",
+              action: "test",
+            },
+          })
+          .replyWithError(new Error("Network error"));
+
+        await assertRejectsWithHardhatError(
+          etherscan.customApiCall({ module: "test", action: "test" }),
+          HardhatError.ERRORS.HARDHAT_VERIFY.GENERAL.EXPLORER_REQUEST_FAILED,
+          {
+            name: etherscanConfig.name,
+            url: etherscanConfig.apiUrl,
+            errorMessage: "Network error",
+          },
+        );
+      });
+
+      it("should throw an error if the response status code is not 2xx", async () => {
+        const etherscan = new Etherscan({
+          ...etherscanConfig,
+          dispatcher: testDispatcher.interceptable,
+        });
+
+        testDispatcher.interceptable
+          .intercept({
+            path: "/v2/api",
+            method: "GET",
+            query: {
+              chainid: String(etherscanConfig.chainId),
+              apikey: etherscanConfig.apiKey,
+              module: "test",
+              action: "test",
+            },
+          })
+          .reply(300, { result: "Redirection error" });
+
+        await assertRejectsWithHardhatError(
+          etherscan.customApiCall({ module: "test", action: "test" }),
+          HardhatError.ERRORS.HARDHAT_VERIFY.GENERAL
+            .EXPLORER_REQUEST_STATUS_CODE_ERROR,
+          {
+            name: etherscanConfig.name,
+            url: etherscanConfig.apiUrl,
+            statusCode: 300,
+            errorMessage: "Redirection error",
+          },
+        );
+      });
+    });
+
     describe("pollVerificationStatus", async () => {
       const testDispatcher = initializeTestDispatcher({
         url: etherscanApiUrl,
@@ -621,6 +798,71 @@ describe("etherscan", () => {
 
         assert.equal(response.success, false);
         assert.equal(response.message, "Fail - Unable to verify");
+      });
+
+      it("should handle detailed failure messages with additional information", async () => {
+        const etherscan = new Etherscan({
+          ...etherscanConfig,
+          dispatcher: testDispatcher.interceptable,
+        });
+
+        const detailedErrorMessage =
+          "Fail - Unable to verify. Compiled contract deployment bytecode does NOT match the transaction deployment bytecode.";
+
+        pollVerificationStatusInterceptor.reply(200, {
+          status: "0",
+          result: detailedErrorMessage,
+        });
+
+        let response: { success: boolean; message: string } | undefined;
+        try {
+          response = await etherscan.pollVerificationStatus(
+            guid,
+            address,
+            contract,
+          );
+        } catch {
+          assert.fail("Expected pollVerificationStatus to not throw an error");
+        }
+
+        assert.equal(response.success, false);
+        assert.equal(response.message, detailedErrorMessage);
+      });
+
+      it("should handle various detailed failure messages starting with 'Fail - Unable to verify'", async () => {
+        const etherscan = new Etherscan({
+          ...etherscanConfig,
+          dispatcher: testDispatcher.interceptable,
+        });
+
+        const failureMessages = [
+          "Fail - Unable to verify. Some other reason.",
+          "Fail - Unable to verify. Constructor arguments do not match.",
+          "Fail - Unable to verify. Invalid compiler version specified.",
+        ];
+
+        for (const failureMessage of failureMessages) {
+          pollVerificationStatusInterceptor.reply(200, {
+            status: "0",
+            result: failureMessage,
+          });
+
+          let response: { success: boolean; message: string } | undefined;
+          try {
+            response = await etherscan.pollVerificationStatus(
+              guid,
+              address,
+              contract,
+            );
+          } catch {
+            assert.fail(
+              "Expected pollVerificationStatus to not throw an error",
+            );
+          }
+
+          assert.equal(response.success, false);
+          assert.equal(response.message, failureMessage);
+        }
       });
 
       it("should poll the verification status until it is successful or fails", async () => {
