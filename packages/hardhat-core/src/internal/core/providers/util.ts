@@ -54,8 +54,6 @@ export function normalizeHardhatNetworkAccountsConfig(
   }
 
   const { bytesToHex } = require("@ethereumjs/util");
-=======
-  const { bufferToHex } = require("@nomicfoundation/ethereumjs-util");
 
   return derivePrivateKeys(
     accountsConfig.mnemonic,
@@ -64,9 +62,7 @@ export function normalizeHardhatNetworkAccountsConfig(
     accountsConfig.count,
     accountsConfig.passphrase
   ).map((pk) => ({
-    
-    privateKey: bufferToHex(pk),
-
+    privateKey: bytesToHex(pk),
     balance: accountsConfig.accountsBalance ?? DEFAULT_HARDHAT_NETWORK_BALANCE,
   }));
 }

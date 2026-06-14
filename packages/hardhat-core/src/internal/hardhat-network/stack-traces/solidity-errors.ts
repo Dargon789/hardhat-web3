@@ -1,6 +1,6 @@
 import { bytesToHex as bufferToHex } from "@ethereumjs/util";
+
 import { ReturnData } from "../provider/return-data";
-import { bufferToHex } from "@nomicfoundation/ethereumjs-util";
 import { panicErrorCodeToMessage } from "./panic-errors";
 import {
   CONSTRUCTOR_FUNCTION_NAME,
@@ -69,10 +69,6 @@ export function encodeSolidityStackTrace(
     } else {
       // We remove error management related stack traces
       stack.splice(0, 1);
-      // We remove Hardhat Network related stack traces
-      stack.splice(0, 3);
-      // We remove Hardhat Network related stack traces
-      stack.splice(0, 3);
     }
 
     for (const entry of stackTrace) {
@@ -262,6 +258,7 @@ function getMessageFromLastStackTraceEntry(
     case StackTraceEntryType.DIRECT_LIBRARY_CALL_ERROR:
       return `Transaction reverted: library was called directly`;
 
+    case StackTraceEntryType.UNRECOGNIZED_CREATE_ERROR:
     case StackTraceEntryType.UNRECOGNIZED_CONTRACT_ERROR: {
       const returnData = new ReturnData(stackTraceEntry.returnData);
       if (returnData.isErrorReturnData()) {
@@ -277,23 +274,6 @@ function getMessageFromLastStackTraceEntry(
         const buffer = Buffer.from(returnData.value).toString("hex");
 
         return `VM Exception while processing transaction: reverted with an unrecognized custom error (return data: 0x${buffer})`;
-
-    case StackTraceEntryType.UNRECOGNIZED_CONTRACT_ERROR:
-      if (stackTraceEntry.message.isErrorReturnData()) {
-        return `VM Exception while processing transaction: reverted with reason string '${stackTraceEntry.message.decodeError()}'`;
-      }
-
-      if (stackTraceEntry.message.isPanicReturnData()) {
-        const message = panicErrorCodeToMessage(
-          stackTraceEntry.message.decodePanic()
-        );
-        return `VM Exception while processing transaction: ${message}`;
-      }
-
-      if (!stackTraceEntry.message.isEmpty()) {
-        const returnData = stackTraceEntry.message.value.toString("hex");
-
-        return `VM Exception while processing transaction: reverted with an unrecognized custom error (return data: 0x${returnData})`;
       }
 
       if (stackTraceEntry.isInvalidOpcodeError) {
@@ -307,10 +287,6 @@ function getMessageFromLastStackTraceEntry(
       const returnData = new ReturnData(stackTraceEntry.returnData);
       if (returnData.isErrorReturnData()) {
         return `VM Exception while processing transaction: reverted with reason string '${returnData.decodeError()}'`;
-
-    case StackTraceEntryType.REVERT_ERROR:
-      if (stackTraceEntry.message.isErrorReturnData()) {
-        return `VM Exception while processing transaction: reverted with reason string '${stackTraceEntry.message.decodeError()}'`;
       }
 
       if (stackTraceEntry.isInvalidOpcodeError) {

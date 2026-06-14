@@ -5,14 +5,6 @@ import {
   toBytes,
 } from "@ethereumjs/util";
 import { Transaction } from "micro-eth-signer";
-import { Common } from "@nomicfoundation/ethereumjs-common";
-import { AccessListEIP2930Transaction } from "@nomicfoundation/ethereumjs-tx";
-import { assert } from "chai";
-import {
-  bufferToHex,
-  privateToAddress,
-  toBuffer,
-} from "@nomicfoundation/ethereumjs-util";
 
 import { ERRORS } from "../../../../src/internal/core/errors-list";
 import { numberToRpcQuantity } from "../../../../src/internal/core/jsonrpc/types/base-types";
@@ -29,7 +21,6 @@ import {
   expectHardhatError,
   expectHardhatErrorAsync,
 } from "../../../helpers/errors";
-
 import { MockedProvider } from "./mocks";
 
 function toBuffer(x: Parameters<typeof toBytes>[0]) {
@@ -38,12 +29,6 @@ function toBuffer(x: Parameters<typeof toBytes>[0]) {
 
 function privateKeyToAddress(privateKey: string): string {
   return bufferToHex(privateToAddress(toBuffer(privateKey)));
-
-
-import { MockedProvider } from "./mocks";
-
-function privateKeyToAddress(privateKey: string): string {
-  return bufferToHex(privateToAddress(toBuffer(privateKey))).toLowerCase();
 }
 
 const MOCK_PROVIDER_CHAIN_ID = 123;
@@ -1010,7 +995,6 @@ describe("Sender providers", () => {
  * the same values as `tx`
  */
 function validateRawEIP2930Transaction(rawTx: string, tx: any) {
-
   const sentTx = Transaction.fromHex(rawTx);
 
   assert.equal(sentTx.type, "eip2930");
@@ -1033,25 +1017,4 @@ function validateRawEIP2930Transaction(rawTx: string, tx: any) {
   assert.equal(numberToRpcQuantity(parsedTx.raw.nonce), tx.nonce);
   assert.equal(numberToRpcQuantity(parsedTx.raw.value), tx.value);
   assert.deepEqual(parsedTxAccessList, tx.accessList);
-
-  const common = Common.custom({ chainId: MOCK_PROVIDER_CHAIN_ID });
-  const sentTx = AccessListEIP2930Transaction.fromSerializedTx(
-    toBuffer(rawTx),
-    { common }
-  );
-
-  const accessList = sentTx.accessList.map(([address, storageKeys]) => {
-    return {
-      address: bufferToHex(address),
-      storageKeys: storageKeys.map(bufferToHex),
-    };
-  });
-
-  assert.equal(sentTx.getSenderAddress().toString(), tx.from);
-  assert.equal(sentTx.to?.toString(), tx.to);
-  assert.equal(numberToRpcQuantity(sentTx.gasLimit), tx.gas);
-  assert.equal(numberToRpcQuantity(sentTx.gasPrice), tx.gasPrice);
-  assert.equal(numberToRpcQuantity(sentTx.nonce), tx.nonce);
-  assert.equal(numberToRpcQuantity(sentTx.value), tx.value);
-  assert.deepEqual(accessList, tx.accessList);
 }

@@ -1,9 +1,8 @@
 import { bytesToBigInt as bufferToBigInt, toBytes } from "@ethereumjs/util";
-import { bufferToBigInt, toBuffer } from "@nomicfoundation/ethereumjs-util";
-import { bufferToBigInt, toBuffer } from "@nomicfoundation/ethereumjs-util";
 import { assert } from "chai";
 import fsExtra from "fs-extra";
 import sinon from "sinon";
+
 import { RpcTransaction } from "../../../../src/internal/core/jsonrpc/types/output/transaction";
 import { HttpProvider } from "../../../../src/internal/core/providers/http";
 import { JsonRpcClient } from "../../../../src/internal/hardhat-network/jsonrpc/client";
@@ -388,9 +387,6 @@ describe("JsonRpcClient", () => {
               Buffer.from(randomHashBuffer()),
               true
             );
-
-            const block = await client.getBlockByHash(randomHashBuffer(), true);
-            const block = await client.getBlockByHash(randomHashBuffer(), true);
             assert.isNull(block);
           });
         });
@@ -441,7 +437,6 @@ describe("JsonRpcClient", () => {
           it("returns null for non-existent transactions", async () => {
             const transaction = await client.getTransactionByHash(
               Buffer.from(randomHashBuffer())
-              randomHashBuffer()
             );
             assert.equal(transaction, null);
           });
@@ -463,7 +458,6 @@ describe("JsonRpcClient", () => {
           it("returns null for non-existent transactions", async () => {
             const transaction = await client.getTransactionReceipt(
               Buffer.from(randomHashBuffer())
-              randomHashBuffer()
             );
             assert.equal(transaction, null);
           });

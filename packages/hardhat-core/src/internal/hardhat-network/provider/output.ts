@@ -1,4 +1,3 @@
-
 import { Block } from "@nomicfoundation/ethereumjs-block";
 import { Common } from "@nomicfoundation/ethereumjs-common";
 import { TypedTransaction } from "@nomicfoundation/ethereumjs-tx";
@@ -43,16 +42,11 @@ export interface RpcBlockOutput {
   baseFeePerGas?: string;
   withdrawals?: RpcWithdrawalItem[];
   withdrawalsRoot?: string;
-  parentBeaconBlockRoot?: string | null;
-  blobGasUsed?: string | null;
-  excessBlobGas?: string | null;
 }
 
 export type RpcTransactionOutput =
   | LegacyRpcTransactionOutput
   | AccessListEIP2930RpcTransactionOutput
-  | EIP1559RpcTransactionOutput
-  | EOACodeEIP7702TransactionOutput;
   | EIP1559RpcTransactionOutput;
 
 interface BaseRpcTransactionOutput {
@@ -82,17 +76,6 @@ export type RpcAccessListOutput = Array<{
   storageKeys: string[];
 }>;
 
-
-export type RpcAuthorizationListOutput = Array<{
-  chainId: string;
-  address: string;
-  nonce: string;
-  yParity: string;
-  r: string;
-  s: string;
-}>;
-
-
 export interface AccessListEIP2930RpcTransactionOutput
   extends BaseRpcTransactionOutput {
   gasPrice: string;
@@ -106,12 +89,6 @@ export interface EIP1559RpcTransactionOutput extends BaseRpcTransactionOutput {
   maxPriorityFeePerGas: string;
   accessList?: RpcAccessListOutput;
   chainId: string;
-}
-
-
-export interface EOACodeEIP7702TransactionOutput
-  extends EIP1559RpcTransactionOutput {
-  authorizationList?: RpcAuthorizationListOutput;
 }
 
 export interface RpcReceiptOutput {

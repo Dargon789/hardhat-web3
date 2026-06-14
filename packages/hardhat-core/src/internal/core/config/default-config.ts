@@ -54,7 +54,6 @@ export const defaultHardhatNetworkParams: Omit<
   loggingEnabled: false,
   gasMultiplier: DEFAULT_GAS_MULTIPLIER,
   minGasPrice: 0n,
-
   chains: new Map([
     [
       // block numbers below were taken from https://github.com/ethereumjs/ethereumjs-monorepo/tree/master/packages/common/src/chains
@@ -77,8 +76,6 @@ export const defaultHardhatNetworkParams: Omit<
           [HardforkName.GRAY_GLACIER, 15_050_000],
           [HardforkName.MERGE, 15_537_394],
           [HardforkName.SHANGHAI, 17_034_870],
-          [HardforkName.CANCUN, 19_426_589],
-          [HardforkName.PRAGUE, 30_000_000], // TODO: replace with actual block number
         ]),
       },
     ],
@@ -113,12 +110,6 @@ export const defaultHardhatNetworkParams: Omit<
       5, // goerli
       {
         hardforkHistory: new Map([
-          [HardforkName.ISTANBUL, 1_561_651],
-          [HardforkName.BERLIN, 4_460_644],
-          [HardforkName.LONDON, 5_062_605],
-          [HardforkName.ISTANBUL, 1561651],
-          [HardforkName.BERLIN, 4460644],
-          [HardforkName.LONDON, 5062605],
           [HardforkName.ISTANBUL, 1561651],
           [HardforkName.BERLIN, 4460644],
           [HardforkName.LONDON, 5062605],
@@ -126,74 +117,6 @@ export const defaultHardhatNetworkParams: Omit<
       },
     ],
     [
-      17000, // holesky
-      {
-        hardforkHistory: new Map([
-          [HardforkName.MERGE, 0],
-          [HardforkName.SHANGHAI, 6_698],
-          [HardforkName.CANCUN, 894_732],
-          [HardforkName.PRAGUE, 3_419_704],
-        ]),
-      },
-    ],
-    [
-      560048, // hoodi
-      {
-        hardforkHistory: new Map([
-          [HardforkName.MERGE, 0],
-          [HardforkName.SHANGHAI, 0],
-          [HardforkName.CANCUN, 0],
-          [HardforkName.PRAGUE, 60_412],
-        ]),
-      },
-    ],
-    [
-      11155111, // sepolia
-      {
-        hardforkHistory: new Map([
-          [HardforkName.GRAY_GLACIER, 0],
-          [HardforkName.MERGE, 1_450_409],
-          [HardforkName.SHANGHAI, 2_990_908],
-          [HardforkName.CANCUN, 5_187_023],
-          [HardforkName.PRAGUE, 7_836_331],
-        ]),
-      },
-    ],
-    // TODO: the rest of this config is a temporary workaround,
-    // see https://github.com/NomicFoundation/edr/issues/522
-    [
-      10, // optimism mainnet
-      {
-        hardforkHistory: new Map([[HardforkName.SHANGHAI, 0]]),
-      },
-    ],
-    [
-      11155420, // optimism sepolia
-      {
-        hardforkHistory: new Map([[HardforkName.SHANGHAI, 0]]),
-      },
-    ],
-    [
-      42161, // arbitrum one
-      {
-        hardforkHistory: new Map([[HardforkName.SHANGHAI, 0]]),
-      },
-    ],
-    [
-      43114, // avalanche
-      {
-        hardforkHistory: new Map([
-          [HardforkName.SHANGHAI, 11_404_279],
-          [HardforkName.CANCUN, 41_263_126],
-        ]),
-      },
-    ],
-    [
-      421614, // arbitrum sepolia
-      {
-        hardforkHistory: new Map([[HardforkName.SHANGHAI, 0]]),
-      },
-    ],
       42, // kovan
       {
         hardforkHistory: new Map([

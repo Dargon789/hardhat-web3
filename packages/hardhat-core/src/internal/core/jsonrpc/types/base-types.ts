@@ -3,13 +3,6 @@ import {
   isValidAddress,
   toBytes,
 } from "@ethereumjs/util";
-  bufferToHex,
-  isValidAddress,
-  toBuffer,
-} 
-
-from "@nomicfoundation/ethereumjs-util";
-
 import * as t from "io-ts";
 
 import * as BigIntUtils from "../../../util/bigint";
@@ -39,16 +32,14 @@ export const rpcParity = new t.Type<Buffer>(
   Buffer.isBuffer,
   (u, c) =>
     isRpcParityString(u) ? t.success(Buffer.from(toBytes(u))) : t.failure(u, c),
-=======
-  (u, c) => (isRpcDataString(u) ? t.success(toBuffer(u)) : t.failure(u, c)),
   t.identity
 );
 
 export const rpcHash = new t.Type<Buffer>(
   "HASH",
   (v): v is Buffer => Buffer.isBuffer(v) && v.length === HASH_LENGTH_BYTES,
-
-  (u, c) => (isRpcHashString(u) ? t.success(toBuffer(u)) : t.failure(u, c)),
+  (u, c) =>
+    isRpcHashString(u) ? t.success(Buffer.from(toBytes(u))) : t.failure(u, c),
   t.identity
 );
 
@@ -115,13 +106,10 @@ function validateStorageSlot(u: unknown, c: t.Context): t.Validation<bigint> {
 export const rpcAddress = new t.Type<Buffer>(
   "ADDRESS",
   (v): v is Buffer => Buffer.isBuffer(v) && v.length === ADDRESS_LENGTH_BYTES,
-
   (u, c) =>
     isRpcAddressString(u)
       ? t.success(Buffer.from(toBytes(u)))
       : t.failure(u, c),
-
-  (u, c) => (isRpcAddressString(u) ? t.success(toBuffer(u)) : t.failure(u, c)),
   t.identity
 );
 
@@ -198,10 +186,7 @@ export function rpcDataToBigInt(data: string): bigint {
 }
 
 export function bufferToRpcData(
-
   buffer: Uint8Array,
-  buffer: Buffer,
-
   padToBytes: number = 0
 ): string {
   let s = bufferToHex(buffer);
@@ -219,10 +204,7 @@ export function rpcDataToBuffer(data: string): Buffer {
     });
   }
 
-
   return Buffer.from(toBytes(data));
-
-  return toBuffer(data);
 }
 
 // Type guards
@@ -242,6 +224,9 @@ function isRpcDataString(u: unknown): u is string {
   return typeof u === "string" && u.match(/^0x(?:[0-9a-fA-F]{2})*$/) !== null;
 }
 
+function isRpcParityString(u: unknown): u is string {
+  return typeof u === "string" && u.match(/^0x[0-9a-fA-F]{1,2}$/) !== null;
+}
 
 function isRpcHashString(u: unknown): u is string {
   return typeof u === "string" && u.length === 66 && isRpcDataString(u);

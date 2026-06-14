@@ -1,5 +1,4 @@
 import { toBytes } from "@ethereumjs/util";
-import { toBuffer } from "@nomicfoundation/ethereumjs-util";
 import { assert } from "chai";
 import * as t from "io-ts";
 

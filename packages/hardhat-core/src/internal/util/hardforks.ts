@@ -5,8 +5,6 @@ import { InternalError } from "../core/providers/errors";
 
 /* eslint-disable @nomicfoundation/hardhat-internal-rules/only-hardhat-error */
 
-import { assertHardhatInvariant } from "../core/errors";
-
 export enum HardforkName {
   FRONTIER = "chainstart",
   HOMESTEAD = "homestead",
@@ -125,4 +123,3 @@ export function selectHardfork(
 
   return hardfork;
 }
-

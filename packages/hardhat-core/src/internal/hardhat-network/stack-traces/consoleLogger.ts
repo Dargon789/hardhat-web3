@@ -1,17 +1,11 @@
 import {
-
-  bytesToBigInt,
-  bytesToHex as bufferToHex,
-  bytesToInt,
-  fromSigned,
-} from "@ethereumjs/util";
-
   bufferToBigInt,
   bufferToHex,
   bufferToInt,
   fromSigned,
 } from "@nomicfoundation/ethereumjs-util";
 import util from "util";
+
 import {
   AddressTy,
   BoolTy,
@@ -48,63 +42,6 @@ import {
   Bytes8Ty,
   Bytes9Ty,
   BytesTy,
-  Int256Ty,
-  StringTy,
-  Uint256Ty,
-  CONSOLE_LOG_SIGNATURES,
-} from "./logger";
-
-const REGISTER_SIZE = 32;
-
-/** The decoded string representation of the arguments supplied to console.log */
-export type ConsoleLogArgs = string[];
-export type ConsoleLogs = ConsoleLogArgs[];
-
-export class ConsoleLogger {
-  /**
-   * Temporary code to print console.sol messages that come from EDR
-   */
-  public static getDecodedLogs(messages: Buffer[]): string[] {
-    const logs: string[] = [];
-
-    for (const message of messages) {
-      const log = ConsoleLogger._maybeConsoleLog(message);
-      if (log !== undefined) {
-        logs.push(ConsoleLogger.format(log));
-      }
-    }
-
-    return logs;
-  }
-
-  /**
-   * Returns a formatted string using the first argument as a `printf`-like
-   * format string which can contain zero or more format specifiers.
-   *
-   * If there are more arguments passed than the number of specifiers, the
-   * extra arguments are concatenated to the returned string, separated by spaces.
-   */
-  public static format(args: ConsoleLogArgs = []): string {
-    return util.format(...args);
-  }
-
-  /** Decodes a calldata buffer into string arguments for a console log. */
-  private static _maybeConsoleLog(
-    calldata: Buffer
-  ): ConsoleLogArgs | undefined {
-    const selector = bytesToInt(calldata.slice(0, 4));
-    const parameters = calldata.slice(4);
-
-    const argTypes = CONSOLE_LOG_SIGNATURES[selector];
-    if (argTypes === undefined) {
-      return;
-    }
-
-    const decodedArgs = ConsoleLogger._decode(parameters, argTypes);
-
-    /**
-     * The first argument is interpreted as the format string, which may need adjusting.
-
   ConsoleLogs,
   Int256Ty,
   StringTy,
@@ -217,26 +154,12 @@ export class ConsoleLogger {
      * (?<!%) negative look-behind to make this work.
      * The (?:) is just to avoid capturing that inner group.
      */
-
-    if (decodedArgs.length > 0) {
-      decodedArgs[0] = decodedArgs[0].replace(
-    if (consoleLogs.length > 0 && typeof consoleLogs[0] === "string") {
-      consoleLogs[0] = consoleLogs[0].replace(
     if (consoleLogs.length > 0 && typeof consoleLogs[0] === "string") {
       consoleLogs[0] = consoleLogs[0].replace(
         /((?<!%)(?:%%)*)(%[di])/g,
         "$1%s"
       );
     }
-
-    return decodedArgs;
-  }
-
-  /** Decodes calldata parameters from `data` according to `types` into their string representation. */
-  private static _decode(data: Buffer, types: string[]): string[] {
-  }
-
-  private _decode(data: Buffer, types: string[]): ConsoleLogs {
   }
 
   private _decode(data: Buffer, types: string[]): ConsoleLogs {
@@ -274,10 +197,6 @@ export class ConsoleLogger {
           );
 
         case BytesTy:
-          const bStart = bytesToInt(
-            data.slice(position, position + REGISTER_SIZE)
-          );
-          const bLen = bytesToInt(data.slice(bStart, bStart + REGISTER_SIZE));
           const bStart = bufferToInt(
             data.slice(position, position + REGISTER_SIZE)
           );

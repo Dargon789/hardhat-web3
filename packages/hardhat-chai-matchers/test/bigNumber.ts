@@ -1,9 +1,13 @@
 import { expect, AssertionError } from "chai";
 import { BigNumber as BigNumberJs } from "bignumber.js";
 import BN from "bn.js";
+
 import { HardhatError } from "hardhat/internal/core/errors";
+
 import "../src/internal/add-chai-matchers";
+
 type SupportedNumber = number | bigint | BN | BigNumberJs;
+
 const numberToBigNumberConversions = [
   (n: number) => BigInt(n),
   (n: number) => new BN(n),
@@ -828,7 +832,12 @@ describe("BigNumber matchers", function () {
 
         describe(`when using .to.${operator}`, function () {
           it("with an unsafe int as the first param", function () {
-
+            expect(() => expect(unsafeInt).to[operator](BigInt(1))).to.throw(
+              HardhatError,
+              msg
+            );
+          });
+          it("with an unsafe int as the second param", function () {
             expect(() => expect(BigInt(1)).to[operator](unsafeInt)).to.throw(
               HardhatError,
               msg
@@ -852,7 +861,6 @@ describe("BigNumber matchers", function () {
     });
 
     describe("deep equal", async function () {
-
       checkAll(1, 1, (a, b) => {
         it(`should work with ${typestr(a)} and ${typestr(b)}`, function () {
           // successful assertions
@@ -1163,22 +1171,6 @@ describe("BigNumber matchers", function () {
 
         describe(`when using not.to.${operator}`, function () {
           it("with an unsafe int as the first param", function () {
-            expect(() => expect(unsafeInt).not.to[operator](1n, 1n)).to.throw(
-              HardhatError,
-              msg
-            );
-          });
-          it("with an unsafe int as the second param", function () {
-            expect(() => expect(1n).not.to[operator](unsafeInt, 1n)).to.throw(
-              HardhatError,
-              msg
-            );
-          });
-          it("with an unsafe int as the third param", function () {
-            expect(() => expect(1n).not.to[operator](1n, unsafeInt)).to.throw(
-              HardhatError,
-              msg
-            );
             expect(() =>
               expect(unsafeInt).not.to[operator](BigInt(1), BigInt(1))
             ).to.throw(HardhatError, msg);
@@ -1207,7 +1199,6 @@ describe("BigNumber matchers", function () {
 
     // number and bigint
     expect(() => expect(1).to.equal(BigInt(2), "custom message")).to.throw(
-
       AssertionError,
       "custom message"
     );
@@ -1219,10 +1210,7 @@ describe("BigNumber matchers", function () {
     );
 
     // number and bigint
-    expect(() => expect([1]).to.equal([2n], "custom message")).to.throw(
-
-        expect(() => expect([1]).to.equal([BigInt(2)], "custom message")).to.throw(
-
+    expect(() => expect([1]).to.equal([BigInt(2)], "custom message")).to.throw(
       AssertionError,
       "custom message"
     );

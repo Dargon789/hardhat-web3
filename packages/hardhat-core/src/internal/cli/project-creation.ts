@@ -1,6 +1,4 @@
-
 import chalk from "chalk";
-
 import fsExtra from "fs-extra";
 import path from "path";
 
@@ -26,8 +24,6 @@ import { emoji } from "./emoji";
 import { Dependencies, PackageManager } from "./types";
 import { requestTelemetryConsent } from "./analytics";
 
-import { BannerManager } from "./banner-manager";
-
 enum Action {
   CREATE_JAVASCRIPT_PROJECT_ACTION = "Create a JavaScript project",
   CREATE_TYPESCRIPT_PROJECT_ACTION = "Create a TypeScript project",
@@ -46,13 +42,6 @@ const HARDHAT_PACKAGE_NAME = "hardhat";
 const PROJECT_DEPENDENCIES: Dependencies = {};
 
 const ETHERS_PROJECT_DEPENDENCIES: Dependencies = {
-
-  "@nomicfoundation/hardhat-toolbox": "^5.0.0",
-};
-
-const VIEM_PROJECT_DEPENDENCIES: Dependencies = {
-  "@nomicfoundation/hardhat-toolbox-viem": "^3.0.0",
-
   "@nomicfoundation/hardhat-toolbox": "^4.0.0",
 };
 
@@ -67,7 +56,6 @@ const PEER_DEPENDENCIES: Dependencies = {
   chai: "^4.2.0",
   "hardhat-gas-reporter": "^1.0.8",
   "solidity-coverage": "^0.8.0",
-  "@nomicfoundation/hardhat-ignition": "^0.15.0",
 };
 
 const ETHERS_PEER_DEPENDENCIES: Dependencies = {
@@ -77,14 +65,6 @@ const ETHERS_PEER_DEPENDENCIES: Dependencies = {
   "@typechain/hardhat": "^9.0.0",
   typechain: "^8.3.0",
   "@typechain/ethers-v6": "^0.5.0",
-
-  "@nomicfoundation/hardhat-ignition-ethers": "^0.15.0",
-};
-
-const VIEM_PEER_DEPENDENCIES: Dependencies = {
-  "@nomicfoundation/hardhat-viem": "^2.0.0",
-  viem: "^2.7.6",
-  "@nomicfoundation/hardhat-ignition-viem": "^0.15.0",
 };
 
 const VIEM_PEER_DEPENDENCIES: Dependencies = {
@@ -97,11 +77,7 @@ const TYPESCRIPT_DEPENDENCIES: Dependencies = {};
 const TYPESCRIPT_PEER_DEPENDENCIES: Dependencies = {
   "@types/chai": "^4.2.0",
   "@types/mocha": ">=9.1.0",
-
-  "@types/node": ">=18.0.0",
-
   "@types/node": ">=16.0.0",
-
   "ts-node": ">=8.0.0",
   typescript: ">=4.5.0",
 };
@@ -118,7 +94,6 @@ const TYPESCRIPT_VIEM_PEER_DEPENDENCIES: Dependencies = {
 // generated with the "colossal" font
 function printAsciiLogo() {
   console.log(
-
     chalk.blue("888    888                      888 888               888")
   );
   console.log(
@@ -141,7 +116,6 @@ function printAsciiLogo() {
   );
   console.log(
     chalk.blue('888    888 "Y888888 888     "Y88888 888  888 "Y888888  "Y888')
-
   );
   console.log("");
 }
@@ -151,7 +125,6 @@ async function printWelcomeMessage() {
 
   console.log(
     chalk.cyan(
-
       `${emoji("👷 ")}Welcome to ${HARDHAT_NAME} v${packageJson.version}${emoji(
         " 👷‍"
       )}\n`
@@ -224,9 +197,7 @@ Please delete or rename ${pluralize(
       "it",
       "them"
     )} and try again.`;
-
     console.log(chalk.red(errorMsg));
-
     process.exit(1);
   }
 
@@ -382,7 +353,6 @@ async function createPackageJson() {
 
 function showStarOnGitHubMessage() {
   console.log(
-
     chalk.cyan("Give Hardhat a star on Github if you're enjoying it!") +
       emoji(" ⭐️✨")
   );
@@ -392,17 +362,14 @@ function showStarOnGitHubMessage() {
 
 export function showSoliditySurveyMessage() {
   if (new Date() > new Date("2024-01-07 23:39")) {
-
     // the survey has finished
     return;
   }
 
   console.log();
   console.log(
-
     chalk.cyan(
       "Please take a moment to complete the 2023 Solidity Survey: https://hardhat.org/solidity-survey-2023"
-
     )
   );
 }
@@ -435,7 +402,6 @@ export async function createProject() {
   if (action === Action.CREATE_EMPTY_HARDHAT_CONFIG_ACTION) {
     await writeEmptyHardhatConfig(isEsm);
     console.log(
-
       `${emoji("✨ ")}${chalk.cyan(`Config file created`)}${emoji(" ✨")}`
     );
 
@@ -535,7 +501,6 @@ export async function createProject() {
 
         if (!installed) {
           console.warn(
-
             chalk.red("Failed to install the sample project's dependencies")
           );
         }
@@ -551,7 +516,6 @@ export async function createProject() {
   }
 
   console.log(
-
     `\n${emoji("✨ ")}${chalk.cyan("Project created")}${emoji(" ✨")}`
   );
   console.log();
@@ -559,9 +523,6 @@ export async function createProject() {
   console.log();
   showStarOnGitHubMessage();
   showSoliditySurveyMessage();
-
-  const hardhat3BannerManager = await BannerManager.getInstance();
-  await hardhat3BannerManager.showBanner();
 }
 
 async function canInstallRecommendedDeps() {
@@ -579,7 +540,6 @@ function isInstalled(dep: string) {
 
   return dep in allDependencies;
 }
-
 
 async function isYarnProject() {
   return fsExtra.pathExists("yarn.lock");
@@ -608,10 +568,12 @@ async function doesNpmAutoInstallPeerDependencies() {
 async function installRecommendedDependencies(dependencies: Dependencies) {
   console.log("");
 
-
+  // The reason we don't quote the dependencies here is because they are going
+  // to be used in child_process.spawn, which doesn't require escaping string,
+  // and can actually fail if you do.
   const installCmd = await getRecommendedDependenciesInstallationCommand(
-    dependencies
-
+    dependencies,
+    false
   );
   return installDependencies(installCmd[0], installCmd.slice(1));
 }
@@ -649,12 +611,6 @@ async function installDependencies(
 }
 
 async function getRecommendedDependenciesInstallationCommand(
-
-  dependencies: Dependencies
-): Promise<string[]> {
-  const deps = Object.entries(dependencies).map(
-    ([name, version]) => `"${name}@${version}"`
-
   dependencies: Dependencies,
   quoteDependencies = true
 ): Promise<string[]> {

@@ -3,17 +3,15 @@ import {
   privateToAddress,
   toBytes,
 } from "@ethereumjs/util";
-  bufferToHex,
-  privateToAddress,
-  toBuffer,
-} from "@nomicfoundation/ethereumjs-util";
 
 import {
   HardhatNetworkMempoolConfig,
   HardhatNetworkMiningConfig,
 } from "../../../../src/types";
 import { ALCHEMY_URL, INFURA_URL } from "../../../setup";
+
 import { useProvider, UseProviderOptions } from "./useProvider";
+
 function toBuffer(x: Parameters<typeof toBytes>[0]) {
   return Buffer.from(toBytes(x));
 }
@@ -101,8 +99,6 @@ export const INTERVAL_MINING_PROVIDERS = [
         mining: {
           auto: false,
           interval: 100,
-          interval: 10000,
-          interval: 10000,
           mempool: DEFAULT_MEMPOOL_CONFIG,
         },
         ...options,
@@ -120,8 +116,6 @@ export const INTERVAL_MINING_PROVIDERS = [
         mining: {
           auto: false,
           interval: 100,
-          interval: 10000,
-          interval: 10000,
           mempool: DEFAULT_MEMPOOL_CONFIG,
         },
         ...options,
@@ -167,8 +161,6 @@ if (ALCHEMY_URL !== undefined) {
         mining: {
           auto: false,
           interval: 100,
-          interval: 10000,
-          interval: 10000,
           mempool: DEFAULT_MEMPOOL_CONFIG,
         },
         ...options,
