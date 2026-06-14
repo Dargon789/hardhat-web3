@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import { headers } from 'next/headers'
 import type { ReactNode } from 'react'
 import { cookieToInitialState } from 'wagmi'
+import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 
 import { getConfig } from '../wagmi'
@@ -24,6 +25,7 @@ export default async function RootLayout(props: { children: ReactNode }) {
     <html lang="en">
       <body className={inter.className}>
         <Providers initialState={initialState}>{props.children}</Providers>
+        <Analytics />
       </body>
     </html>
   )
