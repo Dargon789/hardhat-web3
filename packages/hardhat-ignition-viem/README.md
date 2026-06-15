@@ -1,3 +1,10 @@
+# EDR - Ethereum Development Runtime
+
+**EDR**, or **Ethereum Development Runtime** in full, is a library for creating developer tooling on top of the Ethereum Virtual Machine (EVM), such as an EVM debugger or state inspector.
+EDR provides a performant API, written in Rust, with bindings for the Node API (TypeScript).
+
+At the moment, EDR is only meant to be consumed from [Hardhat](https://hardhat.org/), but we plan to have a stable API that can be used from any other tooling. If you are interested in this, please reach out.
+
 ![hardhat_Ignition_banner](https://github.com/NomicFoundation/hardhat-ignition/assets/24030/cc73227b-8791-4bb3-bc9a-a39be69d215f) [![npm](https://img.shields.io/npm/v/@nomicfoundation/hardhat-ignition-viem.svg)](https://www.npmjs.com/package/@nomicfoundation/hardhat-ignition) [![hardhat](https://hardhat.org/buidler-plugin-badge.svg?1)](https://hardhat.org)
 
 ---
