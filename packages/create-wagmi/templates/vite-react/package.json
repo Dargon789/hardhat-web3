@@ -1,0 +1,17 @@
+{
+  "name": "wagmi-vite-starter",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "viem": "latest",
+    "wagmi": "latest"
+  },
+  "devDependencies": {
+    "@wagmi/cli": "latest",
+  }
+}

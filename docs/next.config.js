@@ -36,9 +36,6 @@ const linariaConfig = withLinaria({
     ];
   },
   reactStrictMode: true,
-  future: {
-    webpack5: true,
-  },
   webpack(baseConfig) {
     // eslint-disable-next-line no-param-reassign
     baseConfig.resolve.alias.theme = path.resolve(__dirname, "./src/themes");
