@@ -3,15 +3,20 @@ import type { NewTaskActionFunction } from "hardhat/types/tasks";
 import type { MochaOptions } from "mocha";
 
 import { resolve as pathResolve } from "node:path";
-import { fileURLToPath } from "node:url";
 
 import { HardhatError } from "@nomicfoundation/hardhat-errors";
+import { setGlobalOptionsAsEnvVariables } from "@nomicfoundation/hardhat-utils/env";
 import { getAllFilesMatching } from "@nomicfoundation/hardhat-utils/fs";
 import {
-  markTestRunDone,
-  markTestRunStart,
-  markTestWorkerDone,
+  markTestRunStart as initCoverage,
+  markTestWorkerDone as saveCoverageData,
+  markTestRunDone as reportCoverage,
 } from "hardhat/internal/coverage";
+import {
+  markTestRunStart as initGasStats,
+  markTestWorkerDone as saveGasStats,
+  markTestRunDone as reportGasStats,
+} from "hardhat/internal/gas-analytics";
 
 interface TestActionArguments {
   testFiles: string[];
@@ -54,8 +59,16 @@ const testWithHardhat: NewTaskActionFunction<TestActionArguments> = async (
   // Set an environment variable that plugins can use to detect when a process is running tests
   process.env.HH_TEST = "true";
 
+  // Sets the NODE_ENV environment variable to "test" so the code can detect that tests are running
+  // This is done by other JS/TS test frameworks like vitest
+  process.env.NODE_ENV ??= "test";
+
+  setGlobalOptionsAsEnvVariables(hre.globalOptions);
+
   if (!noCompile) {
-    await hre.tasks.getTask("compile").run({});
+    await hre.tasks.getTask("build").run({
+      noTests: true,
+    });
     console.log();
   }
 
@@ -65,8 +78,44 @@ const testWithHardhat: NewTaskActionFunction<TestActionArguments> = async (
     return;
   }
 
-  const tsx = fileURLToPath(import.meta.resolve("tsx/esm"));
-  process.env.NODE_OPTIONS = `--import ${tsx}`;
+  const unhandledRejectionHookPath = "./unhandled-rejection-mocha-hook.js";
+
+  if (hre.config.test.mocha.parallel === true) {
+    const imports = [];
+
+    const tsx = new URL(import.meta.resolve("tsx/esm"));
+    const unhandledRejectionHook = new URL(
+      import.meta.resolve(unhandledRejectionHookPath),
+    );
+    imports.push(tsx.href);
+
+    hre.config.test.mocha.require = hre.config.test.mocha.require ?? [];
+    hre.config.test.mocha.require.push(unhandledRejectionHook.href);
+
+    if (hre.globalOptions.coverage === true) {
+      const coverage = new URL(
+        import.meta.resolve("@nomicfoundation/hardhat-mocha/coverage"),
+      );
+
+      hre.config.test.mocha.require.push(coverage.href);
+    }
+
+    if (hre.globalOptions.gasStats === true) {
+      const gasStats = new URL(
+        import.meta.resolve("@nomicfoundation/hardhat-mocha/gas-stats"),
+      );
+
+      hre.config.test.mocha.require = hre.config.test.mocha.require ?? [];
+      hre.config.test.mocha.require.push(gasStats.href);
+    }
+
+    process.env.NODE_OPTIONS = imports
+      .map((href) => `--import "${href}"`)
+      .join(" ");
+  } else {
+    // Import the handler directly when not running in parallel mode
+    await import(unhandledRejectionHookPath);
+  }
 
   const { default: Mocha } = await import("mocha");
 
@@ -101,16 +150,21 @@ const testWithHardhat: NewTaskActionFunction<TestActionArguments> = async (
   // which supports both ESM and CJS
   await mocha.loadFilesAsync();
 
-  await markTestRunStart("mocha");
+  await initCoverage("mocha");
+  await initGasStats("mocha");
 
   const testFailures = await new Promise<number>((resolve) => {
     mocha.run(resolve);
   });
 
-  // NOTE: We execute mocha tests in the main process.
-  await markTestWorkerDone("mocha");
+  if (hre.config.test.mocha.parallel !== true) {
+    // NOTE: We execute mocha tests in the main process.
+    await saveCoverageData("mocha");
+    await saveGasStats("mocha");
+  }
   // NOTE: This might print a coverage report.
-  await markTestRunDone("mocha");
+  await reportCoverage("mocha");
+  await reportGasStats("mocha");
 
   if (testFailures > 0) {
     process.exitCode = 1;

@@ -10,8 +10,8 @@ import type {
 import type { RequestHandler } from "../request-handlers/types.js";
 
 import { deepClone } from "@nomicfoundation/hardhat-utils/lang";
+import { AsyncMutex } from "@nomicfoundation/hardhat-utils/synchronization";
 
-import { AsyncMutex } from "../../../core/async-mutex.js";
 import { isJsonRpcResponse } from "../json-rpc.js";
 
 export default async (): Promise<Partial<NetworkHooks>> => {
@@ -23,7 +23,7 @@ export default async (): Promise<Partial<NetworkHooks>> => {
   const requestHandlersPerConnection: WeakMap<
     NetworkConnection<ChainType | string>,
     RequestHandler[]
-  > = new Map();
+  > = new WeakMap();
 
   const initializationMutex = new AsyncMutex();
 

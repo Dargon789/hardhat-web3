@@ -1,4 +1,4 @@
-import type { OptionDefinition } from "./arguments.js";
+import type { GlobalOptionDefinition } from "./arguments.js";
 import type { HardhatHooks } from "./hooks.js";
 import type { TaskDefinition } from "./tasks.js";
 
@@ -39,6 +39,11 @@ export interface HardhatPlugin {
    */
   dependencies?: () => Array<Promise<{ default: HardhatPlugin }>>;
 
+  conditionalDependencies?: Array<{
+    condition: () => Array<Promise<{ default: HardhatPlugin }>>;
+    plugin: () => Promise<{ default: HardhatPlugin }>;
+  }>;
+
   /**
    * An object with the different hook handlers that this plugin defines.
    *
@@ -71,7 +76,7 @@ export interface HardhatPlugin {
   /**
    * An array of the global options that this plugin defines.
    */
-  globalOptions?: OptionDefinition[];
+  globalOptions?: GlobalOptionDefinition[];
 
   /**
    * An array of type definitions, which should be created using their builders.

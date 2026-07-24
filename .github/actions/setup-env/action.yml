@@ -5,7 +5,7 @@ inputs:
   pnpm-version:
     description: Version of pnpm to install
     required: false
-    default: "9"
+    default: "10.17.1"
   node-version:
     description: Version of node to install
     required: false
@@ -38,7 +38,8 @@ runs:
       shell: bash
     - uses: actions/cache/restore@v4
       id: cache-restore
-      if: inputs.cache-save == 'false'
+      # TODO: remove OS check when https://github.com/actions/runner-images/issues/13341 is resolved
+      if: inputs.cache-save == 'false' && runner.os != 'macOS'
       with:
         path: ${{ steps.pnpm.outputs.path }}
         key: node-cache-${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}

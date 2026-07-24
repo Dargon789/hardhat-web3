@@ -4,6 +4,7 @@
   "author": "Nomic Foundation",
   "license": "SEE LICENSE IN EACH PACKAGE'S LICENSE FILE",
   "private": true,
+  "packageManager": "pnpm@10.17.1",
   "devDependencies": {
     "@changesets/cli": "^2.16.0",
     "typescript": "~5.8.0"
@@ -15,6 +16,18 @@
     "prelint": "pnpm build",
     "lint": "pnpm run --recursive --if-present lint",
     "prelint:fix": "pnpm build",
-    "lint:fix": "pnpm run --recursive --if-present lint:fix"
+    "lint:fix": "pnpm run --recursive --if-present lint:fix",
+    "version-for-release": "pnpm changeset version && pnpm -w install --lockfile-only"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "node-hid"
+    ],
+    "ignoredBuiltDependencies": [
+      "esbuild",
+      "keccak",
+      "unrs-resolver",
+      "usb"
+    ]
   }
 }

@@ -1,13 +1,13 @@
 # @nomicfoundation/hardhat-node-test-reporter
 
-## 3.0.0-next.2
+## 3.0.1
 
 ### Patch Changes
 
-- Hardhat 3 Alpha release (2025-03-20T08:38:27.809Z)
+- ef714f7: Fix test error `cause` chains being cut off. The default is now 10 `cause`s (up from 3). In CI environments, it's 100.
 
-## 3.0.0-next.1
+## 3.0.0
 
-### Patch Changes
+### Major Changes
 
-- 5fbea0d: A small bug fix release for the Hardhat 3 Alpha.
+- 29cc141: First release of Hardhat 3!

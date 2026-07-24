@@ -1,8 +1,9 @@
 import type { RunOptions } from "./runner.js";
 import type { TestEvent } from "./types.js";
-import type { BuildOptions } from "../../../types/solidity/build-system.js";
 import type { NewTaskActionFunction } from "../../../types/tasks.js";
 import type {
+  Artifact as EdrArtifact,
+  BuildInfoAndOutput,
   ObservabilityConfig,
   SolidityTestRunnerConfigArgs,
   TracingConfigWithBuffers,
@@ -14,22 +15,29 @@ import {
   assertHardhatInvariant,
   HardhatError,
 } from "@nomicfoundation/hardhat-errors";
-import { getAllFilesMatching } from "@nomicfoundation/hardhat-utils/fs";
 import { resolveFromRoot } from "@nomicfoundation/hardhat-utils/path";
 import { createNonClosingWriter } from "@nomicfoundation/hardhat-utils/stream";
 
+import { getFullyQualifiedName } from "../../../utils/contract-names.js";
 import { HardhatRuntimeEnvironmentImplementation } from "../../core/hre.js";
 import { isSupportedChainType } from "../../edr/chain-type.js";
+import { ArtifactManagerImplementation } from "../artifacts/artifact-manager.js";
 import {
-  markTestRunDone,
-  markTestRunStart,
-  markTestWorkerDone,
+  markTestRunStart as initCoverage,
+  markTestWorkerDone as saveCoverageData,
+  markTestRunDone as reportCoverage,
 } from "../coverage/helpers.js";
-import { throwIfSolidityBuildFailed } from "../solidity/build-results.js";
+import {
+  markTestRunStart as initGasStats,
+  markTestWorkerDone as saveGasStatsData,
+  markTestRunDone as reportGasStats,
+} from "../gas-analytics/helpers.js";
+import { edrGasReportToHardhatGasMeasurements } from "../network-manager/edr/utils/convert-to-edr.js";
 
 import { getEdrArtifacts, getBuildInfos } from "./edr-artifacts.js";
 import {
   isTestSuiteArtifact,
+  warnDeprecatedTestFail,
   solidityTestConfigToRunOptions,
   solidityTestConfigToSolidityTestRunnerConfigArgs,
 } from "./helpers.js";
@@ -48,7 +56,17 @@ const runSolidityTests: NewTaskActionFunction<TestActionArguments> = async (
   { testFiles, chainType, grep, noCompile, verbosity },
   hre,
 ) => {
-  let rootFilePaths: string[];
+  assertHardhatInvariant(
+    hre instanceof HardhatRuntimeEnvironmentImplementation,
+    "Expected HRE to be an instance of HardhatRuntimeEnvironmentImplementation",
+  );
+
+  // Set an environment variable that plugins can use to detect when a process is running tests
+  process.env.HH_TEST = "true";
+
+  // Sets the NODE_ENV environment variable to "test" so the code can detect that tests are running
+  // This is done by other JS/TS test frameworks like vitest
+  process.env.NODE_ENV ??= "test";
 
   if (!isSupportedChainType(chainType)) {
     throw new HardhatError(
@@ -61,52 +79,56 @@ const runSolidityTests: NewTaskActionFunction<TestActionArguments> = async (
     );
   }
 
-  // NOTE: We run the compile task first to ensure all the artifacts for them are generated
-  // Then, we compile just the test sources. We don't do it in one go because the user
-  // is likely to use different compilation options for the tests and the sources.
-  if (noCompile === false) {
-    await hre.tasks.getTask("compile").run();
+  // Run the build task for contract files if needed
+  if (noCompile !== true) {
+    await hre.tasks.getTask("build").run({
+      noTests: true,
+    });
   }
 
-  if (testFiles.length > 0) {
-    rootFilePaths = testFiles.map((f) =>
-      resolveFromRoot(hre.config.paths.root, f),
-    );
-  } else {
-    // NOTE: A test file is either a file with a `.sol` extension in the `tests.solidity`
-    // directory or a file with a `.t.sol` extension in the `sources.solidity` directory
-    rootFilePaths = (
-      await Promise.all([
-        getAllFilesMatching(hre.config.paths.tests.solidity, (f) =>
-          f.endsWith(".sol"),
-        ),
-        ...hre.config.paths.sources.solidity.map(async (dir) => {
-          return getAllFilesMatching(dir, (f) => f.endsWith(".t.sol"));
-        }),
-      ])
-    ).flat(1);
+  // Run the build task for test files
+  const { testRootPaths }: { testRootPaths: string[] } = await hre.tasks
+    .getTask("build")
+    .run({
+      files: testFiles,
+      noContracts: true,
+    });
+  console.log();
+
+  // EDR needs all artifacts (contracts + tests)
+  const edrArtifacts: Array<{
+    edrAtifact: EdrArtifact;
+    userSourceName: string;
+  }> = [];
+  const buildInfos: BuildInfoAndOutput[] = [];
+  for (const scope of ["contracts", "tests"] as const) {
+    const artifactsDir = await hre.solidity.getArtifactsDirectory(scope);
+    const artifactManager = new ArtifactManagerImplementation(artifactsDir);
+    edrArtifacts.push(...(await getEdrArtifacts(artifactManager)));
+    buildInfos.push(...(await getBuildInfos(artifactManager)));
   }
-  // NOTE: We remove duplicates in case there is an intersection between
-  // the tests.solidity paths and the sources paths
-  rootFilePaths = Array.from(new Set(rootFilePaths));
 
-  // NOTE: We are not skipping the test compilation even if the noCompile flag is set
-  // because the user cannot run test compilation outside of the test task yet.
-  // TODO: Allow users to run test compilation outside of the test task.
-  const buildOptions: BuildOptions = {
-    force: false,
-    buildProfile: hre.globalOptions.buildProfile ?? "default",
-    quiet: true,
-  };
-  const results = await hre.solidity.build(rootFilePaths, buildOptions);
-  throwIfSolidityBuildFailed(results);
+  const sourceNameToUserSourceName = new Map(
+    edrArtifacts.map(({ userSourceName, edrAtifact }) => [
+      edrAtifact.id.source,
+      userSourceName,
+    ]),
+  );
 
-  const buildInfos = await getBuildInfos(hre.artifacts);
-  const edrArtifacts = await getEdrArtifacts(hre.artifacts);
+  edrArtifacts.forEach(({ userSourceName, edrAtifact }) => {
+    if (
+      testRootPaths.includes(
+        resolveFromRoot(hre.config.paths.root, userSourceName),
+      ) &&
+      isTestSuiteArtifact(edrAtifact)
+    ) {
+      warnDeprecatedTestFail(edrAtifact, sourceNameToUserSourceName);
+    }
+  });
 
   const testSuiteIds = edrArtifacts
     .filter(({ userSourceName }) =>
-      rootFilePaths.includes(
+      testRootPaths.includes(
         resolveFromRoot(hre.config.paths.root, userSourceName),
       ),
     )
@@ -122,11 +144,6 @@ const runSolidityTests: NewTaskActionFunction<TestActionArguments> = async (
   const solidityTestConfig = hre.config.test.solidity;
   let observabilityConfig: ObservabilityConfig | undefined;
   if (hre.globalOptions.coverage) {
-    assertHardhatInvariant(
-      hre instanceof HardhatRuntimeEnvironmentImplementation,
-      "Expected HRE to be an instance of HardhatRuntimeEnvironmentImplementation",
-    );
-
     observabilityConfig = {
       codeCoverage: {
         onCollectedCoverageCallback: async (coverageData: Uint8Array[]) => {
@@ -141,14 +158,15 @@ const runSolidityTests: NewTaskActionFunction<TestActionArguments> = async (
   }
 
   const config: SolidityTestRunnerConfigArgs =
-    solidityTestConfigToSolidityTestRunnerConfigArgs(
+    await solidityTestConfigToSolidityTestRunnerConfigArgs({
       chainType,
-      hre.config.paths.root,
-      solidityTestConfig,
+      projectRoot: hre.config.paths.root,
+      config: solidityTestConfig,
       verbosity,
-      observabilityConfig,
-      grep,
-    );
+      observability: observabilityConfig,
+      testPattern: grep,
+      generateGasReport: hre.globalOptions.gasStats,
+    });
   const tracingConfig: TracingConfigWithBuffers = {
     buildInfos,
     ignoreContracts: false,
@@ -156,14 +174,8 @@ const runSolidityTests: NewTaskActionFunction<TestActionArguments> = async (
   const options: RunOptions =
     solidityTestConfigToRunOptions(solidityTestConfig);
 
-  const sourceNameToUserSourceName = new Map(
-    edrArtifacts.map(({ userSourceName, edrAtifact }) => [
-      edrAtifact.id.source,
-      userSourceName,
-    ]),
-  );
-
-  await markTestRunStart("solidity");
+  await initCoverage("solidity");
+  await initGasStats("solidity");
 
   const runStream = run(
     chainType,
@@ -177,9 +189,31 @@ const runSolidityTests: NewTaskActionFunction<TestActionArguments> = async (
 
   const testReporterStream = runStream
     .on("data", (event: TestEvent) => {
-      if (event.type === "suite:result") {
+      if (event.type === "suite:done") {
         if (event.data.testResults.some(({ status }) => status === "Failure")) {
           includesFailures = true;
+        }
+      } else if (event.type === "run:done") {
+        const { gasReport } = event.data;
+
+        // Gas report may be undefined if gas analytics is disabled
+        if (gasReport === undefined) {
+          return;
+        }
+
+        const testContractFqns = testSuiteIds.map(({ name, source }) =>
+          getFullyQualifiedName(source, name),
+        );
+
+        // we can't use the onGasMeasurement hook here as it's async and stream
+        // handlers are sync
+        const gasMeasurements = edrGasReportToHardhatGasMeasurements(
+          gasReport,
+          testContractFqns,
+        );
+
+        for (const measurement of gasMeasurements) {
+          hre._gasAnalytics.addGasMeasurement(measurement);
         }
       }
     })
@@ -204,10 +238,12 @@ const runSolidityTests: NewTaskActionFunction<TestActionArguments> = async (
     includesErrors = true;
   }
 
-  // NOTE: We collect coverage data for solidity tests in the main process.
-  await markTestWorkerDone("solidity");
-  // NOTE: This might print a coverage report.
-  await markTestRunDone("solidity");
+  await saveCoverageData("solidity");
+  await saveGasStatsData("solidity");
+
+  // this may print coverage and gas statistics reports
+  await reportCoverage("solidity");
+  await reportGasStats("solidity");
 
   if (includesFailures || includesErrors) {
     process.exitCode = 1;

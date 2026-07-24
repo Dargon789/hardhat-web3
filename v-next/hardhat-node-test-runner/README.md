@@ -4,7 +4,7 @@ This plugin integrates the native Node.js Test Runner (or [`node:test`](https://
 
 ## Installation
 
-> This plugin is part of the [Viem Hardhat Toolbox](/v-next/hardhat-toolbox-viem/). If you are using that toolbox, there's nothing else you need to do.
+> This plugin is part of the [Viem Hardhat Toolbox](https://hardhat.org/plugins/nomicfoundation-hardhat-toolbox-viem). If you are using that toolbox, there's nothing else you need to do.
 
 To install this plugin, run the following command:
 
@@ -15,11 +15,12 @@ npm install --save-dev @nomicfoundation/hardhat-node-test-runner
 In your `hardhat.config.ts` file, import the plugin and add it to the `plugins` array:
 
 ```ts
+import { defineConfig } from "hardhat/config";
 import hardhatNodeTestRunner from "@nomicfoundation/hardhat-node-test-runner";
 
-export default {
+export default defineConfig({
   plugins: [hardhatNodeTestRunner],
-};
+});
 ```
 
 ## Usage

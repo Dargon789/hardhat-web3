@@ -4,7 +4,7 @@ This plugin integrates [ethers.js](https://ethers.org/) into Hardhat, adding an 
 
 ## Installation
 
-> This plugin is part of the [Ethers+Mocha Hardhat Toolbox](/v-next/hardhat-toolbox-mocha-ethers/). If you are using that toolbox, there's nothing else you need to do.
+> This plugin is part of the [Ethers+Mocha Hardhat Toolbox](https://hardhat.org/plugins/nomicfoundation-hardhat-toolbox-mocha-ethers). If you are using that toolbox, there's nothing else you need to do.
 
 To install this plugin, run the following command:
 
@@ -15,11 +15,12 @@ npm install --save-dev @nomicfoundation/hardhat-ethers
 In your `hardhat.config.ts` file, import the plugin and add it to the `plugins` array:
 
 ```ts
+import { defineConfig } from "hardhat/config";
 import hardhatEthers from "@nomicfoundation/hardhat-ethers";
 
-export default {
+export default defineConfig({
   plugins: [hardhatEthers],
-};
+});
 ```
 
 ## Usage

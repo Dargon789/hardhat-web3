@@ -15,6 +15,7 @@ import type {
   GetCompilationJobsResult,
   EmitArtifactsResult,
   RunCompilationJobResult,
+  BuildScope,
 } from "../../../../types/solidity/build-system.js";
 import type { CompilationJob } from "../../../../types/solidity/compilation-job.js";
 import type {
@@ -32,8 +33,10 @@ import {
 } from "@nomicfoundation/hardhat-errors";
 import {
   exists,
+  ensureDir,
   getAllDirectoriesMatching,
   getAllFilesMatching,
+  move,
   readJsonFile,
   remove,
   writeJsonFile,
@@ -41,6 +44,7 @@ import {
   writeUtf8File,
 } from "@nomicfoundation/hardhat-utils/fs";
 import { shortenPath } from "@nomicfoundation/hardhat-utils/path";
+import { createSpinner } from "@nomicfoundation/hardhat-utils/spinner";
 import { pluralize } from "@nomicfoundation/hardhat-utils/string";
 import chalk from "chalk";
 import debug from "debug";
@@ -91,7 +95,6 @@ export class SolidityBuildSystemImplementation implements SolidityBuildSystem {
   readonly #hooks: HookManager;
   readonly #options: SolidityBuildSystemOptions;
   #compileCache: CompileCache = {};
-  readonly #defaultConcurrency = Math.max(os.cpus().length - 1, 1);
   #downloadedCompilers = false;
 
   constructor(hooks: HookManager, options: SolidityBuildSystemOptions) {
@@ -99,37 +102,83 @@ export class SolidityBuildSystemImplementation implements SolidityBuildSystem {
     this.#options = options;
   }
 
-  public async getRootFilePaths(): Promise<string[]> {
-    const localFilesToCompile = (
-      await Promise.all(
-        this.#options.soliditySourcesPaths.map((dir) =>
-          getAllFilesMatching(
-            dir,
-            (f) => f.endsWith(".sol") && !f.endsWith(".t.sol"),
-          ),
-        ),
-      )
-    ).flat(1);
+  public async getScope(fsPath: string): Promise<BuildScope> {
+    if (
+      fsPath.startsWith(this.#options.solidityTestsPath) &&
+      fsPath.endsWith(".sol")
+    ) {
+      return "tests";
+    }
 
-    const npmFilesToBuild = this.#options.solidityConfig.npmFilesToBuild.map(
-      npmModuleToNpmRootPath,
-    );
+    for (const sourcesPath of this.#options.soliditySourcesPaths) {
+      if (fsPath.startsWith(sourcesPath) && fsPath.endsWith(".t.sol")) {
+        return "tests";
+      }
+    }
 
-    return [...localFilesToCompile, ...npmFilesToBuild];
+    return "contracts";
+  }
+
+  public async getRootFilePaths(
+    options: { scope?: BuildScope } = {},
+  ): Promise<string[]> {
+    const scope = options.scope ?? "contracts";
+
+    switch (scope) {
+      case "contracts":
+        const localFilesToCompile = (
+          await Promise.all(
+            this.#options.soliditySourcesPaths.map((dir) =>
+              getAllFilesMatching(
+                dir,
+                (f) => f.endsWith(".sol") && !f.endsWith(".t.sol"),
+              ),
+            ),
+          )
+        ).flat(1);
+
+        const npmFilesToBuild =
+          this.#options.solidityConfig.npmFilesToBuild.map(
+            npmModuleToNpmRootPath,
+          );
+
+        return [...localFilesToCompile, ...npmFilesToBuild];
+      case "tests":
+        let rootFilePaths = (
+          await Promise.all([
+            getAllFilesMatching(this.#options.solidityTestsPath, (f) =>
+              f.endsWith(".sol"),
+            ),
+            ...this.#options.soliditySourcesPaths.map(async (dir) => {
+              return getAllFilesMatching(dir, (f) => f.endsWith(".t.sol"));
+            }),
+          ])
+        ).flat(1);
+
+        // NOTE: We remove duplicates in case there is an intersection between
+        // the tests.solidity paths and the sources paths
+        rootFilePaths = Array.from(new Set(rootFilePaths));
+        return rootFilePaths;
+    }
   }
 
   public async build(
     rootFilePaths: string[],
-    options?: BuildOptions,
+    _options?: BuildOptions,
   ): Promise<CompilationJobCreationError | Map<string, FileBuildResult>> {
-    if (options?.quiet !== true) {
-      console.log("Compiling your Solidity contracts...");
-    }
+    const options: Required<BuildOptions> = {
+      buildProfile: DEFAULT_BUILD_PROFILE,
+      concurrency: Math.max(os.cpus().length - 1, 1),
+      force: false,
+      isolated: false,
+      quiet: false,
+      scope: "contracts",
+      ..._options,
+    };
 
-    await this.#downloadConfiguredCompilers(options?.quiet);
+    await this.#downloadConfiguredCompilers(options.quiet);
 
-    const buildProfileName = options?.buildProfile ?? DEFAULT_BUILD_PROFILE;
-    const { buildProfile } = this.#getBuildProfile(buildProfileName);
+    const { buildProfile } = this.#getBuildProfile(options.buildProfile);
 
     const compilationJobsResult = await this.getCompilationJobs(
       rootFilePaths,
@@ -140,152 +189,170 @@ export class SolidityBuildSystemImplementation implements SolidityBuildSystem {
       return compilationJobsResult;
     }
 
-    const { compilationJobsPerFile, indexedIndividualJobs } =
-      compilationJobsResult;
+    const spinner = createSpinner({
+      text: `Compiling your Solidity ${options.scope}...`,
+      enabled: true,
+    });
+    spinner.start();
 
-    const runnableCompilationJobs = [
-      ...new Set(compilationJobsPerFile.values()),
-    ];
+    try {
+      const { compilationJobsPerFile, indexedIndividualJobs } =
+        compilationJobsResult;
 
-    // NOTE: We precompute the build ids in parallel here, which are cached
-    // internally in each compilation job
-    await Promise.all(
-      runnableCompilationJobs.map(async (runnableCompilationJob) =>
-        runnableCompilationJob.getBuildId(),
-      ),
-    );
+      const runnableCompilationJobs = [
+        ...new Set(compilationJobsPerFile.values()),
+      ];
 
-    const results: CompilationResult[] = await pMap(
-      runnableCompilationJobs,
-      async (runnableCompilationJob) => {
-        const { output, compiler } = await this.runCompilationJob(
-          runnableCompilationJob,
-          options,
-        );
-
-        return {
-          compilationJob: runnableCompilationJob,
-          compilerOutput: output,
-          cached: false,
-          compiler,
-        };
-      },
-      {
-        concurrency: options?.concurrency ?? this.#defaultConcurrency,
-        // An error when running the compiler is not a compilation failure, but
-        // a fatal failure trying to run it, so we just throw on the first error
-        stopOnError: true,
-      },
-    );
-
-    const uncachedResults = results.filter((result) => !result.cached);
-    const uncachedSuccessfulResults = uncachedResults.filter(
-      (result) => !this.#hasCompilationErrors(result.compilerOutput),
-    );
-
-    const isSuccessfulBuild =
-      uncachedResults.length === uncachedSuccessfulResults.length;
-
-    const contractArtifactsGeneratedByCompilationJob: Map<
-      CompilationJob,
-      ReadonlyMap<string, string[]>
-    > = new Map();
-
-    if (isSuccessfulBuild) {
-      log("Emitting artifacts of successful build");
+      // NOTE: We precompute the build ids in parallel here, which are cached
+      // internally in each compilation job
       await Promise.all(
-        results.map(async (compilationResult) => {
-          const emitArtifactsResult = await this.emitArtifacts(
-            compilationResult.compilationJob,
-            compilationResult.compilerOutput,
-          );
-
-          const { artifactsPerFile } = emitArtifactsResult;
-
-          contractArtifactsGeneratedByCompilationJob.set(
-            compilationResult.compilationJob,
-            artifactsPerFile,
-          );
-
-          // Cache the results
-          await this.#cacheCompilationResult(
-            indexedIndividualJobs,
-            compilationResult,
-            emitArtifactsResult,
-            buildProfile.isolated,
-          );
-        }),
-      );
-
-      await saveCache(this.#options.cachePath, this.#compileCache);
-    }
-
-    const resultsMap: Map<string, FileBuildResult> = new Map();
-
-    for (const result of results) {
-      const contractArtifactsGenerated = isSuccessfulBuild
-        ? contractArtifactsGeneratedByCompilationJob.get(result.compilationJob)
-        : new Map();
-
-      assertHardhatInvariant(
-        contractArtifactsGenerated !== undefined,
-        "We emitted contract artifacts for all the jobs if the build was successful",
-      );
-
-      const errors = await Promise.all(
-        (result.compilerOutput.errors ?? []).map((error) =>
-          this.remapCompilerError(result.compilationJob, error, true),
+        runnableCompilationJobs.map(async (runnableCompilationJob) =>
+          runnableCompilationJob.getBuildId(),
         ),
       );
 
-      this.#printSolcErrorsAndWarnings(errors);
+      const results: CompilationResult[] = await pMap(
+        runnableCompilationJobs,
+        async (runnableCompilationJob) => {
+          const { output, compiler } = await this.runCompilationJob(
+            runnableCompilationJob,
+            options,
+          );
 
-      const successfulResult = !this.#hasCompilationErrors(
-        result.compilerOutput,
+          return {
+            compilationJob: runnableCompilationJob,
+            compilerOutput: output,
+            cached: false,
+            compiler,
+          };
+        },
+        {
+          concurrency: options.concurrency,
+          // An error when running the compiler is not a compilation failure, but
+          // a fatal failure trying to run it, so we just throw on the first error
+          stopOnError: true,
+        },
       );
 
-      for (const [userSourceName, root] of result.compilationJob.dependencyGraph
-        .getRoots()
-        .entries()) {
-        if (!successfulResult) {
-          resultsMap.set(formatRootPath(userSourceName, root), {
-            type: FileBuildResultType.BUILD_FAILURE,
-            compilationJob: result.compilationJob,
-            errors,
-          });
+      const uncachedResults = results.filter((result) => !result.cached);
+      const uncachedSuccessfulResults = uncachedResults.filter(
+        (result) => !this.#hasCompilationErrors(result.compilerOutput),
+      );
 
-          continue;
-        }
+      const isSuccessfulBuild =
+        uncachedResults.length === uncachedSuccessfulResults.length;
 
-        if (result.cached) {
+      const contractArtifactsGeneratedByCompilationJob: Map<
+        CompilationJob,
+        ReadonlyMap<string, string[]>
+      > = new Map();
+
+      if (isSuccessfulBuild) {
+        log("Emitting artifacts of successful build");
+        await Promise.all(
+          results.map(async (compilationResult) => {
+            const emitArtifactsResult = await this.emitArtifacts(
+              compilationResult.compilationJob,
+              compilationResult.compilerOutput,
+              options,
+            );
+
+            const { artifactsPerFile } = emitArtifactsResult;
+
+            contractArtifactsGeneratedByCompilationJob.set(
+              compilationResult.compilationJob,
+              artifactsPerFile,
+            );
+
+            // Cache the results
+            await this.#cacheCompilationResult(
+              indexedIndividualJobs,
+              compilationResult,
+              emitArtifactsResult,
+              buildProfile.isolated,
+              options.scope,
+            );
+          }),
+        );
+
+        await saveCache(this.#options.cachePath, this.#compileCache);
+      }
+
+      spinner.stop();
+
+      const resultsMap: Map<string, FileBuildResult> = new Map();
+
+      for (const result of results) {
+        const contractArtifactsGenerated = isSuccessfulBuild
+          ? contractArtifactsGeneratedByCompilationJob.get(
+              result.compilationJob,
+            )
+          : new Map();
+
+        assertHardhatInvariant(
+          contractArtifactsGenerated !== undefined,
+          "We emitted contract artifacts for all the jobs if the build was successful",
+        );
+
+        const errors = await Promise.all(
+          (result.compilerOutput.errors ?? []).map((error) =>
+            this.remapCompilerError(result.compilationJob, error, true),
+          ),
+        );
+
+        this.#printSolcErrorsAndWarnings(errors);
+        const successfulResult = !this.#hasCompilationErrors(
+          result.compilerOutput,
+        );
+
+        for (const [
+          userSourceName,
+          root,
+        ] of result.compilationJob.dependencyGraph.getRoots().entries()) {
+          if (!successfulResult) {
+            resultsMap.set(formatRootPath(userSourceName, root), {
+              type: FileBuildResultType.BUILD_FAILURE,
+              compilationJob: result.compilationJob,
+              errors,
+            });
+
+            continue;
+          }
+
+          if (result.cached) {
+            resultsMap.set(formatRootPath(userSourceName, root), {
+              type: FileBuildResultType.CACHE_HIT,
+              compilationJob: result.compilationJob,
+              contractArtifactsGenerated:
+                contractArtifactsGenerated.get(userSourceName) ?? [],
+              warnings: errors,
+            });
+
+            continue;
+          }
+
           resultsMap.set(formatRootPath(userSourceName, root), {
-            type: FileBuildResultType.CACHE_HIT,
+            type: FileBuildResultType.BUILD_SUCCESS,
             compilationJob: result.compilationJob,
             contractArtifactsGenerated:
               contractArtifactsGenerated.get(userSourceName) ?? [],
             warnings: errors,
           });
-
-          continue;
         }
-
-        resultsMap.set(formatRootPath(userSourceName, root), {
-          type: FileBuildResultType.BUILD_SUCCESS,
-          compilationJob: result.compilationJob,
-          contractArtifactsGenerated:
-            contractArtifactsGenerated.get(userSourceName) ?? [],
-          warnings: errors,
-        });
       }
-    }
 
-    if (options?.quiet !== true) {
-      if (isSuccessfulBuild) {
-        await this.#printCompilationResult(runnableCompilationJobs);
+      if (!options.quiet) {
+        if (isSuccessfulBuild) {
+          await this.#printCompilationResult(runnableCompilationJobs, {
+            scope: options.scope,
+          });
+        }
       }
-    }
 
-    return resultsMap;
+      return resultsMap;
+    } finally {
+      spinner.stop();
+    }
   }
 
   public async getCompilationJobs(
@@ -341,6 +408,7 @@ export class SolidityBuildSystemImplementation implements SolidityBuildSystem {
       if (solcLongVersion === undefined) {
         const compiler = await getCompiler(solcConfig.version, {
           preferWasm: buildProfile.preferWasm,
+          compilerPath: solcConfig.path,
         });
         solcLongVersion = compiler.longVersion;
         solcVersionToLongVersion.set(solcConfig.version, solcLongVersion);
@@ -425,6 +493,11 @@ export class SolidityBuildSystemImplementation implements SolidityBuildSystem {
         buildInfoOutputPath,
         typeFilePath,
       ]) {
+        // Type declaration file can be undefined (e.g. for solidity tests)
+        if (outputFilePath === undefined) {
+          continue;
+        }
+
         if (!(await exists(outputFilePath))) {
           rootFilesToCompile.add(rootFile);
           break;
@@ -545,7 +618,10 @@ export class SolidityBuildSystemImplementation implements SolidityBuildSystem {
 
     const compiler = await getCompiler(
       runnableCompilationJob.solcConfig.version,
-      { preferWasm: buildProfile.preferWasm },
+      {
+        preferWasm: buildProfile.preferWasm,
+        compilerPath: runnableCompilationJob.solcConfig.path,
+      },
     );
 
     log(
@@ -599,10 +675,15 @@ export class SolidityBuildSystemImplementation implements SolidityBuildSystem {
   public async emitArtifacts(
     runnableCompilationJob: CompilationJob,
     compilerOutput: CompilerOutput,
+    options: { scope?: BuildScope } = {},
   ): Promise<EmitArtifactsResult> {
+    const scope = options.scope ?? "contracts";
+
     const artifactsPerFile = new Map<string, string[]>();
     const typeFilePaths = new Map<string, string>();
     const buildId = await runnableCompilationJob.getBuildId();
+
+    const artifactsDirectory = await this.getArtifactsDirectory(scope);
 
     // We emit the artifacts for each root file, first emitting one artifact
     // for each contract, and then one declaration file for the entire file,
@@ -610,7 +691,7 @@ export class SolidityBuildSystemImplementation implements SolidityBuildSystem {
     for (const [userSourceName, root] of runnableCompilationJob.dependencyGraph
       .getRoots()
       .entries()) {
-      const fileFolder = path.join(this.#options.artifactsPath, userSourceName);
+      const fileFolder = path.join(artifactsDirectory, userSourceName);
 
       // If the folder exists, we remove it first, as we don't want to leave
       // any old artifacts there.
@@ -648,45 +729,60 @@ export class SolidityBuildSystemImplementation implements SolidityBuildSystem {
 
       artifactsPerFile.set(userSourceName, paths);
 
-      const artifactsDeclarationFilePath = path.join(
-        fileFolder,
-        "artifacts.d.ts",
-      );
-      typeFilePaths.set(userSourceName, artifactsDeclarationFilePath);
+      // Write the type declaration file, only for contracts
+      if (scope === "contracts") {
+        const artifactsDeclarationFilePath = path.join(
+          fileFolder,
+          "artifacts.d.ts",
+        );
+        typeFilePaths.set(userSourceName, artifactsDeclarationFilePath);
 
-      const artifactsDeclarationFile = getArtifactsDeclarationFile(artifacts);
+        const artifactsDeclarationFile = getArtifactsDeclarationFile(artifacts);
 
-      await writeUtf8File(
-        artifactsDeclarationFilePath,
-        artifactsDeclarationFile,
-      );
+        await writeUtf8File(
+          artifactsDeclarationFilePath,
+          artifactsDeclarationFile,
+        );
+      }
     }
 
     // Once we have emitted all the contract artifacts and its declaration
     // file, we emit the build info file and its output file.
     const buildInfoId = buildId;
 
-    const buildInfoPath = path.join(
-      this.#options.artifactsPath,
+    const buildInfoCacheDirPath = path.join(
+      this.#options.cachePath,
       `build-info`,
+    );
+
+    await ensureDir(buildInfoCacheDirPath);
+
+    const buildInfoCachePath = path.join(
+      buildInfoCacheDirPath,
       `${buildInfoId}.json`,
     );
 
-    const buildInfoOutputPath = path.join(
-      this.#options.artifactsPath,
-      `build-info`,
+    const buildInfoOutputCachePath = path.join(
+      buildInfoCacheDirPath,
       `${buildInfoId}.output.json`,
     );
 
     // BuildInfo and BuildInfoOutput files are large, so we write them
     // concurrently, and keep their lifetimes separated and small.
+    // NOTE: First, we write the build info file and its output to the cache
+    // directory. Once both are successfully written, we move them to the
+    // artifacts directory sequentially, ensuring the build info file is moved
+    // last. This approach minimizes the risk of having corrupted build info
+    // files in the artifacts directory and ensures other processes, like
+    // `hardhat node`, can safely monitor the build info file as an indicator
+    // for build completion.
     await Promise.all([
       (async () => {
         const buildInfo = await getBuildInfo(runnableCompilationJob);
 
         // TODO: Maybe formatting the build info is slow, but it's mostly
         // strings, so it probably shouldn't be a problem.
-        await writeJsonFile(buildInfoPath, buildInfo);
+        await writeJsonFile(buildInfoCachePath, buildInfo);
       })(),
       (async () => {
         const buildInfoOutput = await getBuildInfoOutput(
@@ -699,9 +795,23 @@ export class SolidityBuildSystemImplementation implements SolidityBuildSystem {
         // TODO: Earlier in the build process, very similar files are created on disk by the
         // Compiler.  Instead of creating them again, we should consider copying/moving them.
         // This would require changing the format of the build info output file.
-        await writeJsonFileAsStream(buildInfoOutputPath, buildInfoOutput);
+        await writeJsonFileAsStream(buildInfoOutputCachePath, buildInfoOutput);
       })(),
     ]);
+
+    const buildInfoDirPath = path.join(artifactsDirectory, `build-info`);
+
+    await ensureDir(buildInfoDirPath);
+
+    const buildInfoPath = path.join(buildInfoDirPath, `${buildInfoId}.json`);
+
+    const buildInfoOutputPath = path.join(
+      buildInfoDirPath,
+      `${buildInfoId}.output.json`,
+    );
+
+    await move(buildInfoOutputCachePath, buildInfoOutputPath);
+    await move(buildInfoCachePath, buildInfoPath);
 
     return {
       artifactsPerFile,
@@ -711,55 +821,54 @@ export class SolidityBuildSystemImplementation implements SolidityBuildSystem {
     };
   }
 
-  public async cleanupArtifacts(rootFilePaths: string[]): Promise<void> {
+  public async getArtifactsDirectory(scope: BuildScope): Promise<string> {
+    return scope === "contracts"
+      ? this.#options.artifactsPath
+      : path.join(this.#options.cachePath, "test-artifacts");
+  }
+
+  public async cleanupArtifacts(
+    rootFilePaths: string[],
+    options: { scope?: BuildScope } = {},
+  ): Promise<void> {
     log(`Cleaning up artifacts`);
+
+    const scope = options.scope ?? "contracts";
+    const artifactsDirectory = await this.getArtifactsDirectory(scope);
 
     const userSourceNames = rootFilePaths.map((rootFilePath) => {
       const parsed = parseRootPath(rootFilePath);
       return isNpmParsedRootPath(parsed)
         ? parsed.npmPath
-        : path.relative(this.#options.projectRoot, parsed.fsPath);
+        : toForwardSlash(
+            path.relative(this.#options.projectRoot, parsed.fsPath),
+          );
     });
 
     const userSourceNamesSet = new Set(userSourceNames);
 
     for (const file of await getAllDirectoriesMatching(
-      this.#options.artifactsPath,
+      artifactsDirectory,
       (d) => d.endsWith(".sol"),
     )) {
-      const relativePath = path.relative(this.#options.artifactsPath, file);
-
-      const testDirectorySubpath = path.relative(
-        this.#options.projectRoot,
-        this.#options.solidityTestsPath,
+      const relativePath = toForwardSlash(
+        path.relative(artifactsDirectory, file),
       );
-      const hasTestFileExtension = file.endsWith(".t.sol");
-      const isInsideTestFolder = relativePath.startsWith(
-        testDirectorySubpath + path.sep,
-      );
-
-      // Skip test artifacts, since our full compilation doesn't include them, they would incorrectly be marked for deletion
-      if (hasTestFileExtension || isInsideTestFolder) {
-        continue;
-      }
 
       if (!userSourceNamesSet.has(relativePath)) {
         await remove(file);
       }
     }
 
-    const buildInfosDir = path.join(this.#options.artifactsPath, `build-info`);
+    const buildInfosDir = path.join(artifactsDirectory, `build-info`);
 
     // TODO: This logic is duplicated with respect to the artifacts manager
     const artifactPaths = await getAllFilesMatching(
-      this.#options.artifactsPath,
+      artifactsDirectory,
       (p) =>
         p.endsWith(".json") && // Only consider json files
         // Ignore top level json files
-        p.indexOf(
-          path.sep,
-          this.#options.artifactsPath.length + path.sep.length,
-        ) !== -1,
+        p.indexOf(path.sep, artifactsDirectory.length + path.sep.length) !== -1,
       (dir) => dir !== buildInfosDir,
     );
 
@@ -789,40 +898,41 @@ export class SolidityBuildSystemImplementation implements SolidityBuildSystem {
       }
     }
 
-    // Get duplicated contract names
-    const artifactNameCounts = new Map<string, number>();
-    for (const artifactPath of artifactPaths) {
-      const basename = path.basename(artifactPath);
-      const name = basename.substring(0, basename.indexOf("."));
+    // These steps only apply when compiling contracts
+    if (scope === "contracts") {
+      // Get duplicated contract names and write a top-level artifacts.d.ts file
+      const artifactNameCounts = new Map<string, number>();
+      for (const artifactPath of artifactPaths) {
+        const basename = path.basename(artifactPath);
+        const name = basename.substring(0, basename.indexOf("."));
 
-      let count = artifactNameCounts.get(name);
-      if (count === undefined) {
-        count = 0;
+        const count = artifactNameCounts.get(name) ?? 0;
+
+        artifactNameCounts.set(name, count + 1);
       }
 
-      artifactNameCounts.set(name, count + 1);
+      const duplicatedNames = [...artifactNameCounts.entries()]
+        .filter(([_, count]) => count > 1)
+        .map(([name, _]) => name);
+
+      const duplicatedContractNamesDeclarationFilePath = path.join(
+        artifactsDirectory,
+        "artifacts.d.ts",
+      );
+
+      await writeUtf8File(
+        duplicatedContractNamesDeclarationFilePath,
+        getDuplicatedContractNamesDeclarationFile(duplicatedNames),
+      );
+
+      // Run the onCleanUpArtifacts hook
+      await this.#hooks.runHandlerChain(
+        "solidity",
+        "onCleanUpArtifacts",
+        [artifactPaths],
+        async () => {},
+      );
     }
-
-    const duplicatedNames = [...artifactNameCounts.entries()]
-      .filter(([_, count]) => count > 1)
-      .map(([name, _]) => name);
-
-    const duplicatedContractNamesDeclarationFilePath = path.join(
-      this.#options.artifactsPath,
-      "artifacts.d.ts",
-    );
-
-    await writeUtf8File(
-      duplicatedContractNamesDeclarationFilePath,
-      getDuplicatedContractNamesDeclarationFile(duplicatedNames),
-    );
-
-    await this.#hooks.runHandlerChain(
-      "solidity",
-      "onCleanUpArtifacts",
-      [artifactPaths],
-      async () => {},
-    );
   }
 
   public async compileBuildInfo(
@@ -896,6 +1006,7 @@ export class SolidityBuildSystemImplementation implements SolidityBuildSystem {
     result: CompilationResult,
     emitArtifactsResult: EmitArtifactsResult,
     isolated: boolean,
+    scope: BuildScope,
   ): Promise<void> {
     const rootFilePaths = result.compilationJob.dependencyGraph
       .getRoots()
@@ -919,9 +1030,10 @@ export class SolidityBuildSystemImplementation implements SolidityBuildSystem {
 
       const typeFilePath = emitArtifactsResult.typeFilePaths.get(rootFilePath);
 
+      // Type declaration file is not generated for solidity tests
       assertHardhatInvariant(
-        typeFilePath !== undefined,
-        `No type file found on map for ${rootFilePath}`,
+        scope === "tests" || typeFilePath !== undefined,
+        `No type file found on map for contract ${rootFilePath}`,
       );
 
       const jobHash = await individualJob.getBuildId();
@@ -943,6 +1055,8 @@ export class SolidityBuildSystemImplementation implements SolidityBuildSystem {
       return;
     }
 
+    console.log();
+
     for (const error of errors) {
       if (error.severity === "error") {
         const errorMessage: string =
@@ -950,12 +1064,15 @@ export class SolidityBuildSystemImplementation implements SolidityBuildSystem {
           error.formattedMessage ??
           error.message;
 
-        console.error(errorMessage.replace(/^\w+:/, (t) => chalk.red.bold(t)));
+        console.error(
+          errorMessage.replace(/^\w+:/, (t) => chalk.red.bold(t)).trimEnd() +
+            "\n",
+        );
       } else {
         console.warn(
-          (error.formattedMessage ?? error.message).replace(/^\w+:/, (t) =>
-            chalk.yellow.bold(t),
-          ),
+          (error.formattedMessage ?? error.message)
+            .replace(/^\w+:/, (t) => chalk.yellow.bold(t))
+            .trimEnd() + "\n",
         );
       }
     }
@@ -974,14 +1091,23 @@ export class SolidityBuildSystemImplementation implements SolidityBuildSystem {
     }
   }
 
-  async #printCompilationResult(runnableCompilationJobs: CompilationJob[]) {
+  async #printCompilationResult(
+    runnableCompilationJobs: CompilationJob[],
+    options: { scope: BuildScope },
+  ) {
     const jobsPerVersionAndEvmVersion = new Map<
       string,
       Map<string, CompilationJob[]>
     >();
 
     if (runnableCompilationJobs.length === 0) {
-      console.log("\nNothing to compile");
+      if (options.scope === "contracts") {
+        console.log("No contracts to compile");
+      } else {
+        console.log("No Solidity tests to compile");
+      }
+
+      return;
     }
 
     for (const job of runnableCompilationJobs) {
@@ -1022,12 +1148,19 @@ export class SolidityBuildSystemImplementation implements SolidityBuildSystem {
         );
 
         console.log(
-          `Compiled ${rootFiles} Solidity ${pluralize(
-            "file",
-            rootFiles,
-          )} with solc ${solcVersion} (evm target: ${evmVersion})`,
+          chalk.bold(
+            `Compiled ${rootFiles} Solidity ${pluralize(
+              options.scope === "contracts" ? "file" : "test file",
+              rootFiles,
+            )} with solc ${solcVersion}`,
+          ),
+          `(evm target: ${evmVersion})`,
         );
       }
     }
   }
+}
+
+function toForwardSlash(str: string): string {
+  return str.split(/[\\\/]/).join(path.posix.sep);
 }

@@ -23,6 +23,7 @@ import type {
   ProviderConfig,
   TracingConfigWithBuffers,
   AccountOverride,
+  GasReportConfig,
 } from "@nomicfoundation/edr";
 
 import {
@@ -30,6 +31,7 @@ import {
   opHardforkFromString,
   l1GenesisState,
   l1HardforkFromString,
+  ContractDecoder,
 } from "@nomicfoundation/edr";
 import {
   assertHardhatInvariant,
@@ -141,6 +143,7 @@ interface EdrProviderConfig {
   tracingConfig?: TracingConfigWithBuffers;
   jsonRpcRequestWrapper?: JsonRpcRequestWrapperFunction;
   coverageConfig?: CoverageConfig;
+  gasReportConfig?: GasReportConfig;
 }
 
 export class EdrProvider extends BaseProvider {
@@ -159,6 +162,7 @@ export class EdrProvider extends BaseProvider {
     tracingConfig = {},
     jsonRpcRequestWrapper,
     coverageConfig,
+    gasReportConfig,
   }: EdrProviderConfig): Promise<EdrProvider> {
     const printLineFn = loggerConfig.printLineFn ?? printLine;
     const replaceLastLineFn = loggerConfig.replaceLastLineFn ?? replaceLastLine;
@@ -166,6 +170,7 @@ export class EdrProvider extends BaseProvider {
     const providerConfig = await getProviderConfig(
       networkConfig,
       coverageConfig,
+      gasReportConfig,
       chainDescriptors,
     );
 
@@ -174,12 +179,14 @@ export class EdrProvider extends BaseProvider {
     // We need to catch errors here, as the provider creation can panic unexpectedly,
     // and we want to make sure such a crash is propagated as a ProviderError.
     try {
+      const contractDecoder = ContractDecoder.withContracts(tracingConfig);
+
       const context = await getGlobalEdrContext();
       const provider = await context.createProvider(
         hardhatChainTypeToEdrChainType(networkConfig.chainType),
         providerConfig,
         {
-          enable: loggerConfig.enabled,
+          enable: loggerConfig.enabled || networkConfig.loggingEnabled,
           decodeConsoleLogInputsCallback: (inputs: ArrayBuffer[]) => {
             return ConsoleLogger.getDecodedLogs(
               inputs.map((input) => {
@@ -200,7 +207,7 @@ export class EdrProvider extends BaseProvider {
             edrProvider.onSubscriptionEvent(event);
           },
         },
-        tracingConfig,
+        contractDecoder,
       );
 
       edrProvider = new EdrProvider(provider, jsonRpcRequestWrapper);
@@ -299,6 +306,22 @@ export class EdrProvider extends BaseProvider {
   public async close(): Promise<void> {
     // Clear the provider reference to help with garbage collection
     this.#provider = undefined;
+  }
+
+  public async addCompilationResult(
+    solcVersion: string,
+    compilerInput: any,
+    compilerOutput: any,
+  ): Promise<void> {
+    if (this.#provider === undefined) {
+      throw new HardhatError(HardhatError.ERRORS.CORE.NETWORK.PROVIDER_CLOSED);
+    }
+
+    await this.#provider.addCompilationResult(
+      solcVersion,
+      compilerInput,
+      compilerOutput,
+    );
   }
 
   async #handleEdrResponse(
@@ -409,9 +432,10 @@ export class EdrProvider extends BaseProvider {
   }
 }
 
-async function getProviderConfig(
+export async function getProviderConfig(
   networkConfig: RequireField<EdrNetworkConfig, "chainType">,
   coverageConfig: CoverageConfig | undefined,
+  gasReportConfig: GasReportConfig | undefined,
   chainDescriptors: ChainDescriptorsConfig,
 ): Promise<ProviderConfig> {
   const specId = hardhatHardforkToEdrSpecId(
@@ -488,6 +512,7 @@ async function getProviderConfig(
     networkId: BigInt(networkConfig.networkId),
     observability: {
       codeCoverage: coverageConfig,
+      gasReport: gasReportConfig,
     },
     ownedAccounts: ownedAccounts.map((account) => account.secretKey),
     precompileOverrides: [],

@@ -72,7 +72,7 @@ export async function* testReporter(
   let firstSuite = true;
   for await (const event of source) {
     switch (event.type) {
-      case "suite:result": {
+      case "suite:done": {
         const { data: suiteResult } = event;
         const suiteTestCount = suiteResult.testResults.length;
 
@@ -213,6 +213,9 @@ export async function* testReporter(
 
         break;
       }
+      case "run:done": {
+        break;
+      }
     }
   }
 
@@ -265,7 +268,10 @@ export async function* testReporter(
           );
         }
         if (reason === undefined || reason === "") {
-          reason = failure.reason ?? "Unknown error";
+          reason =
+            failure.reason?.startsWith("FFI is disabled") === true
+              ? "FFI is disabled; set `test.solidity.ffi` to `true` in your Hardhat config to allow tests to call external commands"
+              : failure.reason ?? "Unknown error";
         }
         yield indenter.t`${colorizer.red(`Error: ${reason}`)}\n`;
         // eslint-disable-next-line @typescript-eslint/switch-exhaustiveness-check -- Ignore Cases not matched: undefined
@@ -296,9 +302,11 @@ export async function* testReporter(
           case "UnsafeToReplay":
             if (stackTrace.globalForkLatest === true) {
               yield indenter.t`Stack Trace Warning: ${colorizer.grey("The test is not safe to replay because a fork url without a fork block number was provided.")}\n`;
+              yield indenter.t`Try rerunning your tests with -vvv or above.\n`;
             }
             if (stackTrace.impureCheatcodes.length > 0) {
               yield indenter.t`Stack Trace Warning: ${colorizer.grey(`The test is not safe to replay because it uses impure cheatcodes: ${stackTrace.impureCheatcodes.join(", ")}`)}\n`;
+              yield indenter.t`Try rerunning your tests with -vvv or above.\n`;
             }
             break;
           case "HeuristicFailed":

@@ -23,6 +23,7 @@ import type {
 import type { ArtifactManager } from "hardhat/types/artifacts";
 import type { HardhatConfig } from "hardhat/types/config";
 import type { NetworkConnection, ChainType } from "hardhat/types/network";
+import type { UserInterruptionManager } from "hardhat/types/user-interruptions";
 
 import path from "node:path";
 
@@ -52,19 +53,24 @@ export class ViemIgnitionHelperImpl<ChainTypeT extends ChainType | string>
   readonly #hardhatConfig: HardhatConfig;
   readonly #artifactsManager: ArtifactManager;
   readonly #connection: NetworkConnection<ChainTypeT>;
+  readonly #userInterruptions: UserInterruptionManager;
   readonly #config: Partial<DeployConfig> | undefined;
   readonly #provider: EIP1193Provider;
+
+  #mutex: boolean = false;
 
   constructor(
     hardhatConfig: HardhatConfig,
     artifactsManager: ArtifactManager,
     connection: NetworkConnection<ChainTypeT>,
+    userInterruptions: UserInterruptionManager,
     config?: Partial<DeployConfig> | undefined,
     provider?: EIP1193Provider,
   ) {
     this.#hardhatConfig = hardhatConfig;
     this.#artifactsManager = artifactsManager;
     this.#connection = connection;
+    this.#userInterruptions = userInterruptions;
     this.#config = config;
     this.#provider = provider ?? this.#connection.provider;
   }
@@ -116,86 +122,109 @@ export class ViemIgnitionHelperImpl<ChainTypeT extends ChainType | string>
   ): Promise<
     IgnitionModuleResultsToViemContracts<ContractNameT, IgnitionModuleResultsT>
   > {
-    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions -- eth_accounts returns a string array
-    const accounts: string[] = (await this.#connection.provider.request({
-      method: "eth_accounts",
-    })) as string[];
+    if (this.#mutex) {
+      throw new HardhatError(
+        HardhatError.ERRORS.IGNITION.DEPLOY.ALREADY_IN_PROGRESS,
+      );
+    }
 
-    const artifactResolver = new HardhatArtifactResolver(
-      this.#artifactsManager,
-    );
+    this.#mutex = true;
 
-    const resolvedConfig: Partial<DeployConfig> = {
+    try {
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions -- eth_accounts returns a string array
+      const accounts: string[] = (await this.#connection.provider.request({
+        method: "eth_accounts",
+      })) as string[];
+
+      const artifactResolver = new HardhatArtifactResolver(
+        this.#artifactsManager,
+      );
+
+      const resolvedConfig: Partial<DeployConfig> =
+        this.getResolvedConfig(perDeployConfig);
+
+      const resolvedStrategyConfig =
+        ViemIgnitionHelperImpl.#resolveStrategyConfig<StrategyT>(
+          this.#hardhatConfig,
+          strategy,
+          strategyConfig,
+        );
+
+      const chainId = Number(
+        await this.#connection.provider.request({
+          method: "eth_chainId",
+        }),
+      );
+
+      const deploymentId = resolveDeploymentId(givenDeploymentId, chainId);
+
+      const deploymentDir =
+        this.#connection.networkConfig.type === "edr-simulated"
+          ? undefined
+          : path.join(
+              this.#hardhatConfig.paths.ignition,
+              "deployments",
+              deploymentId,
+            );
+
+      const executionEventListener = displayUi
+        ? new PrettyEventHandler(this.#userInterruptions)
+        : undefined;
+
+      let deploymentParameters: DeploymentParameters;
+
+      if (typeof parameters === "string") {
+        deploymentParameters = await readDeploymentParameters(parameters);
+      } else {
+        deploymentParameters = parameters;
+      }
+
+      const result = await deploy({
+        config: resolvedConfig,
+        provider: this.#provider,
+        deploymentDir,
+        executionEventListener,
+        artifactResolver,
+        ignitionModule,
+        deploymentParameters,
+        accounts,
+        defaultSender,
+        strategy,
+        strategyConfig: resolvedStrategyConfig,
+        maxFeePerGasLimit:
+          this.#connection.networkConfig?.ignition.maxFeePerGasLimit,
+        maxPriorityFeePerGas:
+          this.#connection.networkConfig?.ignition.maxPriorityFeePerGas,
+      });
+
+      if (result.type !== DeploymentResultType.SUCCESSFUL_DEPLOYMENT) {
+        const message = errorDeploymentResultToExceptionMessage(result);
+
+        throw new HardhatError(
+          HardhatError.ERRORS.IGNITION.INTERNAL.DEPLOYMENT_ERROR,
+          {
+            message,
+          },
+        );
+      }
+
+      return await this.#toViemContracts(
+        this.#connection,
+        ignitionModule,
+        result,
+      );
+    } finally {
+      this.#mutex = false;
+    }
+  }
+
+  public getResolvedConfig(
+    perDeployConfig: Partial<DeployConfig>,
+  ): Partial<DeployConfig> {
+    return {
       ...this.#config,
       ...perDeployConfig,
     };
-
-    const resolvedStrategyConfig =
-      ViemIgnitionHelperImpl.#resolveStrategyConfig<StrategyT>(
-        this.#hardhatConfig,
-        strategy,
-        strategyConfig,
-      );
-
-    const chainId = Number(
-      await this.#connection.provider.request({
-        method: "eth_chainId",
-      }),
-    );
-
-    const deploymentId = resolveDeploymentId(givenDeploymentId, chainId);
-
-    const deploymentDir =
-      this.#connection.networkConfig.type === "edr-simulated"
-        ? undefined
-        : path.join(
-            this.#hardhatConfig.paths.ignition,
-            "deployments",
-            deploymentId,
-          );
-
-    const executionEventListener = displayUi
-      ? new PrettyEventHandler()
-      : undefined;
-
-    let deploymentParameters: DeploymentParameters;
-
-    if (typeof parameters === "string") {
-      deploymentParameters = await readDeploymentParameters(parameters);
-    } else {
-      deploymentParameters = parameters;
-    }
-
-    const result = await deploy({
-      config: resolvedConfig,
-      provider: this.#provider,
-      deploymentDir,
-      executionEventListener,
-      artifactResolver,
-      ignitionModule,
-      deploymentParameters,
-      accounts,
-      defaultSender,
-      strategy,
-      strategyConfig: resolvedStrategyConfig,
-      maxFeePerGasLimit:
-        this.#connection.networkConfig?.ignition.maxFeePerGasLimit,
-      maxPriorityFeePerGas:
-        this.#connection.networkConfig?.ignition.maxPriorityFeePerGas,
-    });
-
-    if (result.type !== DeploymentResultType.SUCCESSFUL_DEPLOYMENT) {
-      const message = errorDeploymentResultToExceptionMessage(result);
-
-      throw new HardhatError(
-        HardhatError.ERRORS.IGNITION.INTERNAL.DEPLOYMENT_ERROR,
-        {
-          message,
-        },
-      );
-    }
-
-    return this.#toViemContracts(this.#connection, ignitionModule, result);
   }
 
   async #toViemContracts<

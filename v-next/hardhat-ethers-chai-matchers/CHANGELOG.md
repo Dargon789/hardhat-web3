@@ -1,13 +1,19 @@
 # @nomicfoundation/hardhat-ethers-chai-matchers
 
-## 3.0.0-next.2
+## 3.0.2
 
 ### Patch Changes
 
-- Hardhat 3 Alpha release (2025-03-20T08:38:27.809Z)
+- a376396: Improved the documentation
 
-## 3.0.0-next.1
+## 3.0.1
 
 ### Patch Changes
 
-- 5fbea0d: A small bug fix release for the Hardhat 3 Alpha.
+- 558ac5b: Update installation and config instructions
+
+## 3.0.0
+
+### Major Changes
+
+- 29cc141: First release of Hardhat 3!

@@ -1,16 +1,36 @@
 # Changelog
 
-## 3.0.0-next.2
+## 3.0.5
 
 ### Patch Changes
 
-- Hardhat 3 Alpha release (2025-03-20T08:38:27.809Z)
+- d1c1803: Make `@nomicfoundation/hardhat-ignition`'s UI work well with other plugins, like Ledger's.
 
-## 3.0.0-next.1
+## 3.0.4
+
+## 3.0.3
 
 ### Patch Changes
 
-- 5fbea0d: A small bug fix release for the Hardhat 3 Alpha.
+- bebf87c: Added support for Linea network verification, thanks @kyzooghost ([#7357](https://github.com/NomicFoundation/hardhat/issues/7357))
+
+## 3.0.2
+
+### Patch Changes
+
+- ddefbff: Added guard to stop multiple simultaneous calls to `ignition.deploy(...)` at once ([#6440](https://github.com/NomicFoundation/hardhat/issues/6440))
+
+## 3.0.1
+
+### Patch Changes
+
+- 86cecc7: Fix the type guard to include `m.encodeFunctionCall` in those that do not submit transactions, thanks @radik878 ([#7264](https://github.com/NomicFoundation/hardhat/pull/7264))
+
+## 3.0.0
+
+### Major Changes
+
+- 29cc141: First release of Hardhat 3!
 
 ## 0.15.9 - 2024-12-18
 

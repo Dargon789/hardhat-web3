@@ -2,23 +2,25 @@ import type {
   ChainDescriptorsConfig,
   EdrNetworkConfigOverride,
   EdrNetworkUserConfig,
+  HardhatConfig,
   HardhatUserConfig,
   HttpNetworkConfigOverride,
   HttpNetworkUserConfig,
   NetworkConfig,
   NetworkUserConfig,
 } from "../../../../src/types/config.js";
-import type { NetworkHooks } from "../../../../src/types/hooks.js";
+import type { ConfigHooks, NetworkHooks } from "../../../../src/types/hooks.js";
 import type { HardhatRuntimeEnvironment } from "../../../../src/types/hre.js";
 import type {
   GenericChainType,
   NetworkConnection,
   NetworkManager,
 } from "../../../../src/types/network.js";
+import type { HardhatPlugin } from "../../../../src/types/plugins.js";
 import type { ExpectedValidationError } from "@nomicfoundation/hardhat-test-utils";
 
 import assert from "node:assert/strict";
-import { before, describe, it } from "node:test";
+import { beforeEach, describe, it } from "node:test";
 
 import { HardhatError } from "@nomicfoundation/hardhat-errors";
 import {
@@ -56,7 +58,7 @@ describe("NetworkManagerImplementation", () => {
   let networks: Record<string, NetworkConfig>;
   let chainDescriptors: ChainDescriptorsConfig;
 
-  before(async () => {
+  beforeEach(async () => {
     const initialDate = new Date();
 
     hre = await createHardhatRuntimeEnvironment({});
@@ -123,6 +125,7 @@ describe("NetworkManagerImplementation", () => {
             },
           },
         },
+        GENERIC_CHAIN_TYPE,
         "",
         (varOrStr) => resolveConfigurationVariable(hre.hooks, varOrStr),
       ),
@@ -136,8 +139,10 @@ describe("NetworkManagerImplementation", () => {
       networks,
       hre.hooks,
       hre.artifacts,
-      userNetworks,
+      { networks: userNetworks },
       chainDescriptors,
+      hre.globalOptions.config,
+      hre.config.paths.root,
     );
   });
 
@@ -302,23 +307,6 @@ describe("NetworkManagerImplementation", () => {
       );
     });
 
-    it("should throw an error if the specified network config override has mixed properties from http and edr networks", async () => {
-      await assertRejectsWithHardhatError(
-        networkManager.connect({
-          network: "myNetwork",
-          chainType: OPTIMISM_CHAIN_TYPE,
-          override: {
-            url: "http://localhost:8545",
-            hardfork: "cancun",
-          },
-        }),
-        HardhatError.ERRORS.CORE.NETWORK.INVALID_CONFIG_OVERRIDE,
-        {
-          errors: `\t* Unrecognized key(s) in object: 'hardfork'`,
-        },
-      );
-    });
-
     it("should throw an error if the specified chain type doesn't match the network's chain type", async () => {
       await assertRejectsWithHardhatError(
         networkManager.connect({
@@ -373,6 +361,186 @@ describe("NetworkManagerImplementation", () => {
           NetworkConnection<"l1">
         >();
       });
+    });
+  });
+
+  describe("connect when config has been extended by plugins", () => {
+    const networkConfigAddingPlugin: HardhatPlugin = {
+      id: "network-config-adding-plugin",
+      hookHandlers: {
+        config: async () => ({
+          default: async () => {
+            const handlers: Partial<ConfigHooks> = {
+              extendUserConfig: async (
+                config: HardhatUserConfig,
+                next: (
+                  nextConfig: HardhatUserConfig,
+                ) => Promise<HardhatUserConfig>,
+              ) => {
+                const newConfig = await next(config);
+
+                for (const network of Object.values(newConfig.networks ?? {})) {
+                  /* eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+                -- to enable the test */
+                  (network as any).pluginAddedProperties =
+                    /* eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+                  -- to enable the test */
+                    (network as any).pluginAddedProperties ?? [
+                      "default-added-by-plugin",
+                    ];
+                }
+
+                return newConfig;
+              },
+              resolveUserConfig: async (
+                userConfig,
+                _resolveConfigurationVariable,
+                next,
+              ): Promise<HardhatConfig> => {
+                const resolvedConfig = await next(
+                  userConfig,
+                  _resolveConfigurationVariable,
+                );
+
+                if (userConfig.networks === undefined) {
+                  return resolvedConfig;
+                }
+
+                const resolvedConfigCopy = { ...resolvedConfig };
+
+                for (const [networkName, network] of Object.entries(
+                  resolvedConfigCopy.networks,
+                )) {
+                  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions -- to enable the test
+                  (network as any).pluginAddedProperties =
+                    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions -- to enable the test
+                    (userConfig.networks[networkName] as any)
+                      .pluginAddedProperties ?? [];
+                }
+
+                return resolvedConfig;
+              },
+            };
+
+            return handlers;
+          },
+        }),
+      },
+    };
+
+    function assertPluginPropertiesCopied(
+      networkConfig: NetworkConfig,
+      expectedOverride: { pluginAddedProperties: string[] },
+    ) {
+      if (!("pluginAddedProperties" in networkConfig)) {
+        return assert.fail(
+          "pluginAddedProperties from the plugin should be available in the network config",
+        );
+      }
+
+      assert.deepEqual(
+        networkConfig.pluginAddedProperties,
+        expectedOverride.pluginAddedProperties,
+      );
+    }
+
+    beforeEach(async () => {
+      hre = await createHardhatRuntimeEnvironment({
+        plugins: [networkConfigAddingPlugin],
+      });
+
+      userNetworks = {
+        pluginExtendedNetwork: {
+          type: "http",
+          url: "http://node.pluginExtendedNetwork.com",
+        },
+      };
+
+      networks = {
+        /* eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+        -- to enable the test of plugin extension. */
+        pluginExtendedNetwork: {
+          ...resolveHttpNetwork(
+            {
+              type: "http",
+              url: "http://node.pluginExtendedNetwork.com",
+            },
+            (varOrStr) => resolveConfigurationVariable(hre.hooks, varOrStr),
+          ),
+          pluginAddedProperties: ["default-added-by-plugin"],
+        } as any,
+      };
+
+      chainDescriptors = await resolveChainDescriptors(undefined);
+
+      networkManager = new NetworkManagerImplementation(
+        "localhost",
+        GENERIC_CHAIN_TYPE,
+        networks,
+        hre.hooks,
+        hre.artifacts,
+        { networks: userNetworks },
+        chainDescriptors,
+        hre.globalOptions.config,
+        hre.config.paths.root,
+      );
+    });
+
+    it("should keep extensions to network config that plugins have added", async () => {
+      const networkConnection = await networkManager.connect({
+        network: "pluginExtendedNetwork",
+      });
+
+      assertPluginPropertiesCopied(networkConnection.networkConfig, {
+        pluginAddedProperties: ["default-added-by-plugin"],
+      });
+    });
+
+    it("should re-extend config when a user override is provided", async () => {
+      const networkConnection = await networkManager.connect({
+        network: "pluginExtendedNetwork",
+        override: {
+          timeout: 12,
+        },
+      });
+
+      assertPluginPropertiesCopied(networkConnection.networkConfig, {
+        pluginAddedProperties: ["default-added-by-plugin"],
+      });
+    });
+
+    it("should re-extend config based on user provided values", async () => {
+      const networkConnection = await networkManager.connect({
+        network: "pluginExtendedNetwork",
+        /* eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+        -- to enable the test of plugin extension. */
+        override: {
+          pluginAddedProperties: ["my-value"],
+        } as any,
+      });
+
+      assertPluginPropertiesCopied(networkConnection.networkConfig, {
+        pluginAddedProperties: ["my-value"],
+      });
+    });
+  });
+
+  describe("createServer", function () {
+    it("connects to a network and returns a JsonRpcServer that wraps around it", async () => {
+      const server = await networkManager.createServer(
+        "edrNetwork",
+        "127.0.0.1",
+      );
+      const { address, port } = await server.listen();
+      try {
+        const { provider } = await networkManager.connect({
+          network: "localhost",
+          override: { url: `http://${address}:${port}` },
+        });
+        await provider.request({ method: "eth_chainId" });
+      } finally {
+        await server.close();
+      }
     });
   });
 
@@ -569,7 +737,7 @@ describe("NetworkManagerImplementation", () => {
           {
             path: ["chainDescriptors", "1", "hardforkHistory", "random string"],
             message:
-              "Invalid hardfork name random string found in chain descriptor for chain 1. Expected bedrock | regolith | canyon | ecotone | fjord | granite | holocene.",
+              "Invalid hardfork name random string found in chain descriptor for chain 1. Expected bedrock | regolith | canyon | ecotone | fjord | granite | holocene | isthmus.",
           },
         ]);
 
@@ -1267,19 +1435,19 @@ describe("NetworkManagerImplementation", () => {
       describe("http config", () => {
         it("should validate a valid network config", async () => {
           let validationErrors = await validateNetworkUserConfig(
-            httpConfig({ chainType: "l1" }),
+            httpConfig({ chainType: L1_CHAIN_TYPE }),
           );
 
           assertValidationErrors(validationErrors, []);
 
           validationErrors = await validateNetworkUserConfig(
-            httpConfig({ chainType: "op" }),
+            httpConfig({ chainType: OPTIMISM_CHAIN_TYPE }),
           );
 
           assertValidationErrors(validationErrors, []);
 
           validationErrors = await validateNetworkUserConfig(
-            httpConfig({ chainType: "generic" }),
+            httpConfig({ chainType: GENERIC_CHAIN_TYPE }),
           );
 
           assertValidationErrors(validationErrors, []);
@@ -1302,19 +1470,19 @@ describe("NetworkManagerImplementation", () => {
       describe("edr config", () => {
         it("should validate a valid network config", async () => {
           let validationErrors = await validateNetworkUserConfig(
-            edrConfig({ chainType: "l1" }),
+            edrConfig({ chainType: L1_CHAIN_TYPE }),
           );
 
           assertValidationErrors(validationErrors, []);
 
           validationErrors = await validateNetworkUserConfig(
-            edrConfig({ chainType: "op" }),
+            edrConfig({ chainType: OPTIMISM_CHAIN_TYPE }),
           );
 
           assertValidationErrors(validationErrors, []);
 
           validationErrors = await validateNetworkUserConfig(
-            edrConfig({ chainType: "generic" }),
+            edrConfig({ chainType: GENERIC_CHAIN_TYPE }),
           );
 
           assertValidationErrors(validationErrors, []);
@@ -1978,6 +2146,18 @@ describe("NetworkManagerImplementation", () => {
 
             assertValidationErrors(validationErrors, []);
           }
+
+          for (const hardfork of Object.values(OpHardforkName)) {
+            const validationErrors = await validateNetworkUserConfig({
+              ...edrConfig({ hardfork }),
+              /* eslint-disable-next-line @typescript-eslint/consistent-type-assertions 
+              -- Type assertion needed because changing defaultChainType requires module 
+              augmentation, which can't be done in test files */
+              defaultChainType: OPTIMISM_CHAIN_TYPE as any,
+            });
+
+            assertValidationErrors(validationErrors, []);
+          }
         });
 
         it("should not validate an invalid network config", async () => {
@@ -2004,7 +2184,25 @@ describe("NetworkManagerImplementation", () => {
             {
               path: ["networks", "hardhat", "hardfork"],
               message:
-                "Invalid hardfork name anything else for chainType op. Expected bedrock | regolith | canyon | ecotone | fjord | granite | holocene.",
+                "Invalid hardfork name anything else for chainType op. Expected bedrock | regolith | canyon | ecotone | fjord | granite | holocene | isthmus.",
+            },
+          ]);
+
+          validationErrors = await validateNetworkUserConfig({
+            ...edrConfig({
+              hardfork: L1HardforkName.PRAGUE,
+            }),
+            /* eslint-disable-next-line @typescript-eslint/consistent-type-assertions 
+            -- Type assertion needed because changing defaultChainType requires module 
+            augmentation, which can't be done in test files */
+            defaultChainType: OPTIMISM_CHAIN_TYPE as any,
+          });
+
+          assertValidationErrors(validationErrors, [
+            {
+              path: ["networks", "hardhat", "hardfork"],
+              message:
+                "Invalid hardfork name prague for chainType op. Expected bedrock | regolith | canyon | ecotone | fjord | granite | holocene | isthmus.",
             },
           ]);
         });
@@ -2023,18 +2221,26 @@ describe("NetworkManagerImplementation", () => {
           validationErrors = await validateNetworkUserConfig(
             edrConfig({ initialBaseFeePerGas: 123n }),
           );
+          assertValidationErrors(validationErrors, []);
 
+          validationErrors = await validateNetworkUserConfig(
+            edrConfig({ initialBaseFeePerGas: 123, hardfork: "berlin" }),
+          );
           assertValidationErrors(validationErrors, []);
         });
 
         it("should not validate an invalid network config", async () => {
           let validationErrors = await validateNetworkUserConfig(
-            edrConfig({ initialBaseFeePerGas: 123, hardfork: "berlin" }),
+            edrConfig({
+              chainType: L1_CHAIN_TYPE,
+              initialBaseFeePerGas: 123,
+              hardfork: "berlin",
+            }),
           );
 
           assertValidationErrors(validationErrors, [
             {
-              path: ["networks", "hardhat"],
+              path: ["networks", "hardhat", "initialBaseFeePerGas"],
               message:
                 "initialBaseFeePerGas is only valid for networks with EIP-1559. Try a newer hardfork or remove it.",
             },
@@ -2156,12 +2362,12 @@ describe("NetworkManagerImplementation", () => {
 
         it("should not validate an invalid network config", async () => {
           let validationErrors = await validateNetworkUserConfig(
-            edrConfig({ minGasPrice: 123 }),
+            edrConfig({ chainType: L1_CHAIN_TYPE, minGasPrice: 123 }),
           );
 
           assertValidationErrors(validationErrors, [
             {
-              path: ["networks", "hardhat"],
+              path: ["networks", "hardhat", "minGasPrice"],
               message:
                 "minGasPrice is not valid for networks with EIP-1559. Try an older hardfork or remove it.",
             },

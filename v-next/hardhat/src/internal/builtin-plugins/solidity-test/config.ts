@@ -1,6 +1,14 @@
 import type { HardhatUserConfig } from "../../../config.js";
-import type { HardhatConfig } from "../../../types/config.js";
+import type {
+  ConfigurationVariableResolver,
+  HardhatConfig,
+  ResolvedConfigurationVariable,
+} from "../../../types/config.js";
 import type { HardhatUserConfigValidationError } from "../../../types/hooks.js";
+import type {
+  SolidityTestForkingConfig,
+  SolidityTestUserConfig,
+} from "../../../types/test.js";
 
 import path from "node:path";
 
@@ -8,6 +16,8 @@ import { isObject } from "@nomicfoundation/hardhat-utils/lang";
 import { resolveFromRoot } from "@nomicfoundation/hardhat-utils/path";
 import {
   conditionalUnionType,
+  sensitiveStringSchema,
+  sensitiveUrlSchema,
   validateUserConfigZodType,
 } from "@nomicfoundation/hardhat-zod-utils";
 import { z } from "zod";
@@ -26,6 +36,7 @@ const solidityTestUserConfigType = z.object({
     .optional(),
   isolate: z.boolean().optional(),
   ffi: z.boolean().optional(),
+  allowInternalExpectRevert: z.boolean().optional(),
   from: z.string().startsWith("0x").optional(),
   txOrigin: z.string().startsWith("0x").optional(),
   initialBalance: z.bigint().optional(),
@@ -48,9 +59,9 @@ const solidityTestUserConfigType = z.object({
     .optional(),
   forking: z
     .object({
-      url: z.string().optional(),
+      url: z.optional(sensitiveUrlSchema),
       blockNumber: z.bigint().optional(),
-      rpcEndpoints: z.record(z.string()).optional(),
+      rpcEndpoints: z.record(sensitiveStringSchema).optional(),
     })
     .optional(),
   invariant: z
@@ -82,10 +93,36 @@ const userConfigType = z.object({
     .optional(),
   test: z
     .object({
-      solidityTest: solidityTestUserConfigType.optional(),
+      solidity: solidityTestUserConfigType.optional(),
     })
     .optional(),
 });
+
+export function resolveSolidityTestForkingConfig(
+  forkingUserConfig: SolidityTestUserConfig["forking"],
+  resolveConfigurationVariable: ConfigurationVariableResolver,
+): SolidityTestForkingConfig | undefined {
+  if (forkingUserConfig === undefined) {
+    return undefined;
+  }
+
+  const resolvedRpcEndpoints: Record<string, ResolvedConfigurationVariable> =
+    {};
+  if (forkingUserConfig.rpcEndpoints !== undefined) {
+    for (const [name, url] of Object.entries(forkingUserConfig.rpcEndpoints)) {
+      resolvedRpcEndpoints[name] = resolveConfigurationVariable(url);
+    }
+  }
+
+  return {
+    ...forkingUserConfig,
+    url:
+      forkingUserConfig.url !== undefined
+        ? resolveConfigurationVariable(forkingUserConfig.url)
+        : undefined,
+    rpcEndpoints: resolvedRpcEndpoints,
+  };
+}
 
 export function validateSolidityTestUserConfig(
   userConfig: unknown,
@@ -96,6 +133,7 @@ export function validateSolidityTestUserConfig(
 export async function resolveSolidityTestUserConfig(
   userConfig: HardhatUserConfig,
   resolvedConfig: HardhatConfig,
+  resolveConfigurationVariable: ConfigurationVariableResolver,
 ): Promise<HardhatConfig> {
   let testsPath = userConfig.paths?.tests;
 
@@ -105,9 +143,15 @@ export async function resolveSolidityTestUserConfig(
 
   const defaultRpcCachePath = path.join(resolvedConfig.paths.cache, "edr");
 
+  const resolvedForking = resolveSolidityTestForkingConfig(
+    userConfig.test?.solidity?.forking,
+    resolveConfigurationVariable,
+  );
+
   const solidityTest = {
     rpcCachePath: defaultRpcCachePath,
     ...userConfig.test?.solidity,
+    forking: resolvedForking,
   };
 
   return {

@@ -40,17 +40,19 @@ repositories:
             }
           }
         },
-        "solidityTest": {
-          "forking": {
-            "rpcEndpoints": {
-              "goerli": "${GOERLI_RPC_URL}",
-              "arbitrumgoerli": "${ARBITRUM_GOERLI_RPC_URL}",
-              "optimismgoerli": "${OPTIMISM_GOERLI_RPC_URL}",
-              "etherum": "${ETHERUM_RPC_URL}",
-              "arbitrum": "${ARBITRUM_RPC_URL}",
-              "optimism": "${OPTIMISM_RPC_URL}",
-              "scrollsepolia": "${SCROLL_SEPOLIA_RPC_URL}",
-              "basesepolia": "${BASE_SEPOLIA_RPC_URL}"
+        "test": {
+          "solidity": {
+            "forking": {
+              "rpcEndpoints": {
+                "goerli": "${GOERLI_RPC_URL}",
+                "arbitrumgoerli": "${ARBITRUM_GOERLI_RPC_URL}",
+                "optimismgoerli": "${OPTIMISM_GOERLI_RPC_URL}",
+                "etherum": "${ETHERUM_RPC_URL}",
+                "arbitrum": "${ARBITRUM_RPC_URL}",
+                "optimism": "${OPTIMISM_RPC_URL}",
+                "scrollsepolia": "${SCROLL_SEPOLIA_RPC_URL}",
+                "basesepolia": "${BASE_SEPOLIA_RPC_URL}"
+              }
             }
           }
         }
@@ -96,51 +98,15 @@ repositories:
             "evmVersion": "shanghai"
           }
         },
-        "solidityTest": {
-          "fuzz": {
-            "runs": 256
+        "test": {
+          "solidity": {
+            "allowInternalExpectRevert": true,
+            "fuzz": {
+              "runs": 256
+            }
           }
         }
       };
-    ignore: |
-      # reverted with custom error *
-      # reverted with panic code 0x12 (Division or modulo division by zero)
-      test/fuzz/casting/CastingUint128.t.sol
-      test/fuzz/casting/CastingUint256.t.sol
-      test/fuzz/sd1x18/casting/Casting.t.sol
-      test/fuzz/sd21x18/casting/Casting.t.sol
-      test/fuzz/sd59x18/casting/Casting.t.sol
-      test/fuzz/ud21x18/casting/Casting.t.sol
-      test/fuzz/ud2x18/casting/Casting.t.sol
-      test/fuzz/ud60x18/casting/Casting.t.sol
-      test/unit/sd59x18/conversion/convert-to/convertTo.t.sol
-      test/unit/sd59x18/math/abs/abs.t.sol
-      test/unit/sd59x18/math/ceil/ceil.t.sol
-      test/unit/sd59x18/math/div/div.t.sol
-      test/unit/sd59x18/math/exp/exp.t.sol
-      test/unit/sd59x18/math/exp2/exp2.t.sol
-      test/unit/sd59x18/math/floor/floor.t.sol
-      test/unit/sd59x18/math/gm/gm.t.sol
-      test/unit/sd59x18/math/inv/inv.t.sol
-      test/unit/sd59x18/math/ln/ln.t.sol
-      test/unit/sd59x18/math/log10/log10.t.sol
-      test/unit/sd59x18/math/log2/log2.t.sol
-      test/unit/sd59x18/math/mul/mul.t.sol
-      test/unit/sd59x18/math/powu/powu.t.sol
-      test/unit/sd59x18/math/sqrt/sqrt.t.sol
-      test/unit/ud60x18/conversion/convert-to/convertTo.t.sol
-      test/unit/ud60x18/math/ceil/ceil.t.sol
-      test/unit/ud60x18/math/div/div.t.sol
-      test/unit/ud60x18/math/exp/exp.t.sol
-      test/unit/ud60x18/math/exp2/exp2.t.sol
-      test/unit/ud60x18/math/gm/gm.t.sol
-      test/unit/ud60x18/math/inv/inv.t.sol
-      test/unit/ud60x18/math/ln/ln.t.sol
-      test/unit/ud60x18/math/log10/log10.t.sol
-      test/unit/ud60x18/math/log2/log2.t.sol
-      test/unit/ud60x18/math/mul/mul.t.sol
-      test/unit/ud60x18/math/powu/powu.t.sol
-      test/unit/ud60x18/math/sqrt/sqrt.t.sol
     ref: 93be53541f39a0c1e80818a9183b2acb3908ae74
   PaulRBerg/prb-proxy:
     commands:
@@ -175,28 +141,30 @@ repositories:
             }
           }
         },
-        "solidityTest": {
-          "fuzz": {
-            "runs": 1000,
-            "maxTestRejects": 1000000
-          },
-          "fsPermissions": {
-            "readDirectory": [
-              "./out-optimized"
-            ]
-          },
-          "forking": {
-            "rpcEndpoints": {
-              "arbitrum": "https://arbitrum-mainnet.infura.io/v3/${API_KEY_INFURA}",
-              "avalanche": "https://avalanche-mainnet.infura.io/v3/${API_KEY_INFURA}",
-              "bnb_smart_chain": "https://bsc-dataseed.binance.org",
-              "gnosis_chain": "https://rpc.gnosischain.com",
-              "goerli": "https://goerli.infura.io/v3/${API_KEY_INFURA}",
-              "localhost": "http://localhost:8545",
-              "mainnet": "https://eth-mainnet.g.alchemy.com/v2/${API_KEY_ALCHEMY}",
-              "optimism": "https://optimism-mainnet.infura.io/v3/${API_KEY_INFURA}",
-              "polygon": "https://polygon-mainnet.infura.io/v3/${API_KEY_INFURA}",
-              "sepolia": "https://sepolia.infura.io/v3/${API_KEY_INFURA}"
+        "test": {
+          "solidity": {
+            "fuzz": {
+              "runs": 1000,
+              "maxTestRejects": 1000000
+            },
+            "fsPermissions": {
+              "readDirectory": [
+                "./out-optimized"
+              ]
+            },
+            "forking": {
+              "rpcEndpoints": {
+                "arbitrum": "https://arbitrum-mainnet.infura.io/v3/${API_KEY_INFURA}",
+                "avalanche": "https://avalanche-mainnet.infura.io/v3/${API_KEY_INFURA}",
+                "bnb_smart_chain": "https://bsc-dataseed.binance.org",
+                "gnosis_chain": "https://rpc.gnosischain.com",
+                "goerli": "https://goerli.infura.io/v3/${API_KEY_INFURA}",
+                "localhost": "http://localhost:8545",
+                "mainnet": "https://eth-mainnet.g.alchemy.com/v2/${API_KEY_ALCHEMY}",
+                "optimism": "https://optimism-mainnet.infura.io/v3/${API_KEY_INFURA}",
+                "polygon": "https://polygon-mainnet.infura.io/v3/${API_KEY_INFURA}",
+                "sepolia": "https://sepolia.infura.io/v3/${API_KEY_INFURA}"
+              }
             }
           }
         }
@@ -226,10 +194,12 @@ repositories:
             "evmVersion": "shanghai"
           }
         },
-        "solidityTest": {
-          "fuzz": {
-            "runs": 100,
-            "maxTestRejects": 100000
+        "test": {
+          "solidity": {
+            "fuzz": {
+              "runs": 100,
+              "maxTestRejects": 100000
+            }
           }
         }
       };
@@ -270,21 +240,23 @@ repositories:
             }
           }
         },
-        "solidityTest": {
-          "fuzz": {
-            "runs": 1000
-          },
-          "fsPermissions": {
-            "readDirectory": [
-              "./optimized-out",
-              "./reference-out"
-            ],
-            "writeFile": [
-              "./call-metrics.txt",
-              "./mutation-metrics.txt",
-              "./assume-metrics.txt",
-              "./fuzz_debug.json"
-            ]
+        "test": {
+          "solidity": {
+            "fuzz": {
+              "runs": 1000
+            },
+            "fsPermissions": {
+              "readDirectory": [
+                "./optimized-out",
+                "./reference-out"
+              ],
+              "writeFile": [
+                "./call-metrics.txt",
+                "./mutation-metrics.txt",
+                "./assume-metrics.txt",
+                "./fuzz_debug.json"
+              ]
+            }
           }
         }
       };
@@ -399,12 +371,15 @@ repositories:
             }
           }
         },
-        "solidityTest": {
-          "ffi": true,
-          "fsPermissions": {
-            "dangerouslyReadWriteDirectory": [
-              ".forge-snapshots/"
-            ]
+        "test": {
+          "solidity": {
+            "allowInternalExpectRevert": true,
+            "ffi": true,
+            "fsPermissions": {
+              "dangerouslyReadWriteDirectory": [
+                ".forge-snapshots/"
+              ]
+            }
           }
         }
       };
@@ -434,14 +409,8 @@ repositories:
       test/reactors/ExclusiveDutchOrderReactor.t.sol
       test/reactors/DutchOrderReactor.t.sol
 
-      # reverted with panic code 0x11 (Arithmetic operation overflowed outside of an unchecked block)
-      # reverted with custom error
-      # call didn't revert at a lower depth than cheatcode call depth
       # gas price must be less than 2^128 - 1
-      test/lib/DutchDecayLib.t.sol
-      test/lib/MathExt.t.sol
       test/lib/PriorityFeeLib.t.sol
-      test/lib/Uint16Array.t.sol
     ref: 4013dfa4bc53b823b406b035a9b5eb579607eb99
   Vectorized/solady:
     commands:
@@ -471,19 +440,21 @@ repositories:
             "evmVersion": "cancun"
           }
         },
-        "solidityTest": {
-          "blockGasLimit": BigInt(100000000),
-          "fsPermissions": {
-            "readDirectory": [
-              "./test/data"
-            ]
-          },
-          "fuzz": {
-            "runs": 256
-          },
-          "invariant": {
-            "depth": 15,
-            "runs": 10
+        "test": {
+          "solidity": {
+            "blockGasLimit": BigInt(100000000),
+            "fsPermissions": {
+              "readDirectory": [
+                "./test/data"
+              ]
+            },
+            "fuzz": {
+              "runs": 256
+            },
+            "invariant": {
+              "depth": 15,
+              "runs": 10
+            }
           }
         }
       };
@@ -529,18 +500,20 @@ repositories:
             }
           }
         },
-        "solidityTest": {
-          "fsPermissions": {
-            "dangerouslyReadWriteDirectory": [
-              "./"
-            ]
-          },
-          "forking": {
-            "rpcEndpoints": {
-              "mainnet": "https://eth-mainnet.alchemyapi.io/v2/WV407BEiBmjNJfKo9Uo_55u0z0ITyCOX",
-              "optimism_sepolia": "https://sepolia.optimism.io/",
-              "arbitrum_one_sepolia": "https://sepolia-rollup.arbitrum.io/rpc/",
-              "needs_undefined_env_var": "${UNDEFINED_RPC_URL_PLACEHOLDER}"
+        "test": {
+          "solidity": {
+            "fsPermissions": {
+              "dangerouslyReadWriteDirectory": [
+                "./"
+              ]
+            },
+            "forking": {
+              "rpcEndpoints": {
+                "mainnet": "https://eth-mainnet.alchemyapi.io/v2/WV407BEiBmjNJfKo9Uo_55u0z0ITyCOX",
+                "optimism_sepolia": "https://sepolia.optimism.io/",
+                "arbitrum_one_sepolia": "https://sepolia-rollup.arbitrum.io/rpc/",
+                "needs_undefined_env_var": "${UNDEFINED_RPC_URL_PLACEHOLDER}"
+              }
             }
           }
         }
@@ -555,14 +528,6 @@ repositories:
       # test_RevertIf_ChainBubbleUp(): call did not revert as expected (this is caused by using an invalid mainnet rpc endpoint)
       # test_ChainRpcInitialization(): assertion failed: https://eth-mainnet.alchemyapi.io/v2/WV407BEiBmjNJfKo9Uo_55u0z0ITyCOX != https://eth.merkle.io
       test/StdChains.t.sol
-
-      # the path test/fixtures/test.* is not allowed to be accessed for read operations
-      # the path test/fixtures/test.* is not allowed to be accessed for write operations
-      test/StdToml.t.sol
-      test/StdJson.t.sol
-
-      # Unknown error
-      test/ReentrancyGuard.t.sol
     ref: 8ba9031ffcbe25aa0d1224d3ca263a995026e477
   kalidao/keep:
     commands:
@@ -592,12 +557,15 @@ repositories:
             }
           }
         },
+        "test": {
+          "solidity": {
+            "allowInternalExpectRevert": true,
+          }
+        }
       };
     ignore: |
-      # next call did not revert as expected
+      # Unsupported testFail: https://github.com/NomicFoundation/hardhat/issues/7253
       test/Kali.t.sol
-
-      # Unknown error
       test/ReentrancyGuard.t.sol
     ref: 21213d34042b8a5a68afeb590f43018f08c81a58
   mds1/multicall:
@@ -627,9 +595,11 @@ repositories:
             }
           }
         },
-        "solidityTest": {
-          "fuzz": {
-            "runs": 1000
+        "test": {
+          "solidity": {
+            "fuzz": {
+              "runs": 1000
+            }
           }
         }
       };
@@ -668,22 +638,25 @@ repositories:
             }
           }
         },
-        "solidityTest": {
-          "ffi": true,
-          "fsPermissions": {
-            "dangerouslyReadWriteDirectory": [
-              ".forge-snapshots/"
-            ],
-            "readDirectory": [
-              "./foundry-out",
-              "./script/config",
-              "./test/pool-cl/bin",
-              "./test/pool-bin/bin"
-            ]
-          },
-          "blockGasLimit": BigInt(300000000),
-          "fuzz": {
-            "runs": 5
+        "test": {
+          "solidity": {
+            "allowInternalExpectRevert": true,
+            "ffi": true,
+            "fsPermissions": {
+              "dangerouslyReadWriteDirectory": [
+                ".forge-snapshots/"
+              ],
+              "readDirectory": [
+                "./foundry-out",
+                "./script/config",
+                "./test/pool-cl/bin",
+                "./test/pool-bin/bin"
+              ]
+            },
+            "blockGasLimit": BigInt(300000000),
+            "fuzz": {
+              "runs": 5
+            }
           }
         }
       };
@@ -722,27 +695,7 @@ repositories:
       test/pool-cl/CLMintBurnFeeHook.t.sol
       test/pool-cl/libraries/TickBitmap.t.sol
 
-      # the path test/* is not allowed to be accessed for read operations
-      # reverted with custom error *
-      # call didn't revert at a lower depth than cheatcode call depth
-      # reverted with an unrecognized custom error
-      # reverted with panic code 0x12 (Division or modulo division by zero)
-      # reverted with panic code 0x11 (Arithmetic operation overflowed outside of an unchecked block)
-      test/pool-cl/CLPoolManagerBehaviorComparison.t.sol
-      test/libraries/BipsLibrary.t.sol
-      test/pool-cl/libraries/FullMath.t.sol
-      test/pool-bin/libraries/BinHelper.t.sol
-      test/libraries/LPFeeLibrary.t.sol
-      test/pool-bin/libraries/math/LiquidityConfigurations.t.sol
-      test/pool-bin/libraries/math/PackedUint128Math.t.sol
-      test/pool-cl/libraries/CLPool.t.sol
-      test/pool-bin/libraries/PriceHelper.t.sol
-      test/pool-bin/BinPoolManagerBehaviorComparison.t.sol
-      test/pool-bin/libraries/math/Uint256x256Math.t.sol
-      test/libraries/SafeCast.t.sol
-      test/libraries/SettlementGuard.t.sol
-      test/pool-bin/libraries/math/SafeCast.t.sol
-      test/libraries/BalanceDelta.t.sol
+      # Unsupported testFail: https://github.com/NomicFoundation/hardhat/issues/7253
       test/VaultToken.t.sol
     ref: 9a050c44cdf801fd19753409e6a03a8026a1fd09
   pcaversaccio/createx:
@@ -778,18 +731,20 @@ repositories:
             }
           }
         },
-        "solidityTest": {
-          "fuzz": {
-            "runs": 100
-          },
-          "fsPermissions": {
-            "dangerouslyReadWriteDirectory": [
-              "./"
-            ]
-          },
-          "invariant": {
-            "runs": 256,
-            "depth": 15
+        "test": {
+          "solidity": {
+            "fuzz": {
+              "runs": 100
+            },
+            "fsPermissions": {
+              "dangerouslyReadWriteDirectory": [
+                "./"
+              ]
+            },
+            "invariant": {
+              "runs": 256,
+              "depth": 15
+            }
           }
         }
       };
@@ -846,63 +801,66 @@ repositories:
             }
           }
         },
-        "solidityTest": {
-          "fsPermissions": {
-            "readDirectory": [
-              "./out-optimized"
-            ],
-            "readFile": [
-              "package.json"
-            ],
-            "dangerouslyReadWriteDirectory": [
-              "./benchmark/results",
-              "./script/"
-            ]
-          },
-          "blockGasLimit": BigInt(9223372036854775807),
-          "fuzz": {
-            "runs": 50,
-            "maxTestRejects": 1000000
-          },
-          "invariant": {
-            "runs": 20,
-            "depth": 20,
-            "failOnRevert": true,
-            "callOverride": false
-          },
-          "sender": "0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38",
-          "forking": {
-            "rpcEndpoints": {
-              "arbitrum": "${ARBITRUM_RPC_URL}",
-              "arbitrum_sepolia": "https://arbitrum-sepolia-rpc.publicnode.com",
-              "avalanche": "${AVALANCHE_RPC_URL}",
-              "base": "https://mainnet.base.org",
-              "base_sepolia": "https://sepolia.base.org",
-              "berachain_artio": "https://bartio.rpc.berachain.com/",
-              "blast": "https://rpc.blast.io",
-              "blast_sepolia": "https://sepolia.blast.io",
-              "bnb": "https://bsc-dataseed.binance.org",
-              "core_dao": "https://rpc.coredao.org",
-              "gnosis": "https://rpc.gnosischain.com",
-              "lightlink": "https://replicator.phoenix.lightlink.io/rpc/v1",
-              "linea": "https://rpc.linea.build",
-              "linea_sepolia": "https://rpc.sepolia.linea.build",
-              "localhost": "http://localhost:8545",
-              "mainnet": "${MAINNET_RPC_URL}",
-              "mode": "https://mainnet.mode.network/",
-              "mode_sepolia": "https://sepolia.mode.network/",
-              "morph": "https://rpc.morphl2.io",
-              "optimism": "${OPTIMISM_RPC_URL}",
-              "optimism_sepolia": "https://sepolia.optimism.io",
-              "polygon": "${POLYGON_RPC_URL}",
-              "scroll": "https://rpc.scroll.io/",
-              "sei": "https://evm-rpc.sei-apis.com",
-              "sei_testnet": "https://evm-rpc.arctic-1.seinetwork.io",
-              "sepolia": "${SEPOLIA_RPC_URL}",
-              "superseed": "https://mainnet.superseed.xyz",
-              "superseed_sepolia": "https://sepolia.superseed.xyz",
-              "taiko_hekla": "https://rpc.hekla.taiko.xyz",
-              "taiko_mainnet": "https://rpc.mainnet.taiko.xyz"
+        "test": {
+          "solidity": {
+            "timeout": 600000,
+            "fsPermissions": {
+              "readDirectory": [
+                "./out-optimized"
+              ],
+              "readFile": [
+                "package.json"
+              ],
+              "dangerouslyReadWriteDirectory": [
+                "./benchmark/results",
+                "./script/"
+              ]
+            },
+            "blockGasLimit": BigInt(9223372036854775807),
+            "fuzz": {
+              "runs": 50,
+              "maxTestRejects": 1000000
+            },
+            "invariant": {
+              "runs": 20,
+              "depth": 20,
+              "failOnRevert": true,
+              "callOverride": false
+            },
+            "sender": "0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38",
+            "forking": {
+              "rpcEndpoints": {
+                "arbitrum": "${ARBITRUM_RPC_URL}",
+                "arbitrum_sepolia": "https://arbitrum-sepolia-rpc.publicnode.com",
+                "avalanche": "${AVALANCHE_RPC_URL}",
+                "base": "https://mainnet.base.org",
+                "base_sepolia": "https://sepolia.base.org",
+                "berachain_artio": "https://bartio.rpc.berachain.com/",
+                "blast": "https://rpc.blast.io",
+                "blast_sepolia": "https://sepolia.blast.io",
+                "bnb": "https://bsc-dataseed.binance.org",
+                "core_dao": "https://rpc.coredao.org",
+                "gnosis": "https://rpc.gnosischain.com",
+                "lightlink": "https://replicator.phoenix.lightlink.io/rpc/v1",
+                "linea": "https://rpc.linea.build",
+                "linea_sepolia": "https://rpc.sepolia.linea.build",
+                "localhost": "http://localhost:8545",
+                "mainnet": "${MAINNET_RPC_URL}",
+                "mode": "https://mainnet.mode.network/",
+                "mode_sepolia": "https://sepolia.mode.network/",
+                "morph": "https://rpc.morphl2.io",
+                "optimism": "${OPTIMISM_RPC_URL}",
+                "optimism_sepolia": "https://sepolia.optimism.io",
+                "polygon": "${POLYGON_RPC_URL}",
+                "scroll": "https://rpc.scroll.io/",
+                "sei": "https://evm-rpc.sei-apis.com",
+                "sei_testnet": "https://evm-rpc.arctic-1.seinetwork.io",
+                "sepolia": "${SEPOLIA_RPC_URL}",
+                "superseed": "https://mainnet.superseed.xyz",
+                "superseed_sepolia": "https://sepolia.superseed.xyz",
+                "taiko_hekla": "https://rpc.hekla.taiko.xyz",
+                "taiko_mainnet": "https://rpc.mainnet.taiko.xyz"
+              }
             }
           }
         }
@@ -966,42 +924,44 @@ repositories:
             }
           }
         },
-        "solidityTest": {
-          "blockTimestamp": BigInt(1714518000),
-          "fsPermissions": {
-            "read": [
-              "./out-optimized"
-            ],
-            "readFile": [
-              "package.json"
-            ],
-            "dangerouslyReadWriteDirectory": [
-              "./benchmark/results",
-              "./cache"
-            ]
-          },
-          "blockGasLimit": BigInt(9223372036854775807),
-          "sender": "0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38",
-          "fuzz": {
-            "runs": 20,
-            "maxTestRejects": 1000000
-          },
-          "forking": {
-            "rpcEndpoints": {
-              "arbitrum": "${ARBITRUM_RPC_URL}",
-              "arbitrum_sepolia": "https://arbitrum-sepolia.blockpi.network/v1/rpc/public",
-              "avalanche": "${AVALANCHE_RPC_URL}",
-              "base": "https://mainnet.base.org",
-              "base_sepolia": "https://sepolia.base.org",
-              "bnb": "https://bsc-dataseed.binance.org",
-              "gnosis": "https://rpc.gnosischain.com",
-              "localhost": "http://localhost:8545",
-              "mainnet": "${MAINNET_RPC_URL}",
-              "optimism": "${OPTIMISM_RPC_URL}",
-              "optimism_sepolia": "https://sepolia.optimism.io",
-              "polygon": "${POLYGON_RPC_URL}",
-              "scroll": "https://rpc.scroll.io/",
-              "sepolia": "${SEPOLIA_RPC_URL}"
+        "test": {
+          "solidity": {
+            "blockTimestamp": BigInt(1714518000),
+            "fsPermissions": {
+              "read": [
+                "./out-optimized"
+              ],
+              "readFile": [
+                "package.json"
+              ],
+              "dangerouslyReadWriteDirectory": [
+                "./benchmark/results",
+                "./cache"
+              ]
+            },
+            "blockGasLimit": BigInt(9223372036854775807),
+            "sender": "0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38",
+            "fuzz": {
+              "runs": 20,
+              "maxTestRejects": 1000000
+            },
+            "forking": {
+              "rpcEndpoints": {
+                "arbitrum": "${ARBITRUM_RPC_URL}",
+                "arbitrum_sepolia": "https://arbitrum-sepolia.blockpi.network/v1/rpc/public",
+                "avalanche": "${AVALANCHE_RPC_URL}",
+                "base": "https://mainnet.base.org",
+                "base_sepolia": "https://sepolia.base.org",
+                "bnb": "https://bsc-dataseed.binance.org",
+                "gnosis": "https://rpc.gnosischain.com",
+                "localhost": "http://localhost:8545",
+                "mainnet": "${MAINNET_RPC_URL}",
+                "optimism": "${OPTIMISM_RPC_URL}",
+                "optimism_sepolia": "https://sepolia.optimism.io",
+                "polygon": "${POLYGON_RPC_URL}",
+                "scroll": "https://rpc.scroll.io/",
+                "sepolia": "${SEPOLIA_RPC_URL}"
+              }
             }
           }
         }
@@ -1041,15 +1001,15 @@ repositories:
               "bytecodeHash": "none"
             }
           }
+        },
+        "test": {
+          "solidity": {
+            "allowInternalExpectRevert": true,
+          }
         }
       };
     ignore: |
-      # revert: *
-      # EvmRevert
-      # Function returned an unexpected amount of data
-      # reverted with panic code 0x11 (Arithmetic operation overflowed outside of an unchecked block)
-      # Unknown error
-      # Function selector was not recognized and there's no fallback function
+      # Unsupported testFail: https://github.com/NomicFoundation/hardhat/issues/7253
       src/test/Auth.t.sol
       src/test/ERC6909.t.sol
       src/test/CREATE3.t.sol
@@ -1057,13 +1017,13 @@ repositories:
       src/test/ReentrancyGuard.t.sol
       src/test/SSTORE2.t.sol
       src/test/SafeCastLib.t.sol
+      src/test/ERC1155.t.sol
+      src/test/ERC721.t.sol
       src/test/SafeTransferLib.t.sol
       src/test/SignedWadMath.t.sol
-      src/test/ERC721.t.sol
-      src/test/ERC1155.t.sol
-      src/test/FixedPointMathLib.t.sol
       src/test/ERC20.t.sol
       src/test/ERC4626.t.sol
+      src/test/FixedPointMathLib.t.sol
     ref: c93f7716c9909175d45f6ef80a34a650e2d24e56
   OpenZeppelin/openzeppelin-contracts:
     commands:
@@ -1133,8 +1093,7 @@ presets:
       - PaulRBerg/prb-test
       - pcaversaccio/createx
       - ProjectOpenSea/seaport
-      # The tests never finishi - infinite loop (?)
-      # - sablier-labs/lockup
+      - sablier-labs/lockup
       - sablier-labs/v2-periphery
       - transmissions11/solmate
       - Uniswap/UniswapX
