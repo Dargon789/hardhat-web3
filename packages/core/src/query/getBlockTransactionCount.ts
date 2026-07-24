@@ -1,5 +1,3 @@
-import type { QueryOptions } from '@tanstack/query-core'
-
 import {
   type GetBlockTransactionCountErrorType,
   type GetBlockTransactionCountParameters,
@@ -17,31 +15,20 @@ export type GetBlockTransactionCountOptions<
 > = UnionCompute<
   ExactPartial<GetBlockTransactionCountParameters<config, chainId>> &
     ScopeKeyParameter
->
+  >
 
 export function getBlockTransactionCountQueryOptions<
   config extends Config,
   chainId extends config['chains'][number]['id'],
 >(
   config: config,
-  options: GetBlockTransactionCountOptions<config, chainId> = {},
-) {
   return {
-    async queryFn({ queryKey }) {
-      const { scopeKey: _, ...parameters } = queryKey[1]
       const blockTransactionCount = await getBlockTransactionCount(
         config,
-        parameters,
       )
       return blockTransactionCount ?? null
     },
     queryKey: getBlockTransactionCountQueryKey(options),
-  } as const satisfies QueryOptions<
-    GetBlockTransactionCountQueryFnData,
-    GetBlockTransactionCountErrorType,
-    GetBlockTransactionCountData,
-    GetBlockTransactionCountQueryKey<config, chainId>
-  >
 }
 
 export type GetBlockTransactionCountQueryFnData =
@@ -52,7 +39,6 @@ export type GetBlockTransactionCountData = GetBlockTransactionCountQueryFnData
 export function getBlockTransactionCountQueryKey<
   config extends Config,
   chainId extends config['chains'][number]['id'],
->(options: GetBlockTransactionCountOptions<config, chainId> = {}) {
   return ['blockTransactionCount', filterQueryOptions(options)] as const
 }
 

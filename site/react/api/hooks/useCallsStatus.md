@@ -15,7 +15,7 @@ const TError = 'GetCallsStatusErrorType'
 
 Hook to fetch the status and receipts of a call batch that was sent via [`useSendCalls`](/react/api/hooks/useSendCalls).
 
- 
+
 
 ## Import
 
@@ -139,5 +139,3 @@ import { type UseCallsStatusReturnType } from 'wagmi'
 <!--@include: @shared/query-imports.md-->
 
 ## Action
-
-- [`getCallsStatus`](https://viem.sh/experimental/eip5792/getCallsStatus)

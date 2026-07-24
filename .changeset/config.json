@@ -1,18 +1,12 @@
 {
-  "$schema": "https://unpkg.com/@changesets/config@2.3.1/schema.json",
+  "$schema": "https://unpkg.com/@changesets/config@1.6.0/schema.json",
+  "changelog": "@changesets/cli/changelog",
+  "commit": false,
+  "linked": [],
   "access": "public",
   "baseBranch": "main",
-  "changelog": ["@changesets/changelog-github", { "repo": "wevm/wagmi" }],
-  "commit": false,
-  "ignore": [
-    "*-register",
-    "@wagmi/test",
-    "site",
-    "next-app",
-    "nuxt-app",
-    "vite-*"
-  ],
-  "updateInternalDependencies": "patch",
+  "updateInternalDependencies": "minor",
+  "ignore": ["@nomiclabs/common"],
   "___experimentalUnsafeOptions_WILL_CHANGE_IN_PATCH": {
     "onlyUpdatePeerDependentsWhenOutOfRange": true
   }

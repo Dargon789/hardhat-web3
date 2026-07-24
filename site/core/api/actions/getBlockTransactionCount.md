@@ -89,4 +89,3 @@ import { type GetBlockTransactionCountErrorType } from '@wagmi/core'
 
 ## Viem
 
-- [`getBlockTransactionCount`](https://viem.sh/docs/actions/public/getBlockTransactionCount.html)

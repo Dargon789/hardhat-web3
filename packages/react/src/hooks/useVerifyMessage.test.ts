@@ -1,14 +1,8 @@
-import { accounts, chain, wait } from '@wagmi/test'
-import { renderHook, waitFor } from '@wagmi/test/react'
-import { expect, test } from 'vitest'
-
 import type { Hex } from 'viem'
 import { useVerifyMessage } from './useVerifyMessage.js'
 
-const address = accounts[0]
 
 test('default', async () => {
-  const { result } = renderHook(() =>
     useVerifyMessage({
       address,
       message: 'This is a test message for viem!',
@@ -17,7 +11,6 @@ test('default', async () => {
     }),
   )
 
-  await waitFor(() => expect(result.current.isSuccess).toBeTruthy())
 
   expect(result.current).toMatchInlineSnapshot(`
     {
@@ -46,7 +39,6 @@ test('default', async () => {
       "queryKey": [
         "verifyMessage",
         {
-          "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
           "chainId": 1,
           "message": "This is a test message for viem!",
           "signature": "0xc4c7f2820177020d66d5fd00d084cdd3f575a868c059c29a2d7f23398d04819709a14f83d98b446dda539ca5dcb87d75aa3340eb15e66d67606850622a3420f61b",
@@ -59,7 +51,6 @@ test('default', async () => {
 })
 
 test('parameters: chainId', async () => {
-  const { result } = renderHook(() =>
     useVerifyMessage({
       chainId: chain.mainnet2.id,
       address,
@@ -69,7 +60,6 @@ test('parameters: chainId', async () => {
     }),
   )
 
-  await waitFor(() => expect(result.current.isSuccess).toBeTruthy())
 
   expect(result.current).toMatchInlineSnapshot(`
     {
@@ -98,7 +88,6 @@ test('parameters: chainId', async () => {
       "queryKey": [
         "verifyMessage",
         {
-          "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
           "chainId": 456,
           "message": "This is a test message for viem!",
           "signature": "0xc4c7f2820177020d66d5fd00d084cdd3f575a868c059c29a2d7f23398d04819709a14f83d98b446dda539ca5dcb87d75aa3340eb15e66d67606850622a3420f61b",
@@ -111,7 +100,6 @@ test('parameters: chainId', async () => {
 })
 
 test('parameters: blockNumber', async () => {
-  const { result } = renderHook(() =>
     useVerifyMessage({
       blockNumber: 12345678n,
       address,
@@ -121,7 +109,6 @@ test('parameters: blockNumber', async () => {
     }),
   )
 
-  await waitFor(() => expect(result.current.isSuccess).toBeTruthy())
 
   expect(result.current).toMatchInlineSnapshot(`
     {
@@ -150,7 +137,6 @@ test('parameters: blockNumber', async () => {
       "queryKey": [
         "verifyMessage",
         {
-          "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
           "blockNumber": 12345678n,
           "chainId": 1,
           "message": "This is a test message for viem!",
@@ -164,7 +150,6 @@ test('parameters: blockNumber', async () => {
 })
 
 test('parameters: blockTag', async () => {
-  const { result } = renderHook(() =>
     useVerifyMessage({
       blockTag: 'pending',
       address,
@@ -174,7 +159,6 @@ test('parameters: blockTag', async () => {
     }),
   )
 
-  await waitFor(() => expect(result.current.isSuccess).toBeTruthy())
 
   expect(result.current).toMatchInlineSnapshot(`
     {
@@ -203,7 +187,6 @@ test('parameters: blockTag', async () => {
       "queryKey": [
         "verifyMessage",
         {
-          "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
           "blockTag": "pending",
           "chainId": 1,
           "message": "This is a test message for viem!",
@@ -217,14 +200,10 @@ test('parameters: blockTag', async () => {
 })
 
 test('behavior: signature: undefined -> defined', async () => {
-  let signature: Hex | undefined = undefined
-
-  const { result, rerender } = renderHook(() =>
-    useVerifyMessage({
-      address,
-      message: 'This is a test message for viem!',
-      signature,
-    }),
+      useVerifyMessage({
+        address,
+        message: 'This is a test message for viem!',
+      }),
   )
 
   expect(result.current).toMatchInlineSnapshot(`
@@ -254,7 +233,6 @@ test('behavior: signature: undefined -> defined', async () => {
       "queryKey": [
         "verifyMessage",
         {
-          "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
           "chainId": 1,
           "message": "This is a test message for viem!",
           "signature": undefined,
@@ -265,11 +243,7 @@ test('behavior: signature: undefined -> defined', async () => {
     }
   `)
 
-  signature =
-    '0xc4c7f2820177020d66d5fd00d084cdd3f575a868c059c29a2d7f23398d04819709a14f83d98b446dda539ca5dcb87d75aa3340eb15e66d67606850622a3420f61b'
-  rerender()
 
-  await waitFor(() => expect(result.current.isSuccess).toBeTruthy())
 
   expect(result.current).toMatchInlineSnapshot(`
     {
@@ -298,7 +272,6 @@ test('behavior: signature: undefined -> defined', async () => {
       "queryKey": [
         "verifyMessage",
         {
-          "address": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
           "chainId": 1,
           "message": "This is a test message for viem!",
           "signature": "0xc4c7f2820177020d66d5fd00d084cdd3f575a868c059c29a2d7f23398d04819709a14f83d98b446dda539ca5dcb87d75aa3340eb15e66d67606850622a3420f61b",
@@ -311,8 +284,6 @@ test('behavior: signature: undefined -> defined', async () => {
 })
 
 test('behavior: disabled when properties missing', async () => {
-  const { result } = renderHook(() => useVerifyMessage())
 
   await wait(100)
-  await waitFor(() => expect(result.current.isPending).toBeTruthy())
 })

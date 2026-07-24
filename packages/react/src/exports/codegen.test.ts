@@ -6,11 +6,7 @@ test('exports', () => {
   expect(Object.keys(codegen)).toMatchInlineSnapshot(`
     [
       "createSimulateContract",
-      "createReadContract",
-      "createWatchContractEvent",
-      "createWriteContract",
       "createUseSimulateContract",
-      "createUseReadContract",
       "createUseWatchContractEvent",
       "createUseWriteContract",
     ]

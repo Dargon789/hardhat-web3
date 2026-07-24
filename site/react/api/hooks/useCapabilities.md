@@ -134,5 +134,3 @@ import { type UseCapabilitiesReturnType } from 'wagmi'
 <!--@include: @shared/query-imports.md-->
 
 ## Action
-
-- [`getCapabilities`](https://viem.sh/experimental/eip5792/getCapabilities)

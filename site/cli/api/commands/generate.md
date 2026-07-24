@@ -5,7 +5,7 @@ Generates code based on configuration, using `contracts` and `plugins`.
 ## Usage
 
 ```bash
-wagmi generate 
+wagmi generate
 ```
 
 ## Options

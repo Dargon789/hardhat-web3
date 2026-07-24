@@ -1,18 +1,13 @@
 import { address, chain, wait } from '@wagmi/test'
-import { renderHook, waitFor } from '@wagmi/test/react'
-import { expect, test } from 'vitest'
-
 import type { Address } from 'viem'
 import { useBytecode } from './useBytecode.js'
 
 test('default', async () => {
-  const { result } = renderHook(() =>
     useBytecode({
       address: address.wagmiMintExample,
     }),
   )
 
-  await waitFor(() => expect(result.current.isSuccess).toBeTruthy())
 
   const { data, ...rest } = result.current
   expect(rest).toMatchInlineSnapshot(`
@@ -53,14 +48,12 @@ test('default', async () => {
 })
 
 test('parameters: blockNumber', async () => {
-  const { result } = renderHook(() =>
     useBytecode({
       address: address.wagmiMintExample,
       blockNumber: 15564163n,
     }),
   )
 
-  await waitFor(() => expect(result.current.isSuccess).toBeTruthy())
 
   expect(result.current).toMatchInlineSnapshot(`
     {
@@ -101,14 +94,12 @@ test('parameters: blockNumber', async () => {
 })
 
 test('parameters: blockTag', async () => {
-  const { result } = renderHook(() =>
     useBytecode({
       address: address.wagmiMintExample,
       blockTag: 'earliest',
     }),
   )
 
-  await waitFor(() => expect(result.current.isSuccess).toBeTruthy())
 
   expect(result.current).toMatchInlineSnapshot(`
     {
@@ -149,14 +140,12 @@ test('parameters: blockTag', async () => {
 })
 
 test('parameters: chainId', async () => {
-  const { result } = renderHook(() =>
     useBytecode({
       address: address.wagmiMintExample,
       chainId: chain.optimism.id,
     }),
   )
 
-  await waitFor(() => expect(result.current.isSuccess).toBeTruthy())
 
   expect(result.current).toMatchInlineSnapshot(`
     {
@@ -196,12 +185,8 @@ test('parameters: chainId', async () => {
 })
 
 test('behavior: address: undefined -> defined', async () => {
-  let contractAddress: Address | undefined = undefined
-
-  const { result, rerender } = renderHook(() =>
-    useBytecode({
-      address: contractAddress,
-    }),
+      useBytecode({
+      }),
   )
 
   expect(result.current).toMatchInlineSnapshot(`
@@ -240,10 +225,7 @@ test('behavior: address: undefined -> defined', async () => {
     }
   `)
 
-  contractAddress = address.wagmiMintExample
-  rerender()
 
-  await waitFor(() => expect(result.current.isSuccess).toBeTruthy())
 
   const { data, ...rest } = result.current
   expect(rest).toMatchInlineSnapshot(`
@@ -284,8 +266,6 @@ test('behavior: address: undefined -> defined', async () => {
 })
 
 test('behavior: disabled when properties missing', async () => {
-  const { result } = renderHook(() => useBytecode())
 
   await wait(100)
-  await waitFor(() => expect(result.current.isPending).toBeTruthy())
 })

@@ -1,5 +1,3 @@
-import type { QueryOptions } from '@tanstack/query-core'
-
 import {
   type GetGasPriceErrorType,
   type GetGasPriceParameters,
@@ -16,25 +14,16 @@ export type GetGasPriceOptions<
   chainId extends config['chains'][number]['id'],
 > = Compute<
   ExactPartial<GetGasPriceParameters<config, chainId>> & ScopeKeyParameter
->
+  >
 
 export function getGasPriceQueryOptions<
   config extends Config,
   chainId extends config['chains'][number]['id'],
->(config: config, options: GetGasPriceOptions<config, chainId> = {}) {
   return {
-    async queryFn({ queryKey }) {
-      const { scopeKey: _, ...parameters } = queryKey[1]
       const gasPrice = await getGasPrice(config, parameters)
       return gasPrice ?? null
     },
     queryKey: getGasPriceQueryKey(options),
-  } as const satisfies QueryOptions<
-    GetGasPriceQueryFnData,
-    GetGasPriceErrorType,
-    GetGasPriceData,
-    GetGasPriceQueryKey<config, chainId>
-  >
 }
 
 export type GetGasPriceQueryFnData = GetGasPriceReturnType
@@ -44,7 +33,6 @@ export type GetGasPriceData = GetGasPriceQueryFnData
 export function getGasPriceQueryKey<
   config extends Config,
   chainId extends config['chains'][number]['id'],
->(options: GetGasPriceOptions<config, chainId> = {}) {
   return ['gasPrice', filterQueryOptions(options)] as const
 }
 
