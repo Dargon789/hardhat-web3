@@ -15,11 +15,6 @@ Join our [Hardhat Support Discord server](https://hardhat.org/discord) to stay u
 > 💡 **The Nomic Foundation is hiring! Check [our open positions](https://www.nomic.foundation/jobs?utm_source=myALpQnzlM).**
 
 ---
-# EDR - Ethereum Development Runtime
-
-**EDR**, or **Ethereum Development Runtime** in full, is a library for creating developer tooling on top of the Ethereum Virtual Machine (EVM), such as an EVM debugger or state inspector. EDR provides a performant API, written in Rust, with bindings for the Node API (TypeScript).
-
-EDR finds its origins in Hardhat but will be a complete rewrite of our Hardhat Network TypeScript code to Rust, incorporating all of the lessons we have learned over the years, and much more to come.
 
 ## Documentation
 
@@ -29,17 +24,33 @@ On [Hardhat's website](https://hardhat.org) you will find:
 - [Hardhat Network](https://hardhat.org/hardhat-network/)
 - [Plugin list](https://hardhat.org/plugins/)
 
-## Contributing
+# EDR - Ethereum Development Runtime
 
-Contributions are always welcome! Feel free to open an issue or send a pull request.
+**EDR**, or **Ethereum Development Runtime** in full, is a library for creating developer tooling on top of the Ethereum Virtual Machine (EVM), such as an EVM debugger or state inspector.
 
-Go to [CONTRIBUTING.md](./CONTRIBUTING.md) to learn about how to set up Hardhat's development environment.
+EDR finds its origins in Hardhat Network but incorporates the lessons we have learned over the years to provide high-performance building blocks for EVM tooling. EDR is written in Rust and provides bindings for the Node API (TypeScript), making it accessible to JavaScript and TypeScript developers.
 
-## Feedback, help and news
+## Features
 
-[Hardhat Support Discord server](https://hardhat.org/discord): for questions and feedback.
+- **High-performance EVM execution** thanks to [REVM](https://github.com/bluealloy/revm/)
+- **Multi-chain protocol support** with built-in providers for Ethereum L1 and OP Stack chains, and an extensible chain type system for custom chains.
+- **Full Ethereum JSON-RPC provider** implementation with support for forking remote JSON-RPC endpoints, locally simulated chains, and configurable mining modes (auto-mine, interval, and mempool ordering).
+- **`console.log` support** for Solidity with source-mapped logging and argument decoding.
+- **Solidity stack traces** with source-mapped error reporting for reverts, panics, custom errors, and out-of-gas conditions.
+- **Hierarchical call traces** with decoded function names, arguments, and event logs.
+- **Step-level debug traces** with program counter, opcode, gas, stack, memory, and storage information.
+- **Solidity test runner** with unit, fuzz (property-based), and invariant test execution, including Foundry-compatible cheatcodes, fork-mode testing against live networks, and counterexample shrinking.
+- **Source-level code coverage** via Solidity instrumentation.
+- **Per-function and per-deployment gas reports** with proxy delegation chain tracking.
 
-[Follow Hardhat on Twitter.](https://twitter.com/HardhatHQ)
+## Spec Compliance
+
+For a list of EIPs and chain specifications that EDR does not fully support, including workarounds, see [spec-compliance/](spec-compliance/README.md).
+
+## Production Usage
+
+- [Hardhat 3](https://hardhat.org/)
+- [Hardhat 2](https://hardhat.org/hardhat2)
 
 ## Happy building!
 
